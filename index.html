@@ -15,6 +15,8 @@
     .gold-btn { background: linear-gradient(135deg, #f59e0b, #d97706); }
     .green-btn { background: linear-gradient(135deg, #10b981, #059669); }
     .blue-btn { background: linear-gradient(135deg, #4f46e5, #3730a3); }
+    .coral-btn { background: linear-gradient(135deg, #f43f5e, #e11d48); }
+    .cyan-btn { background: linear-gradient(135deg, #06b6d4, #0891b2); }
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
@@ -22,10 +24,12 @@
 <body class="p-3 pb-24 text-slate-200">
 
   <!-- ==================== টপ হেডার বার ==================== -->
-  <header class="flex items-center justify-between py-2 mb-4">
+  <header class="flex items-center justify-between py-2 mb-3">
     <div class="flex items-center space-x-2.5">
-      <div class="w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-black text-sm shadow">
-        <i class="fa-solid fa-code text-base"></i>
+      <!-- ডাইনামিক প্রোফাইল / বটের লোগো (অ্যাডমিন সেটিংস থেকে আসে) -->
+      <div id="header-logo-box" class="w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-black text-sm shadow overflow-hidden">
+        <i id="header-default-icon" class="fa-solid fa-code text-base"></i>
+        <img id="header-logo-img" class="hidden w-full h-full object-cover" alt="Store Logo">
       </div>
       <div>
         <h1 class="text-xs font-black tracking-wider text-white uppercase">
@@ -48,6 +52,36 @@
       </div>
     </div>
   </header>
+
+  <!-- ==================== কালারফুল কুইক অ্যাকশন বাটন সেকশন (অ্যাডমিন থেকে কন্ট্রোল) ==================== -->
+  <div id="dynamic-action-buttons" class="space-y-2 mb-4">
+    <!-- বাটন ১: মেইন হাইলাইট বাটন -->
+    <a id="btn-action-1" href="https://t.me" target="_blank" class="w-full py-2.5 px-4 rounded-2xl text-xs font-extrabold text-white coral-btn shadow-lg shadow-rose-600/20 flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <i class="fa-solid fa-id-card text-sm"></i>
+        <span id="btn-text-1">JOIN DEVELOPER ZONE</span>
+      </div>
+      <i class="fa-regular fa-square-check text-xs opacity-75"></i>
+    </a>
+
+    <!-- বাটন ২ ও ৩: গ্রিড বাটন -->
+    <div class="grid grid-cols-2 gap-2">
+      <a id="btn-action-2" href="https://t.me" target="_blank" class="py-2.5 px-3 rounded-2xl text-xs font-extrabold text-white cyan-btn shadow-lg shadow-cyan-600/20 flex items-center justify-center space-x-1.5">
+        <i class="fa-solid fa-user"></i>
+        <span id="btn-text-2">MY PROFILE</span>
+      </a>
+      <a id="btn-action-3" href="https://t.me" target="_blank" class="py-2.5 px-3 rounded-2xl text-xs font-extrabold text-white green-btn shadow-lg shadow-emerald-600/20 flex items-center justify-center space-x-1.5">
+        <i class="fa-solid fa-crown text-amber-300"></i>
+        <span id="btn-text-3">PREMIUM MOD APK</span>
+      </a>
+    </div>
+
+    <!-- বাটন ৪: সাপোর্ট বাটন -->
+    <a id="btn-action-4" href="https://t.me" target="_blank" class="w-full py-2.5 px-4 rounded-2xl text-xs font-extrabold text-white coral-btn shadow-lg shadow-rose-600/20 flex items-center justify-center space-x-2">
+      <i class="fa-brands fa-telegram text-base"></i>
+      <span id="btn-text-4">SUPPORT</span>
+    </a>
+  </div>
 
   <!-- ==================== ১. মূল স্টোর ভিউ (HOME / FEED) ==================== -->
   <div id="view-store">
@@ -165,7 +199,7 @@
         <div>
           <span class="text-[9px] bg-amber-500/20 text-amber-400 font-bold px-1.5 py-0.5 rounded">PAID CODE</span>
           <h4 id="ins-title" class="text-xs font-bold text-white mt-0.5">Product Title</h4>
-          <p id="ins-price" class="text-[11px] text-amber-400 font-extrabold">মূল্য: ৳125 ($1)</p>
+          <p id="ins-price" class="text-[11px] text-amber-400 font-extrabold">मूल্য: ৳125 ($1)</p>
         </div>
       </div>
 
@@ -290,6 +324,10 @@
   </div>
 
   <script>
+    // লাইভ ক্লাউড ডাটাবেজ API কনফিগ (Firebase Realtime Database REST API)
+    // এটি রিয়েল টাইমে সকল ইউজারের জন্য ডাটা সিঙ্ক রাখবে।
+    let CLOUD_DB_URL = localStorage.getItem("store_cloud_db_url") || "https://python-coding-store-default-rtdb.firebaseio.com";
+
     let tg = window.Telegram?.WebApp;
     if (tg) { tg.expand(); tg.ready(); }
 
@@ -303,48 +341,128 @@
     let activeFilter = 'all';
     let selectedGatewayType = 'bkash';
     let depositAmount = 125;
+    let storeSettings = { bkash: "01828554448", nagad: "01828554448", dollarRate: 125 };
 
-    const defaultProducts = [
-      {
-        id: "p1",
-        title: "MINO SMS NUMBER BOT",
-        price: 125,
-        dollarPrice: 1,
-        isFree: false,
-        likes: 2,
-        comments: 0,
-        sold: 6,
-        logo: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120&auto=format&fit=crop&q=80",
-        description: `MINO SMS NUMBER BOT . সমস্ত সিস্টেম অটোমেটিক বট এড করে নিবে আপনাকে শুধু এই প্যানেল এর Api key এড করে দিতে হবে। আর সব বট অটো করে নিবে।`,
-        screenshots: ["https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80"]
-      },
-      {
-        id: "p2",
-        title: "ALL PANEL NUMBER BOT (TG & WS)",
-        price: 600,
-        dollarPrice: 4.8,
-        isFree: false,
-        likes: 102,
-        comments: 1,
-        sold: 3,
-        logo: "https://images.unsplash.com/photo-1563089145-599997674d42?w=120&auto=format&fit=crop&q=80",
-        description: `CREATE PREMIUM TELEGRAM NUMBER AND OTP BOT ALL PANEL SUPPORT BOT.`,
-        screenshots: ["https://images.unsplash.com/photo-1563089145-599997674d42?w=400&auto=format&fit=crop&q=80"]
+    let currentProducts = [];
+
+    // পেজ লোড হলে লাইভ ডাটাবেজ থেকে ডাটা এবং সেটিংস লোড হবে
+    window.addEventListener("DOMContentLoaded", async () => {
+      loadCachedSettings();
+      await fetchLiveSettings();
+      await fetchLiveProducts();
+      loadUserBalance();
+    });
+
+    // ১. লোকাল ক্যাশ থেকে দ্রুত সেটিংস ও লোগো প্রদর্শন
+    function loadCachedSettings() {
+      const savedLogo = localStorage.getItem("store_app_logo");
+      if (savedLogo) applyStoreLogo(savedLogo);
+
+      const localSets = JSON.parse(localStorage.getItem("store_settings"));
+      if (localSets) applySettingsUI(localSets);
+    }
+
+    // ২. ক্লাউড থেকে লাইভ সেটিংস, লোগো ও বাটন লোড করা
+    async function fetchLiveSettings() {
+      try {
+        const res = await fetch(`${CLOUD_DB_URL}/settings.json`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data) {
+            localStorage.setItem("store_settings", JSON.stringify(data));
+            if (data.logo) {
+              localStorage.setItem("store_app_logo", data.logo);
+              applyStoreLogo(data.logo);
+            }
+            applySettingsUI(data);
+          }
+        }
+      } catch (e) {
+        console.log("Using cached settings due to network/endpoint status");
       }
-    ];
+    }
 
-    let currentProducts = [...defaultProducts];
+    function applyStoreLogo(url) {
+      const hImg = document.getElementById("header-logo-img");
+      const hIcon = document.getElementById("header-default-icon");
+      if (hImg && hIcon && url) {
+        hImg.src = url;
+        hImg.classList.remove("hidden");
+        hIcon.classList.add("hidden");
+      }
+    }
+
+    function applySettingsUI(sets) {
+      if (sets.dollarRate) dollarRate = parseFloat(sets.dollarRate) || 125;
+      if (sets.bkash) storeSettings.bkash = sets.bkash;
+      if (sets.nagad) storeSettings.nagad = sets.nagad;
+
+      // কালারফুল অ্যাকশন বাটন টেক্সট ও লিংক ডায়নামিক আপডেট
+      if (sets.btn1_text) document.getElementById("btn-text-1").innerText = sets.btn1_text;
+      if (sets.btn1_link) document.getElementById("btn-action-1").href = sets.btn1_link;
+
+      if (sets.btn2_text) document.getElementById("btn-text-2").innerText = sets.btn2_text;
+      if (sets.btn2_link) document.getElementById("btn-action-2").href = sets.btn2_link;
+
+      if (sets.btn3_text) document.getElementById("btn-text-3").innerText = sets.btn3_text;
+      if (sets.btn3_link) document.getElementById("btn-action-3").href = sets.btn3_link;
+
+      if (sets.btn4_text) document.getElementById("btn-text-4").innerText = sets.btn4_text;
+      if (sets.btn4_link) document.getElementById("btn-action-4").href = sets.btn4_link;
+    }
+
+    // ৩. ক্লাউড ডাটাবেজ থেকে লাইভ প্রোডাক্ট লোড (ডিলিট বা অফ থাকলে ইউজারের কাছে আসবে না)
+    async function fetchLiveProducts() {
+      let prods = [];
+      try {
+        const res = await fetch(`${CLOUD_DB_URL}/products.json`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data) {
+            // যদি অবজেক্ট আকারে আসে তবে অ্যারেতে রূপান্তর
+            prods = Array.isArray(data) ? data.filter(Boolean) : Object.values(data);
+          }
+        }
+      } catch (err) {
+        console.log("Cloud DB fetch error, falling back to local sync");
+        prods = JSON.parse(localStorage.getItem("store_products")) || [];
+      }
+
+      // অ্যাডমিন প্যানেল থেকে কোনো ফাইল 'inactive' বা বন্ধ রাখলে তা ইউজারদের শো করবে না
+      currentProducts = prods.filter(p => p && p.status !== 'inactive');
+      
+      // লোকাল ক্যাশ আপডেট
+      localStorage.setItem("store_products", JSON.stringify(prods));
+
+      renderProducts(currentProducts);
+    }
+
+    function loadUserBalance() {
+      const userWallets = JSON.parse(localStorage.getItem("user_wallets")) || {};
+      userBalance = userWallets[user.id] || 0;
+      updateBalanceUI();
+    }
 
     function renderProducts(list) {
       const container = document.getElementById("product-list");
       container.innerHTML = "";
+
+      if (!list || list.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12">
+            <i class="fa-solid fa-box-open text-3xl text-slate-600 mb-2"></i>
+            <p class="text-xs text-slate-500">বর্তমানে কোনো ফাইল পাওয়া যায়নি!</p>
+          </div>
+        `;
+        return;
+      }
 
       list.forEach(p => {
         const card = document.createElement("div");
         card.className = "card-dark p-3.5 rounded-2xl relative shadow-lg";
         card.innerHTML = `
           <div class="flex items-start space-x-3 mb-2.5">
-            <img src="${p.logo}" class="w-12 h-12 rounded-xl object-cover border border-slate-700">
+            <img src="${p.logo || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120'}" class="w-12 h-12 rounded-xl object-cover border border-slate-700">
             <div class="flex-1 min-w-0">
               <div class="flex items-center justify-between">
                 <h3 class="text-xs font-black text-white truncate">${p.title}</h3>
@@ -353,13 +471,13 @@
                 </span>
               </div>
               <div class="flex items-center space-x-2 mt-1 text-[10px]">
-                <span class="bg-[#08101c] border border-cyan-500/30 text-cyan-400 px-2 py-0.5 rounded-md font-bold">👍 ${p.likes} LIKES</span>
-                <span class="bg-[#08101c] border border-slate-800 text-slate-400 px-2 py-0.5 rounded-md">💬 ${p.comments} COMMENTS (OFF)</span>
-                <span class="bg-[#08101c] border border-amber-500/30 text-amber-400 px-2 py-0.5 rounded-md font-bold">🛒 ${p.sold} SELL</span>
+                <span class="bg-[#08101c] border border-cyan-500/30 text-cyan-400 px-2 py-0.5 rounded-md font-bold">👍 ${p.likes || 1} LIKES</span>
+                <span class="bg-[#08101c] border border-slate-800 text-slate-400 px-2 py-0.5 rounded-md">💬 ${p.comments || 0} COMMENTS</span>
+                <span class="bg-[#08101c] border border-amber-500/30 text-amber-400 px-2 py-0.5 rounded-md font-bold">🛒 ${p.sold || 0} SELL</span>
               </div>
             </div>
           </div>
-          <div class="card-inner p-2.5 rounded-xl text-[11px] text-slate-400 line-clamp-2 mb-3">${p.description}</div>
+          <div class="card-inner p-2.5 rounded-xl text-[11px] text-slate-400 line-clamp-2 mb-3">${p.description || ''}</div>
           <div class="grid grid-cols-2 gap-2">
             <button onclick="openProductDetails('${p.id}')" class="py-2 rounded-xl text-xs font-bold bg-[#0f1b2d] border border-slate-700 text-slate-300">Details & View</button>
             <button onclick="handleBuyClick('${p.id}')" class="py-2 rounded-xl text-xs font-extrabold gold-btn text-white">Buy ৳${p.price} ($${p.dollarPrice})</button>
@@ -375,13 +493,14 @@
       document.getElementById("detail-img").src = selectedProduct.logo;
       document.getElementById("detail-title").innerText = selectedProduct.title;
       document.getElementById("detail-desc").innerText = selectedProduct.description;
-      document.getElementById("detail-sold").innerText = `${selectedProduct.sold}+`;
+      document.getElementById("detail-sold").innerText = `${selectedProduct.sold || 0}+`;
       document.getElementById("detail-cat-badge").innerText = selectedProduct.isFree ? 'FREE' : 'PAID';
       document.getElementById("detail-buy-text").innerText = `Buy code • ৳${selectedProduct.price} ($${selectedProduct.dollarPrice})`;
 
       const scBox = document.getElementById("detail-screenshots");
       scBox.innerHTML = "";
-      selectedProduct.screenshots.forEach(sc => {
+      const screenshots = selectedProduct.screenshots && selectedProduct.screenshots.length > 0 ? selectedProduct.screenshots : [selectedProduct.logo];
+      screenshots.forEach(sc => {
         scBox.innerHTML += `<img src="${sc}" class="w-32 h-56 rounded-xl object-cover border border-slate-200 shadow-md shrink-0">`;
       });
 
@@ -412,8 +531,19 @@
       } else {
         if (confirm(`৳${prod.price} দিয়ে এই সোর্স কোডটি কিনতে চান?`)) {
           userBalance -= prod.price;
+          
+          // ইউজার ব্যালেন্স সেভ
+          const userWallets = JSON.parse(localStorage.getItem("user_wallets")) || {};
+          userWallets[user.id] = userBalance;
+          localStorage.setItem("user_wallets", JSON.stringify(userWallets));
+
           updateBalanceUI();
-          alert("🎉 ক্রয় সফল হয়েছে! ফাইল ডাউনলোড লিংক আপনাকে টেলিগ্রাম বটে পাঠানো হয়েছে।");
+
+          // টেলিগ্রাম বটের মাধ্যমে ফাইল লিংক পাঠানো বা সরাসরি ডাউনলোড অপশন
+          if (prod.file_url && prod.file_url !== '#') {
+            window.open(prod.file_url, '_blank');
+          }
+          alert("🎉 ক্রয় সফল হয়েছে! ফাইল ডাউনলোড লিংক প্রদান করা হয়েছে।");
         }
       }
     }
@@ -443,17 +573,43 @@
       if (type === 'bkash' || type === 'nagad') {
         manualBox.classList.remove("hidden");
         document.getElementById("manual-label").innerText = `${type.toUpperCase()} Send Money করুন এই নাম্বারে:`;
-        document.getElementById("manual-num").innerText = "01828554448";
+        document.getElementById("manual-num").innerText = storeSettings[type] || "01828554448";
       } else {
         manualBox.classList.add("hidden");
       }
     }
 
-    function handlePaymentContinue() {
+    async function handlePaymentContinue() {
       if (selectedGatewayType === 'bkash' || selectedGatewayType === 'nagad') {
         const trx = document.getElementById("manual-trx-input").value.trim();
         if (!trx) return alert("দয়া করে TrxID দিন!");
-        alert("✅ ডিপোজিট রিকোয়েস্ট পাঠানো হয়েছে! অ্যাডমিন যাচাই করে ব্যালেন্স যুক্ত করবেন।");
+        
+        const depReq = {
+          id: "dep_" + Date.now(),
+          userId: String(user.id),
+          userName: user.first_name || "User",
+          method: selectedGatewayType.toUpperCase(),
+          amount: depositAmount,
+          trx: trx,
+          timestamp: new Date().toLocaleString()
+        };
+
+        // লাইভ ক্লাউডে এবং লোকালে সেভ
+        try {
+          await fetch(`${CLOUD_DB_URL}/deposits/${depReq.id}.json`, {
+            method: 'PUT',
+            body: JSON.stringify(depReq)
+          });
+        } catch (e) {
+          console.log("Saved offline deposit");
+        }
+
+        let localDeps = JSON.parse(localStorage.getItem("deposit_requests")) || [];
+        localDeps.unshift(depReq);
+        localStorage.setItem("deposit_requests", JSON.stringify(localDeps));
+
+        alert("✅ ডিপোজিট রিকোয়েস্ট সফলভাবে পাঠানো হয়েছে! অ্যাডমিন যাচাই করে ব্যালেন্স যুক্ত করবেন।");
+        document.getElementById("manual-trx-input").value = "";
         closeModal("modal-deposit");
       } else {
         alert("বাইনান্স অটোমেটিক পেমেন্ট পেজে রিডাইরেক্ট করা হচ্ছে...");
@@ -478,11 +634,9 @@
 
     function handleSearch() {
       const q = document.getElementById("search-input").value.toLowerCase();
-      const filtered = currentProducts.filter(x => x.title.toLowerCase().includes(q) || x.description.toLowerCase().includes(q));
+      const filtered = currentProducts.filter(x => x.title.toLowerCase().includes(q) || (x.description && x.description.toLowerCase().includes(q)));
       renderProducts(filtered);
     }
-
-    renderProducts(currentProducts);
   </script>
 </body>
-</html>
+    </html>
