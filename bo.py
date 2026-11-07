@@ -3,7 +3,7 @@ from telebot import types
 import requests
 
 # আপনার আসল বট টোকেন এখানে দিন
-BOT_TOKEN = "এখানে_আপনার_বট_টোকেন_দিন"
+BOT_TOKEN = "9221828836:AAELkLm6npCwHGHT0jOIaZ3Nh7K1ij0Sy4s"
 bot = telebot.TeleBot(BOT_TOKEN)
 
 FIREBASE_DB = "https://python-store-5571e-default-rtdb.firebaseio.com/"
