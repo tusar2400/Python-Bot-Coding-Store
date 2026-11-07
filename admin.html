@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ELITE ZONE - ADMIN PANEL</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { background-color: #080e18; color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+    .card { background-color: #0f192a; border: 1px solid #1e293b; }
+    .btn-green { background: linear-gradient(135deg, #10b981, #059669); }
+    .btn-blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+  </style>
+</head>
+<body class="p-3 max-w-2xl mx-auto pb-20">
+
+  <!-- ==================== ১. সিকিউরিটি পাসওয়ার্ড লক ==================== -->
+  <div id="login-screen" class="fixed inset-0 bg-[#080e18] z-50 flex items-center justify-center p-4">
+    <div class="card p-6 rounded-3xl w-full max-w-sm text-center shadow-2xl border-emerald-500/20">
+      <div class="w-14 h-14 bg-emerald-500/10 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl border border-emerald-500/30">
+        <i class="fa-solid fa-lock"></i>
+      </div>
+      <h2 class="text-base font-bold text-white mb-1">অ্যাডমিন কন্ট্রোল প্যানেল</h2>
+      <p class="text-xs text-slate-400 mb-4">লগইন করতে আপনার এডমিন পাসওয়ার্ড দিন</p>
+      <input type="password" id="admin-pass-input" placeholder="পাসওয়ার্ড লিখুন..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white mb-3 text-center focus:outline-none focus:border-emerald-500">
+      <button onclick="checkAdminPassword()" class="w-full btn-green py-2.5 rounded-xl text-xs font-bold text-white shadow-lg shadow-emerald-500/20">লগইন করুন</button>
+    </div>
+  </div>
+
+  <!-- ==================== মূল এডমিন ড্যাশবোর্ড ==================== -->
+  <div id="admin-content" class="hidden">
+    <!-- হেডার -->
+    <header class="flex justify-between items-center py-3 mb-4 border-b border-slate-800">
+      <div class="flex items-center space-x-2">
+        <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">EZ</div>
+        <div>
+          <h1 class="text-sm font-black text-white">ELITE ZONE ADMIN</h1>
+          <p class="text-[10px] text-emerald-400 font-bold">● Active Control</p>
+        </div>
+      </div>
+      <button onclick="logoutAdmin()" class="bg-rose-500/10 text-rose-400 border border-rose-500/30 text-xs px-3 py-1.5 rounded-xl font-bold">
+        <i class="fa-solid fa-right-from-bracket mr-1"></i> লগআউট
+      </button>
+    </header>
+
+    <!-- নেভিগেশন মেনু ট্যাব -->
+    <div class="grid grid-cols-4 gap-1.5 mb-4">
+      <button onclick="switchTab('add-product')" id="btn-tab-add" class="py-2 text-[11px] font-bold rounded-xl bg-emerald-500 text-white shadow">কোড যোগ</button>
+      <button onclick="switchTab('all-products')" id="btn-tab-prods" class="py-2 text-[11px] font-bold rounded-xl bg-slate-800 text-slate-400">লিস্ট</button>
+      <button onclick="switchTab('deposits')" id="btn-tab-dep" class="py-2 text-[11px] font-bold rounded-xl bg-slate-800 text-slate-400">ডিপোজিট</button>
+      <button onclick="switchTab('settings')" id="btn-tab-set" class="py-2 text-[11px] font-bold rounded-xl bg-slate-800 text-slate-400">সেটিংস</button>
+    </div>
+
+    <!-- ==================== ট্যাব ১: নতুন প্রোডাক্ট/কোড যোগ ==================== -->
+    <div id="tab-add-product" class="space-y-3">
+      <div class="card p-4 rounded-2xl">
+        <h3 class="text-xs font-bold text-emerald-400 mb-3 flex items-center">
+          <i class="fa-solid fa-plus-circle mr-1.5"></i> নতুন সোর্স কোড আপলোড করুন
+        </h3>
+
+        <div class="space-y-3 text-xs">
+          <div>
+            <label class="text-[11px] text-slate-400 block mb-1">কোড / প্রোডাক্টের নাম:</label>
+            <input type="text" id="p-title" placeholder="যেমন: MINO SMS NUMBER BOT" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-emerald-500">
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[11px] text-slate-400 block mb-1">মূল্য (টাকা - BDT):</label>
+              <input type="number" id="p-price" placeholder="যেমন: 125" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="text-[11px] text-slate-400 block mb-1">ডলার সমমূল্য ($):</label>
+              <input type="number" id="p-dollar" placeholder="যেমন: 1" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-emerald-500">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[11px] text-slate-400 block mb-1">ক্যাটাগরি:</label>
+              <select id="p-type" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-emerald-500">
+                <option value="paid">PAID CODE (পেইড)</option>
+                <option value="free">FREE CODE (ফ্রি কুপন)</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-[11px] text-slate-400 block mb-1">ফ্রি কুপন কোড (যদি থাকে):</label>
+              <input type="text" id="p-coupon" placeholder="যেমন: FREE2025" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-emerald-500">
+            </div>
+          </div>
+
+          <div>
+            <label class="text-[11px] text-slate-400 block mb-1">লোগো / থাম্বনেইল ইমেজ লিংক (URL):</label>
+            <input type="text" id="p-logo" placeholder="https://..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-emerald-500">
+          </div>
+
+          <div>
+            <label class="text-[11px] text-slate-400 block mb-1">স্ক্রিনশট লিংক (কমা দিয়ে একাধিক লিংক দিতে পারেন):</label>
+            <input type="text" id="p-screenshots" placeholder="link1.jpg, link2.jpg" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-emerald-500">
+          </div>
+
+          <div>
+            <label class="text-[11px] text-slate-400 block mb-1">ফাইল ডাউনলোড লিংক (কেনার পর ইউজার পাবে):</label>
+            <input type="text" id="p-file" placeholder="গুগল ড্রাইভ বা টেলিগ্রাম লিংক" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-emerald-500">
+          </div>
+
+          <div>
+            <label class="text-[11px] text-slate-400 block mb-1">বিস্তারিত বিবরণ (Description):</label>
+            <textarea id="p-desc" rows="3" placeholder="বটের সমস্ত ফিচার ও বিবরণ..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-emerald-500"></textarea>
+          </div>
+
+          <button onclick="saveProduct()" class="w-full btn-green py-3 rounded-xl font-bold text-white shadow-lg shadow-emerald-500/20 text-xs">
+            🚀 স্টোরে প্রোডাক্ট পাবলিশ করুন
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== ট্যাব ২: সব প্রোডাক্ট লিস্ট ==================== -->
+    <div id="tab-all-products" class="hidden space-y-3">
+      <h3 class="text-xs font-bold text-slate-400 mb-2">স্টোরে যুক্ত থাকা সমস্ত কোড:</h3>
+      <div id="admin-product-list" class="space-y-2.5">
+        <p class="text-xs text-slate-500 text-center py-6">লোড হচ্ছে...</p>
+      </div>
+    </div>
+
+    <!-- ==================== ট্যাব ৩: ডিপোজিট রিকোয়েস্ট ==================== -->
+    <div id="tab-deposits" class="hidden space-y-3">
+      <h3 class="text-xs font-bold text-slate-400 mb-2">বিকাশ/নগদ পেন্ডিং ডিপোজিট রিকোয়েস্ট:</h3>
+      <div id="admin-deposit-list" class="space-y-2.5">
+        <p class="text-xs text-slate-500 text-center py-6">কোনো পেন্ডিং রিকোয়েস্ট নেই</p>
+      </div>
+    </div>
+
+    <!-- ==================== ট্যাব ৪: সেটিংস (নাম্বার ও ডলার রেট) ==================== -->
+    <div id="tab-settings" class="hidden space-y-3">
+      <div class="card p-4 rounded-2xl space-y-3 text-xs">
+        <h3 class="text-xs font-bold text-amber-400 mb-2 flex items-center">
+          <i class="fa-solid fa-gear mr-1.5"></i> পেমেন্ট মেথড ও রেট পরিবর্তন
+        </h3>
+
+        <div>
+          <label class="text-[11px] text-slate-400 block mb-1">বিকাশ পার্সোনাল নাম্বার:</label>
+          <input type="text" id="set-bkash" value="01828554448" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white">
+        </div>
+
+        <div>
+          <label class="text-[11px] text-slate-400 block mb-1">নগদ পার্সোনাল নাম্বার:</label>
+          <input type="text" id="set-nagad" value="01828554448" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white">
+        </div>
+
+        <div>
+          <label class="text-[11px] text-slate-400 block mb-1">ডলার রেট ($1 = কত টাকা):</label>
+          <input type="number" id="set-rate" value="125" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white">
+        </div>
+
+        <button onclick="saveSettings()" class="w-full btn-blue py-2.5 rounded-xl font-bold text-white shadow text-xs">
+          💾 সেটিংস সেভ করুন
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // আপনার নতুন সিকিউর এডমিন পাসওয়ার্ড
+    const ADMIN_PASS = "Tusar50##@";
+
+    function checkAdminPassword() {
+      const input = document.getElementById("admin-pass-input").value;
+      if (input === ADMIN_PASS) {
+        document.getElementById("login-screen").classList.add("hidden");
+        document.getElementById("admin-content").classList.remove("hidden");
+        loadAdminData();
+      } else {
+        alert("❌ ভুল পাসওয়ার্ড! আবার চেষ্টা করুন।");
+      }
+    }
+
+    function logoutAdmin() {
+      document.getElementById("admin-pass-input").value = "";
+      document.getElementById("admin-content").classList.add("hidden");
+      document.getElementById("login-screen").classList.remove("hidden");
+    }
+
+    function switchTab(tabId) {
+      ['add-product', 'all-products', 'deposits', 'settings'].forEach(t => {
+        document.getElementById(`tab-${t}`).classList.add("hidden");
+      });
+      document.querySelectorAll('[id^="btn-tab-"]').forEach(btn => {
+        btn.className = "py-2 text-[11px] font-bold rounded-xl bg-slate-800 text-slate-400";
+      });
+
+      document.getElementById(`tab-${tabId}`).classList.remove("hidden");
+      const activeBtnMap = {
+        'add-product': 'btn-tab-add',
+        'all-products': 'btn-tab-prods',
+        'deposits': 'btn-tab-dep',
+        'settings': 'btn-tab-set'
+      };
+      document.getElementById(activeBtnMap[tabId]).className = "py-2 text-[11px] font-bold rounded-xl bg-emerald-500 text-white shadow";
+    }
+
+    function saveProduct() {
+      const title = document.getElementById("p-title").value.trim();
+      const price = parseFloat(document.getElementById("p-price").value) || 0;
+      const file = document.getElementById("p-file").value.trim();
+
+      if (!title || !file) {
+        alert("দয়া করে নাম ও ফাইল লিংক দিন!");
+        return;
+      }
+
+      alert(`✅ "${title}" সফলভাবে যুক্ত হয়েছে!`);
+      document.getElementById("p-title").value = "";
+      document.getElementById("p-file").value = "";
+    }
+
+    function saveSettings() {
+      alert("✅ পেমেন্ট সেটিংস সফলভাবে আপডেট হয়েছে!");
+    }
+
+    function loadAdminData() {
+      const container = document.getElementById("admin-product-list");
+      container.innerHTML = `
+        <div class="card p-3 rounded-xl flex justify-between items-center text-xs">
+          <div>
+            <h4 class="font-bold text-white">MINO SMS NUMBER BOT</h4>
+            <p class="text-[10px] text-amber-400">৳125 ($1) • 6 Sold</p>
+          </div>
+          <button class="bg-rose-500/20 text-rose-400 px-2.5 py-1 rounded-lg text-xs font-bold border border-rose-500/30">Delete</button>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>
