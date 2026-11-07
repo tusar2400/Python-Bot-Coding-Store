@@ -24,8 +24,9 @@
   <!-- ==================== টপ হেডার বার ==================== -->
   <header class="flex items-center justify-between py-2 mb-4">
     <div class="flex items-center space-x-2.5">
-      <div class="w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-black text-sm shadow">
-        <i class="fa-solid fa-code text-base"></i>
+      <div id="user-header-logo-box" class="w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-black text-sm shadow overflow-hidden">
+        <i id="user-default-icon" class="fa-solid fa-code text-base"></i>
+        <img id="user-logo-img" class="hidden w-full h-full object-cover" alt="Store Logo">
       </div>
       <div>
         <h1 class="text-xs font-black tracking-wider text-white uppercase">
@@ -278,7 +279,7 @@
         <input type="text" id="manual-trx-input" placeholder="Transaction ID (TrxID) দিন" class="w-full bg-[#0a111c] border border-slate-700 rounded-xl p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
       </div>
 
-      <button onclick="handlePaymentContinue()" class="w-full green-btn py-3 rounded-2xl text-xs font-extrabold text-white tracking-wide shadow-lg shadow-emerald-600/30 flex items-center justify-center space-x-1.5 mb-2">
+      <button onclick="handlePaymentContinue()" id="btn-pay-submit" class="w-full green-btn py-3 rounded-2xl text-xs font-extrabold text-white tracking-wide shadow-lg shadow-emerald-600/30 flex items-center justify-center space-x-1.5 mb-2">
         <span>Continue to Payment</span>
         <i class="fa-solid fa-arrow-right"></i>
       </button>
@@ -290,6 +291,8 @@
   </div>
 
   <script>
+    const FIREBASE_DB = "https://python-store-5571e-default-rtdb.firebaseio.com/";
+
     let tg = window.Telegram?.WebApp;
     if (tg) { tg.expand(); tg.ready(); }
 
@@ -299,45 +302,80 @@
 
     let userBalance = 0;
     let dollarRate = 125;
+    let bkashNumber = "01828554448";
+    let nagadNumber = "01828554448";
     let selectedProduct = null;
     let activeFilter = 'all';
     let selectedGatewayType = 'bkash';
     let depositAmount = 125;
+    let currentProducts = [];
 
-    const defaultProducts = [
-      {
-        id: "p1",
-        title: "MINO SMS NUMBER BOT",
-        price: 125,
-        dollarPrice: 1,
-        isFree: false,
-        likes: 2,
-        comments: 0,
-        sold: 6,
-        logo: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120&auto=format&fit=crop&q=80",
-        description: `MINO SMS NUMBER BOT . সমস্ত সিস্টেম অটোমেটিক বট এড করে নিবে আপনাকে শুধু এই প্যানেল এর Api key এড করে দিতে হবে। আর সব বট অটো করে নিবে।`,
-        screenshots: ["https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80"]
-      },
-      {
-        id: "p2",
-        title: "ALL PANEL NUMBER BOT (TG & WS)",
-        price: 600,
-        dollarPrice: 4.8,
-        isFree: false,
-        likes: 102,
-        comments: 1,
-        sold: 3,
-        logo: "https://images.unsplash.com/photo-1563089145-599997674d42?w=120&auto=format&fit=crop&q=80",
-        description: `CREATE PREMIUM TELEGRAM NUMBER AND OTP BOT ALL PANEL SUPPORT BOT.`,
-        screenshots: ["https://images.unsplash.com/photo-1563089145-599997674d42?w=400&auto=format&fit=crop&q=80"]
+    // ১. লাইভ ডাটা লোড ও সিঙ্কিং
+    async function initUserStore() {
+      await Promise.all([loadSettings(), loadBalance(), loadProducts()]);
+      // প্রতি ৫ সেকেন্ড পর পর ব্যালেন্স চেক হবে (যদি এডমিন অনুমোদন দেয়)
+      setInterval(loadBalance, 5000);
+      setInterval(loadProducts, 8000);
+    }
+
+    async function loadSettings() {
+      try {
+        const res = await fetch(`${FIREBASE_DB}settings.json`);
+        const data = await res.json();
+        if (data) {
+          if (data.dollarRate) dollarRate = Number(data.dollarRate);
+          if (data.bkash) bkashNumber = data.bkash;
+          if (data.nagad) nagadNumber = data.nagad;
+          if (data.logo) {
+            document.getElementById("user-logo-img").src = data.logo;
+            document.getElementById("user-logo-img").classList.remove("hidden");
+            document.getElementById("user-default-icon").classList.add("hidden");
+          }
+        }
+      } catch (e) {
+        console.error("Settings load error", e);
       }
-    ];
+    }
 
-    let currentProducts = [...defaultProducts];
+    async function loadBalance() {
+      try {
+        const res = await fetch(`${FIREBASE_DB}wallets/${user.id}.json`);
+        const bal = await res.json();
+        userBalance = (bal !== null) ? Number(bal) : 0;
+        updateBalanceUI();
+      } catch (e) {
+        console.error("Balance load error", e);
+      }
+    }
+
+    async function loadProducts() {
+      try {
+        const res = await fetch(`${FIREBASE_DB}products.json`);
+        const data = await res.json();
+        if (data) {
+          // অবজেক্টকে অ্যারেতে কনভার্ট করা
+          currentProducts = Object.keys(data).map(key => ({
+            id: key,
+            ...data[key]
+          })).filter(p => p.status !== 'inactive'); // যেগুলো অফ সেগুলো ফিল্টার করা
+          renderFiltered();
+        } else {
+          currentProducts = [];
+          document.getElementById("product-list").innerHTML = `<p class="text-center text-xs text-slate-500 py-10">কোনো কোড পাওয়া যায়নি!</p>`;
+        }
+      } catch (e) {
+        console.error("Products load error", e);
+      }
+    }
 
     function renderProducts(list) {
       const container = document.getElementById("product-list");
       container.innerHTML = "";
+
+      if (!list.length) {
+        container.innerHTML = `<p class="text-center text-xs text-slate-500 py-10">কোনো কোড নেই!</p>`;
+        return;
+      }
 
       list.forEach(p => {
         const card = document.createElement("div");
@@ -353,16 +391,16 @@
                 </span>
               </div>
               <div class="flex items-center space-x-2 mt-1 text-[10px]">
-                <span class="bg-[#08101c] border border-cyan-500/30 text-cyan-400 px-2 py-0.5 rounded-md font-bold">👍 ${p.likes} LIKES</span>
-                <span class="bg-[#08101c] border border-slate-800 text-slate-400 px-2 py-0.5 rounded-md">💬 ${p.comments} COMMENTS (OFF)</span>
-                <span class="bg-[#08101c] border border-amber-500/30 text-amber-400 px-2 py-0.5 rounded-md font-bold">🛒 ${p.sold} SELL</span>
+                <span class="bg-[#08101c] border border-cyan-500/30 text-cyan-400 px-2 py-0.5 rounded-md font-bold">👍 ${p.likes || 1} LIKES</span>
+                <span class="bg-[#08101c] border border-slate-800 text-slate-400 px-2 py-0.5 rounded-md">💬 ${p.comments || 0} COMMENTS</span>
+                <span class="bg-[#08101c] border border-amber-500/30 text-amber-400 px-2 py-0.5 rounded-md font-bold">🛒 ${p.sold || 0} SELL</span>
               </div>
             </div>
           </div>
           <div class="card-inner p-2.5 rounded-xl text-[11px] text-slate-400 line-clamp-2 mb-3">${p.description}</div>
           <div class="grid grid-cols-2 gap-2">
             <button onclick="openProductDetails('${p.id}')" class="py-2 rounded-xl text-xs font-bold bg-[#0f1b2d] border border-slate-700 text-slate-300">Details & View</button>
-            <button onclick="handleBuyClick('${p.id}')" class="py-2 rounded-xl text-xs font-extrabold gold-btn text-white">Buy ৳${p.price} ($${p.dollarPrice})</button>
+            <button onclick="handleBuyClick('${p.id}')" class="py-2 rounded-xl text-xs font-extrabold gold-btn text-white">${p.isFree ? 'Claim Free' : `Buy ৳${p.price} ($${p.dollarPrice})`}</button>
           </div>
         `;
         container.appendChild(card);
@@ -375,13 +413,13 @@
       document.getElementById("detail-img").src = selectedProduct.logo;
       document.getElementById("detail-title").innerText = selectedProduct.title;
       document.getElementById("detail-desc").innerText = selectedProduct.description;
-      document.getElementById("detail-sold").innerText = `${selectedProduct.sold}+`;
+      document.getElementById("detail-sold").innerText = `${selectedProduct.sold || 0}+`;
       document.getElementById("detail-cat-badge").innerText = selectedProduct.isFree ? 'FREE' : 'PAID';
-      document.getElementById("detail-buy-text").innerText = `Buy code • ৳${selectedProduct.price} ($${selectedProduct.dollarPrice})`;
+      document.getElementById("detail-buy-text").innerText = selectedProduct.isFree ? 'Claim Free Code' : `Buy code • ৳${selectedProduct.price} ($${selectedProduct.dollarPrice})`;
 
       const scBox = document.getElementById("detail-screenshots");
       scBox.innerHTML = "";
-      selectedProduct.screenshots.forEach(sc => {
+      (selectedProduct.screenshots || [selectedProduct.logo]).forEach(sc => {
         scBox.innerHTML += `<img src="${sc}" class="w-32 h-56 rounded-xl object-cover border border-slate-200 shadow-md shrink-0">`;
       });
 
@@ -395,9 +433,18 @@
       document.getElementById("view-store").classList.remove("hidden");
     }
 
-    function handleBuyClick(id) {
+    async function handleBuyClick(id) {
       const prod = currentProducts.find(x => x.id === id);
       if (!prod) return;
+
+      if (prod.isFree) {
+        if (prod.coupon_code) {
+          const couponInput = prompt("কুপন কোডটি দিন (Coupon Code):");
+          if (couponInput !== prod.coupon_code) return alert("❌ ভুল কুপন কোড!");
+        }
+        alert("🎉 অভিনন্দন! কোডটি আনলক হয়েছে। ফাইল লিঙ্ক:\n" + prod.file_url);
+        return;
+      }
 
       if (userBalance < prod.price) {
         selectedProduct = prod;
@@ -412,8 +459,17 @@
       } else {
         if (confirm(`৳${prod.price} দিয়ে এই সোর্স কোডটি কিনতে চান?`)) {
           userBalance -= prod.price;
+          await fetch(`${FIREBASE_DB}wallets/${user.id}.json`, {
+            method: 'PUT',
+            body: JSON.stringify(userBalance)
+          });
+          // বিক্রি সংখ্যা বাড়ানো
+          await fetch(`${FIREBASE_DB}products/${prod.id}/sold.json`, {
+            method: 'PUT',
+            body: JSON.stringify((prod.sold || 0) + 1)
+          });
           updateBalanceUI();
-          alert("🎉 ক্রয় সফল হয়েছে! ফাইল ডাউনলোড লিংক আপনাকে টেলিগ্রাম বটে পাঠানো হয়েছে।");
+          alert("🎉 ক্রয় সফল হয়েছে! ফাইল ডাউনলোড লিঙ্ক:\n" + prod.file_url);
         }
       }
     }
@@ -443,18 +499,44 @@
       if (type === 'bkash' || type === 'nagad') {
         manualBox.classList.remove("hidden");
         document.getElementById("manual-label").innerText = `${type.toUpperCase()} Send Money করুন এই নাম্বারে:`;
-        document.getElementById("manual-num").innerText = "01828554448";
+        document.getElementById("manual-num").innerText = (type === 'bkash') ? bkashNumber : nagadNumber;
       } else {
         manualBox.classList.add("hidden");
       }
     }
 
-    function handlePaymentContinue() {
+    async function handlePaymentContinue() {
       if (selectedGatewayType === 'bkash' || selectedGatewayType === 'nagad') {
         const trx = document.getElementById("manual-trx-input").value.trim();
         if (!trx) return alert("দয়া করে TrxID দিন!");
-        alert("✅ ডিপোজিট রিকোয়েস্ট পাঠানো হয়েছে! অ্যাডমিন যাচাই করে ব্যালেন্স যুক্ত করবেন।");
-        closeModal("modal-deposit");
+
+        const btn = document.getElementById("btn-pay-submit");
+        btn.disabled = true;
+        btn.innerText = "পাঠানো হচ্ছে...";
+
+        const depData = {
+          userId: user.id,
+          userName: user.first_name || "User",
+          method: selectedGatewayType.toUpperCase(),
+          amount: depositAmount,
+          trx: trx,
+          timestamp: Date.now()
+        };
+
+        try {
+          await fetch(`${FIREBASE_DB}deposit_requests.json`, {
+            method: 'POST',
+            body: JSON.stringify(depData)
+          });
+          alert("✅ ডিপোজিট রিকোয়েস্ট সফলভাবে পাঠানো হয়েছে! অ্যাডমিন যাচাই করে ব্যালেন্স যোগ করবেন।");
+          document.getElementById("manual-trx-input").value = "";
+          closeModal("modal-deposit");
+        } catch (e) {
+          alert("ডিপোজিট পাঠাতে সমস্যা হয়েছে!");
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = `<span>Continue to Payment</span><i class="fa-solid fa-arrow-right"></i>`;
+        }
       } else {
         alert("বাইনান্স অটোমেটিক পেমেন্ট পেজে রিডাইরেক্ট করা হচ্ছে...");
       }
@@ -470,19 +552,22 @@
         document.getElementById(`tab-${t}`).className = "px-4 py-1.5 rounded-xl text-xs font-bold bg-[#0f1a2c] border border-slate-800 text-slate-400";
       });
       document.getElementById(`tab-${type}`).className = "px-4 py-1.5 rounded-xl text-xs font-bold bg-cyan-500 text-white shadow-lg shadow-cyan-500/20";
+      renderFiltered();
+    }
 
-      if (type === 'all') renderProducts(currentProducts);
-      else if (type === 'free') renderProducts(currentProducts.filter(x => x.isFree));
-      else if (type === 'paid') renderProducts(currentProducts.filter(x => !x.isFree));
+    function renderFiltered() {
+      if (activeFilter === 'all') renderProducts(currentProducts);
+      else if (activeFilter === 'free') renderProducts(currentProducts.filter(x => x.isFree));
+      else if (activeFilter === 'paid') renderProducts(currentProducts.filter(x => !x.isFree));
     }
 
     function handleSearch() {
       const q = document.getElementById("search-input").value.toLowerCase();
-      const filtered = currentProducts.filter(x => x.title.toLowerCase().includes(q) || x.description.toLowerCase().includes(q));
+      const filtered = currentProducts.filter(x => (x.title || "").toLowerCase().includes(q) || (x.description || "").toLowerCase().includes(q));
       renderProducts(filtered);
     }
 
-    renderProducts(currentProducts);
+    initUserStore();
   </script>
 </body>
 </html>
