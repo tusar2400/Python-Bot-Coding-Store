@@ -12,7 +12,6 @@
     .card-inner { background-color: #080f1a; border: 1px solid #162238; }
     .btn-green { background: linear-gradient(135deg, #10b981, #059669); }
     .btn-blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
-    .btn-gold { background: linear-gradient(135deg, #f59e0b, #d97706); }
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
@@ -39,7 +38,6 @@
 
   <!-- ==================== ২. মূল অ্যাডমিন ড্যাশবোর্ড ==================== -->
   <div id="admin-content" class="hidden">
-    <!-- হেডার -->
     <header class="flex justify-between items-center py-2.5 mb-4 border-b border-slate-800">
       <div class="flex items-center space-x-2.5">
         <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black text-xs border border-emerald-500/40">
@@ -47,10 +45,10 @@
         </div>
         <div>
           <h1 class="text-xs font-black text-white tracking-wider uppercase">PYTHON BOT STORE</h1>
-          <p class="text-[9px] text-emerald-400 font-bold">● CLOUDINARY CONNECTED</p>
+          <p class="text-[9px] text-emerald-400 font-bold">● DIRECT GALLERY UPLOAD</p>
         </div>
       </div>
-      <button onclick="logoutAdmin()" class="bg-rose-500/10 text-rose-400 border border-rose-500/30 text-[11px] px-3 py-1.5 rounded-xl font-bold hover:bg-rose-500/20">
+      <button onclick="logoutAdmin()" class="bg-rose-500/10 text-rose-400 border border-rose-500/30 text-[11px] px-3 py-1.5 rounded-xl font-bold">
         <i class="fa-solid fa-power-off mr-1"></i> লগআউট
       </button>
     </header>
@@ -68,7 +66,7 @@
     <div id="tab-add-product" class="space-y-3">
       <div class="card p-4 rounded-2xl shadow-xl">
         <h3 class="text-xs font-bold text-emerald-400 mb-3 flex items-center">
-          <i class="fa-solid fa-cloud-arrow-up mr-1.5"></i> সরাসরি মেমোরি থেকে কোড ফাইল আপলোড
+          <i class="fa-solid fa-cloud-arrow-up mr-1.5"></i> গ্যালারি থেকে ছবি ও কোড আপলোড
         </h3>
 
         <div class="space-y-3 text-xs">
@@ -80,18 +78,18 @@
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="text-[11px] text-slate-400 block mb-1">মূল্য (টাকা - BDT):</label>
-              <input type="number" id="p-price" value="125" class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-emerald-500">
+              <input type="number" id="p-price" value="0" class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-emerald-500">
             </div>
             <div>
               <label class="text-[11px] text-slate-400 block mb-1">ডলার মূল্য ($):</label>
-              <input type="number" id="p-dollar" value="1" step="0.1" class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-emerald-500">
+              <input type="number" id="p-dollar" value="0" step="0.1" class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-emerald-500">
             </div>
           </div>
 
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="text-[11px] text-slate-400 block mb-1">ক্যাটাগরি:</label>
-              <select id="p-type" class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-emerald-500">
+              <select id="p-type" onchange="toggleCouponBox()" class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-emerald-500">
                 <option value="paid">PAID CODE (টাকা দিয়ে কিনবে)</option>
                 <option value="free">FREE CODE (কুপনে আনলক)</option>
               </select>
@@ -102,23 +100,29 @@
             </div>
           </div>
 
-          <!-- মেমোরি থেকে সরাসরি ফাইল আপলোড সেকশন -->
+          <!-- ১. কোডের ফাইল বাছুন -->
           <div class="bg-emerald-500/10 border border-emerald-500/30 p-3 rounded-xl">
             <label class="text-[11px] text-emerald-400 font-bold block mb-1.5 flex items-center">
               <i class="fa-solid fa-file-zipper mr-1.5"></i> কোডের মূল ফাইল সিলেক্ট করুন (.zip / .py):
             </label>
-            <input type="file" id="p-file-input" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-500 file:text-white hover:file:bg-emerald-600 cursor-pointer">
-            <p class="text-[9px] text-slate-400 mt-1">ফাইলটি সরাসরি আপনার ক্লাউডিনারিতে নিরাপদে আপলোড হবে।</p>
+            <input type="file" id="p-file-input" class="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-500 file:text-white cursor-pointer">
           </div>
 
-          <div>
-            <label class="text-[11px] text-slate-400 block mb-1">লোগো / থাম্বনেইল ছবি লিংক (URL):</label>
-            <input type="text" id="p-logo" placeholder="https://images.unsplash.com/..." class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-emerald-500">
+          <!-- ২. গ্যালারি থেকে বটের লোগো বাছুন -->
+          <div class="bg-cyan-500/10 border border-cyan-500/30 p-3 rounded-xl">
+            <label class="text-[11px] text-cyan-400 font-bold block mb-1.5 flex items-center">
+              <i class="fa-regular fa-image mr-1.5"></i> বটের লোগো ছবি সিলেক্ট করুন (গ্যালারি থেকে ১টি):
+            </label>
+            <input type="file" id="p-logo-input" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-cyan-500 file:text-white cursor-pointer">
           </div>
 
-          <div>
-            <label class="text-[11px] text-slate-400 block mb-1">স্ক্রিনশট লিংক (কমা দিয়ে ৩টি লিংক দিন):</label>
-            <input type="text" id="p-screenshots" placeholder="link1.jpg, link2.jpg" class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-emerald-500">
+          <!-- ৩. গ্যালারি থেকে স্ক্রিনশট বাছুন (একাধিক একসাথে) -->
+          <div class="bg-indigo-500/10 border border-indigo-500/30 p-3 rounded-xl">
+            <label class="text-[11px] text-indigo-400 font-bold block mb-1.5 flex items-center">
+              <i class="fa-solid fa-images mr-1.5"></i> স্ক্রিনশট ছবি বাছুন (গ্যালারি থেকে একসাথে ২/৩/৪টি):
+            </label>
+            <input type="file" id="p-screenshots-input" accept="image/*" multiple class="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-500 file:text-white cursor-pointer">
+            <p class="text-[9px] text-slate-400 mt-1">গ্যালারি ওপেন হলে আঙুল দিয়ে চেপে ধরে একসাথে ৩-৪টি ছবি সিলেক্ট করুন।</p>
           </div>
 
           <div>
@@ -126,15 +130,15 @@
             <textarea id="p-desc" rows="3" placeholder="বটের সমস্ত ফিচার ও বিস্তারিত..." class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-emerald-500"></textarea>
           </div>
 
-          <button onclick="uploadAndSaveProduct()" id="save-btn" class="w-full btn-green py-3 rounded-xl font-bold text-white shadow-lg shadow-emerald-500/20 text-xs flex items-center justify-center space-x-1.5">
+          <button onclick="uploadEverythingAndSave()" id="save-btn" class="w-full btn-green py-3 rounded-xl font-bold text-white shadow-lg shadow-emerald-500/20 text-xs flex items-center justify-center space-x-1.5">
             <i class="fa-solid fa-cloud-arrow-up"></i>
-            <span>ফাইল আপলোড ও স্টোরে পাবলিশ করুন</span>
+            <span>সব আপলোড ও স্টোরে পাবলিশ করুন</span>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- ==================== ট্যাব ২: কোড লিস্ট ও ডিলিট ==================== -->
+    <!-- ==================== ট্যাব ২: কোড লিস্ট ==================== -->
     <div id="tab-all-products" class="hidden space-y-3">
       <div class="flex justify-between items-center mb-1">
         <h3 class="text-xs font-bold text-slate-300">স্টোরের সমস্ত কোড তালিকা:</h3>
@@ -145,7 +149,7 @@
       </div>
     </div>
 
-    <!-- ==================== ট্যাব ৩: ডিপোজিট অ্যাপ্রুভাল ==================== -->
+    <!-- ==================== ট্যাব ৩: ডিপোজিট ==================== -->
     <div id="tab-deposits" class="hidden space-y-3">
       <div class="flex justify-between items-center mb-1">
         <h3 class="text-xs font-bold text-slate-300">পেন্ডিং ডিপোজিট রিকোয়েস্ট:</h3>
@@ -158,7 +162,7 @@
       </div>
     </div>
 
-    <!-- ==================== ট্যাব ৪: ইউজার ব্যালেন্স কন্ট্রোল ==================== -->
+    <!-- ==================== ট্যাব ৪: ব্যালেন্স ==================== -->
     <div id="tab-users" class="hidden space-y-3">
       <div class="card p-4 rounded-2xl space-y-3 text-xs">
         <h3 class="text-xs font-bold text-cyan-400 flex items-center">
@@ -173,12 +177,8 @@
           <input type="number" id="target-user-amount" placeholder="যেমন: 125" class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white">
         </div>
         <div class="grid grid-cols-2 gap-2 pt-1">
-          <button onclick="modifyUserBalance('add')" class="btn-green py-2.5 rounded-xl font-bold text-white shadow text-xs">
-            ➕ ব্যালেন্স যোগ করুন
-          </button>
-          <button onclick="modifyUserBalance('deduct')" class="bg-rose-600 hover:bg-rose-500 py-2.5 rounded-xl font-bold text-white shadow text-xs">
-            ➖ ব্যালেন্স কাটুন
-          </button>
+          <button onclick="modifyUserBalance('add')" class="btn-green py-2.5 rounded-xl font-bold text-white shadow text-xs">➕ ব্যালেন্স যোগ</button>
+          <button onclick="modifyUserBalance('deduct')" class="bg-rose-600 hover:bg-rose-500 py-2.5 rounded-xl font-bold text-white shadow text-xs">➖ ব্যালেন্স কর্তন</button>
         </div>
       </div>
     </div>
@@ -189,33 +189,25 @@
         <h3 class="text-xs font-bold text-amber-400 mb-2 flex items-center">
           <i class="fa-solid fa-sliders mr-1.5"></i> পেমেন্ট মেথড ও ডলার রেট
         </h3>
-
         <div>
           <label class="text-[11px] text-slate-400 block mb-1">বিকাশ পার্সোনাল নাম্বার:</label>
           <input type="text" id="set-bkash" value="01828554448" class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white font-mono">
         </div>
-
         <div>
           <label class="text-[11px] text-slate-400 block mb-1">নগদ পার্সোনাল নাম্বার:</label>
           <input type="text" id="set-nagad" value="01828554448" class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white font-mono">
         </div>
-
         <div>
           <label class="text-[11px] text-slate-400 block mb-1">ডলার রেট ($1 = কত BDT):</label>
           <input type="number" id="set-rate" value="125" class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white font-mono">
         </div>
-
-        <button onclick="saveSettings()" class="w-full btn-blue py-3 rounded-xl font-bold text-white shadow text-xs flex items-center justify-center space-x-1.5">
-          <i class="fa-solid fa-floppy-disk"></i>
-          <span>সেটিংস সেভ করুন</span>
-        </button>
+        <button onclick="saveSettings()" class="w-full btn-blue py-3 rounded-xl font-bold text-white shadow text-xs">💾 সেটিংস সেভ করুন</button>
       </div>
     </div>
   </div>
 
   <script>
     const ADMIN_PASS = "Tusar50##@";
-    // আপনার ক্লাউডিনারি কনফিগারেশন
     const CLOUD_NAME = "ghlprpz8";
     const UPLOAD_PRESET = "sx1oepje";
 
@@ -227,7 +219,7 @@
         loadProducts();
         loadDeposits();
       } else {
-        alert("❌ ভুল পাসওয়ার্ড! আবার চেষ্টা করুন।");
+        alert("❌ ভুল পাসওয়ার্ড!");
       }
     }
 
@@ -244,7 +236,6 @@
       document.querySelectorAll('[id^="btn-tab-"]').forEach(btn => {
         btn.className = "py-2 rounded-xl bg-slate-800 text-slate-400";
       });
-
       document.getElementById(`tab-${tabId}`).classList.remove("hidden");
       const activeBtnMap = {
         'add-product': 'btn-tab-add',
@@ -256,109 +247,133 @@
       document.getElementById(activeBtnMap[tabId]).className = "py-2 rounded-xl bg-emerald-500 text-white shadow";
     }
 
-    function getStoredProducts() {
-      return JSON.parse(localStorage.getItem("store_products")) || [
-        { id: "p1", title: "MINO SMS NUMBER BOT", price: 125, dollarPrice: 1, isFree: false, sold: 6 },
-        { id: "p2", title: "ALL PANEL NUMBER BOT", price: 600, dollarPrice: 4.8, isFree: false, sold: 3 }
-      ];
-    }
-
-    function loadProducts() {
-      const prods = getStoredProducts();
-      document.getElementById("total-prods-badge").innerText = `${prods.length} টি কোড`;
-      const container = document.getElementById("admin-product-list");
-      container.innerHTML = "";
-
-      if(prods.length === 0) {
-        container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">কোনো কোড নেই</p>`;
-        return;
+    function toggleCouponBox() {
+      const type = document.getElementById("p-type").value;
+      if (type === 'free') {
+        document.getElementById("p-price").value = "0";
+        document.getElementById("p-dollar").value = "0";
       }
-
-      prods.forEach(p => {
-        container.innerHTML += `
-          <div class="card p-3 rounded-2xl flex justify-between items-center text-xs">
-            <div>
-              <h4 class="font-bold text-white">${p.title}</h4>
-              <p class="text-[10px] text-amber-400 mt-0.5">৳${p.price} ($${p.dollarPrice}) • ${p.sold} বার বিক্রিত</p>
-            </div>
-            <button onclick="deleteProduct('${p.id}')" class="bg-rose-500/10 text-rose-400 border border-rose-500/30 px-3 py-1.5 rounded-xl text-xs font-bold">
-              <i class="fa-solid fa-trash-can mr-1"></i> ডিলিট
-            </button>
-          </div>
-        `;
-      });
     }
 
-    // সরাসরি ক্লাউডিনারিতে ফাইল আপলোড ও সেভ
-    async function uploadAndSaveProduct() {
+    // ক্লাউডিনারি আপলোড হেল্পার
+    async function uploadToCloudinary(file, isRaw = false) {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", UPLOAD_PRESET);
+      const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${isRaw ? 'raw' : 'image'}/upload`;
+      const res = await fetch(url, { method: "POST", body: formData });
+      const data = await res.json();
+      return data.secure_url;
+    }
+
+    // এক ক্লিকে ছবি, স্ক্রিনশট ও কোড আপলোড
+    async function uploadEverythingAndSave() {
       const title = document.getElementById("p-title").value.trim();
       const price = parseFloat(document.getElementById("p-price").value) || 0;
-      const dollar = parseFloat(document.getElementById("p-dollar").value) || 1;
+      const dollar = parseFloat(document.getElementById("p-dollar").value) || 0;
       const type = document.getElementById("p-type").value;
-      const fileInput = document.getElementById("p-file-input");
+      const coupon = document.getElementById("p-coupon").value.trim();
       const desc = document.getElementById("p-desc").value.trim();
-      const logo = document.getElementById("p-logo").value.trim();
+
+      const fileInput = document.getElementById("p-file-input");
+      const logoInput = document.getElementById("p-logo-input");
+      const scInput = document.getElementById("p-screenshots-input");
       const saveBtn = document.getElementById("save-btn");
 
-      if (!title) return alert("দয়া করে কোডের নাম দিন!");
-      if (!fileInput.files || fileInput.files.length === 0) {
-        return alert("দয়া করে আপনার মেমোরি থেকে কোড ফাইলটি (.zip / .py) সিলেক্ট করুন!");
-      }
+      if (!title) return alert("কোডের নাম দিন!");
+      if (!fileInput.files.length) return alert("কোডের ফাইল (.zip / .py) সিলেক্ট করুন!");
 
-      const file = fileInput.files[0];
-      saveBtn.innerHTML = `<span>আপলোড হচ্ছে... অপেক্ষা করুন</span>`;
+      saveBtn.innerHTML = `<span>আপলোড হচ্ছে... একটু অপেক্ষা করুন</span>`;
       saveBtn.disabled = true;
 
       try {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("upload_preset", UPLOAD_PRESET);
+        // ১. কোড ফাইল আপলোড
+        saveBtn.innerText = "১/৩ কোড ফাইল আপলোড হচ্ছে...";
+        const fileUrl = await uploadToCloudinary(fileInput.files[0], true);
 
-        // ক্লাউডিনারিতে আপলোড
-        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/raw/upload`, {
-          method: "POST",
-          body: formData
-        });
+        // ২. লোগো ছবি আপলোড
+        let logoUrl = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120&auto=format&fit=crop&q=80";
+        if (logoInput.files.length > 0) {
+          saveBtn.innerText = "২/৩ লোগো ছবি আপলোড হচ্ছে...";
+          logoUrl = await uploadToCloudinary(logoInput.files[0], false);
+        }
 
-        const data = await res.json();
-        if (!data.secure_url) throw new Error("Upload Failed");
+        // ৩. স্ক্রিনশট আপলোড (একাধিক)
+        let screenshotUrls = [];
+        if (scInput.files.length > 0) {
+          saveBtn.innerText = `৩/৩ স্ক্রিনশট আপলোড হচ্ছে...`;
+          for (let i = 0; i < scInput.files.length; i++) {
+            const scUrl = await uploadToCloudinary(scInput.files[i], false);
+            screenshotUrls.push(scUrl);
+          }
+        } else {
+          screenshotUrls.push(logoUrl);
+        }
 
-        const downloadUrl = data.secure_url;
-
-        // প্রোডাক্ট সেভ
-        const prods = getStoredProducts();
+        // ডাটাবেস/লোকালস্টোরেজে সেভ
+        const prods = JSON.parse(localStorage.getItem("store_products")) || [];
         prods.unshift({
           id: "p_" + Date.now(),
           title: title,
           price: price,
           dollarPrice: dollar,
           isFree: type === 'free',
-          file_url: downloadUrl,
-          logo: logo || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120&auto=format&fit=crop&q=80",
+          coupon_code: coupon,
+          file_url: fileUrl,
+          logo: logoUrl,
+          screenshots: screenshotUrls,
           description: desc,
           sold: 0
         });
 
         localStorage.setItem("store_products", JSON.stringify(prods));
-        alert(`🎉 "${title}" ফাইলসহ সফলভাবে ক্লাউডে আপলোড ও স্টোরে পাবলিশ হয়েছে!`);
+        alert(`🎉 "${title}" সমস্ত ছবি ও ফাইলসহ সফলভাবে স্টোরে পাবলিশ হয়েছে!`);
 
+        // ফর্ম রিসেট
         document.getElementById("p-title").value = "";
         document.getElementById("p-file-input").value = "";
+        document.getElementById("p-logo-input").value = "";
+        document.getElementById("p-screenshots-input").value = "";
         document.getElementById("p-desc").value = "";
         loadProducts();
         switchTab('all-products');
       } catch (err) {
-        alert("আপলোডে সমস্যা হয়েছে! ইন্টারনেট কানেকশন চেক করুন।");
+        alert("আপলোডে সমস্যা হয়েছে! নেট কানেকশন চেক করুন।");
         console.error(err);
       } finally {
-        saveBtn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i><span>ফাইল আপলোড ও স্টোরে পাবলিশ করুন</span>`;
+        saveBtn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i><span>সব আপলোড ও স্টোরে পাবলিশ করুন</span>`;
         saveBtn.disabled = false;
       }
     }
 
+    function loadProducts() {
+      const prods = JSON.parse(localStorage.getItem("store_products")) || [];
+      document.getElementById("total-prods-badge").innerText = `${prods.length} টি কোড`;
+      const container = document.getElementById("admin-product-list");
+      container.innerHTML = "";
+      if (!prods.length) {
+        container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">কোনো কোড নেই</p>`;
+        return;
+      }
+      prods.forEach(p => {
+        container.innerHTML += `
+          <div class="card p-3 rounded-2xl flex justify-between items-center text-xs">
+            <div class="flex items-center space-x-2.5">
+              <img src="${p.logo}" class="w-10 h-10 rounded-xl object-cover border border-slate-700">
+              <div>
+                <h4 class="font-bold text-white">${p.title}</h4>
+                <p class="text-[10px] text-amber-400 mt-0.5">${p.isFree ? 'FREE CODE' : `৳${p.price} ($${p.dollarPrice})`}</p>
+              </div>
+            </div>
+            <button onclick="deleteProduct('${p.id}')" class="bg-rose-500/10 text-rose-400 border border-rose-500/30 px-3 py-1.5 rounded-xl text-xs font-bold">ডিলিট</button>
+          </div>
+        `;
+      });
+    }
+
     function deleteProduct(id) {
-      if(confirm("আপনি কি নিশ্চিত এই কোডটি ডিলিট করতে চান?")) {
-        let prods = getStoredProducts().filter(x => x.id !== id);
+      if(confirm("কোডটি ডিলিট করতে চান?")) {
+        let prods = (JSON.parse(localStorage.getItem("store_products")) || []).filter(x => x.id !== id);
         localStorage.setItem("store_products", JSON.stringify(prods));
         loadProducts();
       }
@@ -370,12 +385,10 @@
       ];
       const container = document.getElementById("admin-deposit-list");
       container.innerHTML = "";
-
-      if(deps.length === 0) {
+      if(!deps.length) {
         container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">কোনো পেন্ডিং ডিপোজিট নেই</p>`;
         return;
       }
-
       deps.forEach(d => {
         container.innerHTML += `
           <div class="card p-3 rounded-2xl text-xs space-y-2">
@@ -395,32 +408,30 @@
     }
 
     function approveDeposit(id, userId, amount) {
-      let deps = JSON.parse(localStorage.getItem("deposit_requests")) || [];
-      deps = deps.filter(x => x.id !== id);
+      let deps = (JSON.parse(localStorage.getItem("deposit_requests")) || []).filter(x => x.id !== id);
       localStorage.setItem("deposit_requests", JSON.stringify(deps));
       alert(`✅ User ID: ${userId}-এর অ্যাকাউন্টে ৳${amount} যোগ হয়েছে!`);
       loadDeposits();
     }
 
     function rejectDeposit(id) {
-      let deps = JSON.parse(localStorage.getItem("deposit_requests")) || [];
-      deps = deps.filter(x => x.id !== id);
+      let deps = (JSON.parse(localStorage.getItem("deposit_requests")) || []).filter(x => x.id !== id);
       localStorage.setItem("deposit_requests", JSON.stringify(deps));
-      alert("❌ ডিপোজিট বাতিল করা হয়েছে!");
+      alert("❌ ডিপোজিট বাতিল!");
       loadDeposits();
     }
 
     function modifyUserBalance(action) {
       const uid = document.getElementById("target-user-id").value.trim();
       const amt = parseFloat(document.getElementById("target-user-amount").value);
-      if(!uid || !amt) return alert("User ID এবং টাকার পরিমাণ দিন!");
-      alert(`✅ User ${uid}-এর একাউন্টে ৳${amt} ${action === 'add' ? 'যোগ' : 'কর্তন'} করা হয়েছে!`);
+      if(!uid || !amt) return alert("User ID ও টাকার পরিমাণ দিন!");
+      alert(`✅ User ${uid}-এর একাউন্টে ৳${amt} ${action === 'add' ? 'যোগ' : 'কর্তন'} হয়েছে!`);
       document.getElementById("target-user-amount").value = "";
     }
 
     function saveSettings() {
-      alert("✅ বিকাশ, নগদ এবং ডলার রেট সেটিংস সফলভাবে সেভ হয়েছে!");
+      alert("✅ সেটিংস সফলভাবে সেভ হয়েছে!");
     }
   </script>
 </body>
-</html>
+  </html>
