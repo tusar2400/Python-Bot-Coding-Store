@@ -5,9 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Python Bot Coding Store - Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     body { background-color: #060d17; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -50,7 +47,7 @@
         </div>
         <div>
           <h1 class="text-xs font-black text-white tracking-wider uppercase">PYTHON BOT STORE</h1>
-          <p class="text-[9px] text-emerald-400 font-bold">● ADMIN CONTROL ACTIVE</p>
+          <p class="text-[9px] text-emerald-400 font-bold">● CLOUDINARY CONNECTED</p>
         </div>
       </div>
       <button onclick="logoutAdmin()" class="bg-rose-500/10 text-rose-400 border border-rose-500/30 text-[11px] px-3 py-1.5 rounded-xl font-bold hover:bg-rose-500/20">
@@ -71,7 +68,7 @@
     <div id="tab-add-product" class="space-y-3">
       <div class="card p-4 rounded-2xl shadow-xl">
         <h3 class="text-xs font-bold text-emerald-400 mb-3 flex items-center">
-          <i class="fa-solid fa-cloud-arrow-up mr-1.5"></i> নতুন টেলিগ্রাম বট কোড আপলোড
+          <i class="fa-solid fa-cloud-arrow-up mr-1.5"></i> সরাসরি মেমোরি থেকে কোড ফাইল আপলোড
         </h3>
 
         <div class="space-y-3 text-xs">
@@ -105,19 +102,23 @@
             </div>
           </div>
 
+          <!-- মেমোরি থেকে সরাসরি ফাইল আপলোড সেকশন -->
+          <div class="bg-emerald-500/10 border border-emerald-500/30 p-3 rounded-xl">
+            <label class="text-[11px] text-emerald-400 font-bold block mb-1.5 flex items-center">
+              <i class="fa-solid fa-file-zipper mr-1.5"></i> কোডের মূল ফাইল সিলেক্ট করুন (.zip / .py):
+            </label>
+            <input type="file" id="p-file-input" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-500 file:text-white hover:file:bg-emerald-600 cursor-pointer">
+            <p class="text-[9px] text-slate-400 mt-1">ফাইলটি সরাসরি আপনার ক্লাউডিনারিতে নিরাপদে আপলোড হবে।</p>
+          </div>
+
           <div>
             <label class="text-[11px] text-slate-400 block mb-1">লোগো / থাম্বনেইল ছবি লিংক (URL):</label>
-            <input type="text" id="p-logo" placeholder="https://..." class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-emerald-500">
+            <input type="text" id="p-logo" placeholder="https://images.unsplash.com/..." class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-emerald-500">
           </div>
 
           <div>
             <label class="text-[11px] text-slate-400 block mb-1">স্ক্রিনশট লিংক (কমা দিয়ে ৩টি লিংক দিন):</label>
-            <input type="text" id="p-screenshots" placeholder="link1.jpg, link2.jpg, link3.jpg" class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-emerald-500">
-          </div>
-
-          <div>
-            <label class="text-[11px] text-slate-400 block mb-1">ফাইল ডাউনলোড লিংক (ইউজার কেনার পর পাবে):</label>
-            <input type="text" id="p-file" placeholder="Google Drive বা Telegram File Link" class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-emerald-500">
+            <input type="text" id="p-screenshots" placeholder="link1.jpg, link2.jpg" class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-emerald-500">
           </div>
 
           <div>
@@ -125,9 +126,9 @@
             <textarea id="p-desc" rows="3" placeholder="বটের সমস্ত ফিচার ও বিস্তারিত..." class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-emerald-500"></textarea>
           </div>
 
-          <button onclick="saveProduct()" class="w-full btn-green py-3 rounded-xl font-bold text-white shadow-lg shadow-emerald-500/20 text-xs flex items-center justify-center space-x-1.5">
-            <i class="fa-solid fa-plus-circle"></i>
-            <span>স্টোরে কোডটি লাইভ পাবলিশ করুন</span>
+          <button onclick="uploadAndSaveProduct()" id="save-btn" class="w-full btn-green py-3 rounded-xl font-bold text-white shadow-lg shadow-emerald-500/20 text-xs flex items-center justify-center space-x-1.5">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <span>ফাইল আপলোড ও স্টোরে পাবলিশ করুন</span>
           </button>
         </div>
       </div>
@@ -214,6 +215,9 @@
 
   <script>
     const ADMIN_PASS = "Tusar50##@";
+    // আপনার ক্লাউডিনারি কনফিগারেশন
+    const CLOUD_NAME = "ghlprpz8";
+    const UPLOAD_PRESET = "sx1oepje";
 
     function checkAdminPassword() {
       const input = document.getElementById("admin-pass-input").value;
@@ -252,7 +256,6 @@
       document.getElementById(activeBtnMap[tabId]).className = "py-2 rounded-xl bg-emerald-500 text-white shadow";
     }
 
-    // লোকাল স্টোরেজ থেকে প্রোডাক্ট ম্যানেজ
     function getStoredProducts() {
       return JSON.parse(localStorage.getItem("store_products")) || [
         { id: "p1", title: "MINO SMS NUMBER BOT", price: 125, dollarPrice: 1, isFree: false, sold: 6 },
@@ -286,35 +289,71 @@
       });
     }
 
-    function saveProduct() {
+    // সরাসরি ক্লাউডিনারিতে ফাইল আপলোড ও সেভ
+    async function uploadAndSaveProduct() {
       const title = document.getElementById("p-title").value.trim();
       const price = parseFloat(document.getElementById("p-price").value) || 0;
       const dollar = parseFloat(document.getElementById("p-dollar").value) || 1;
       const type = document.getElementById("p-type").value;
-      const file = document.getElementById("p-file").value.trim();
+      const fileInput = document.getElementById("p-file-input");
+      const desc = document.getElementById("p-desc").value.trim();
+      const logo = document.getElementById("p-logo").value.trim();
+      const saveBtn = document.getElementById("save-btn");
 
-      if (!title || !file) {
-        alert("দয়া করে কোডের নাম এবং ফাইল লিংক দিন!");
-        return;
+      if (!title) return alert("দয়া করে কোডের নাম দিন!");
+      if (!fileInput.files || fileInput.files.length === 0) {
+        return alert("দয়া করে আপনার মেমোরি থেকে কোড ফাইলটি (.zip / .py) সিলেক্ট করুন!");
       }
 
-      const prods = getStoredProducts();
-      prods.unshift({
-        id: "p_" + Date.now(),
-        title: title,
-        price: price,
-        dollarPrice: dollar,
-        isFree: type === 'free',
-        sold: 0
-      });
+      const file = fileInput.files[0];
+      saveBtn.innerHTML = `<span>আপলোড হচ্ছে... অপেক্ষা করুন</span>`;
+      saveBtn.disabled = true;
 
-      localStorage.setItem("store_products", JSON.stringify(prods));
-      alert(`✅ "${title}" সফলভাবে স্টোরে পাবলিশ হয়েছে!`);
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", UPLOAD_PRESET);
 
-      document.getElementById("p-title").value = "";
-      document.getElementById("p-file").value = "";
-      loadProducts();
-      switchTab('all-products');
+        // ক্লাউডিনারিতে আপলোড
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/raw/upload`, {
+          method: "POST",
+          body: formData
+        });
+
+        const data = await res.json();
+        if (!data.secure_url) throw new Error("Upload Failed");
+
+        const downloadUrl = data.secure_url;
+
+        // প্রোডাক্ট সেভ
+        const prods = getStoredProducts();
+        prods.unshift({
+          id: "p_" + Date.now(),
+          title: title,
+          price: price,
+          dollarPrice: dollar,
+          isFree: type === 'free',
+          file_url: downloadUrl,
+          logo: logo || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120&auto=format&fit=crop&q=80",
+          description: desc,
+          sold: 0
+        });
+
+        localStorage.setItem("store_products", JSON.stringify(prods));
+        alert(`🎉 "${title}" ফাইলসহ সফলভাবে ক্লাউডে আপলোড ও স্টোরে পাবলিশ হয়েছে!`);
+
+        document.getElementById("p-title").value = "";
+        document.getElementById("p-file-input").value = "";
+        document.getElementById("p-desc").value = "";
+        loadProducts();
+        switchTab('all-products');
+      } catch (err) {
+        alert("আপলোডে সমস্যা হয়েছে! ইন্টারনেট কানেকশন চেক করুন।");
+        console.error(err);
+      } finally {
+        saveBtn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i><span>ফাইল আপলোড ও স্টোরে পাবলিশ করুন</span>`;
+        saveBtn.disabled = false;
+      }
     }
 
     function deleteProduct(id) {
@@ -325,7 +364,6 @@
       }
     }
 
-    // ডিপোজিট লোড ও অ্যাপ্রুভ
     function loadDeposits() {
       const deps = JSON.parse(localStorage.getItem("deposit_requests")) || [
         { id: "d1", userId: "7182227", method: "BKASH", amount: 125, trx: "BL92817291" }
@@ -348,12 +386,8 @@
             <p class="text-[11px] text-slate-400">User ID: <span class="text-white font-mono">${d.userId}</span></p>
             <p class="text-[11px] text-slate-400">TrxID: <span class="text-amber-400 font-mono font-bold">${d.trx}</span></p>
             <div class="grid grid-cols-2 gap-2 pt-1">
-              <button onclick="approveDeposit('${d.id}', '${d.userId}', ${d.amount})" class="btn-green py-2 rounded-xl font-bold text-white text-xs">
-                ✓ Approve
-              </button>
-              <button onclick="rejectDeposit('${d.id}')" class="bg-rose-600/20 text-rose-400 border border-rose-600/30 py-2 rounded-xl font-bold text-xs">
-                ✕ Reject
-              </button>
+              <button onclick="approveDeposit('${d.id}', '${d.userId}', ${d.amount})" class="btn-green py-2 rounded-xl font-bold text-white text-xs">✓ Approve</button>
+              <button onclick="rejectDeposit('${d.id}')" class="bg-rose-600/20 text-rose-400 border border-rose-600/30 py-2 rounded-xl font-bold text-xs">✕ Reject</button>
             </div>
           </div>
         `;
@@ -364,7 +398,7 @@
       let deps = JSON.parse(localStorage.getItem("deposit_requests")) || [];
       deps = deps.filter(x => x.id !== id);
       localStorage.setItem("deposit_requests", JSON.stringify(deps));
-      alert(`✅ User ID: ${userId}-এর অ্যাকাউন্টে ৳${amount} যোগ করে দেওয়া হয়েছে!`);
+      alert(`✅ User ID: ${userId}-এর অ্যাকাউন্টে ৳${amount} যোগ হয়েছে!`);
       loadDeposits();
     }
 
