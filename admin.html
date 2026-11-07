@@ -231,7 +231,7 @@
     </div>
   </div>
 
-  <!-- ==================== কাস্টম সুন্দর ডিলিট কনফার্মেশন মোডাল (Cancel ও OK বাটনসহ) ==================== -->
+  <!-- ডিলিট কনফার্মেশন মোডাল -->
   <div id="modal-delete-confirm" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
     <div class="card p-5 rounded-3xl w-full max-w-xs text-center border-rose-500/40 shadow-2xl space-y-4">
       <div class="w-14 h-14 rounded-full bg-rose-500/20 text-rose-500 flex items-center justify-center mx-auto text-2xl border border-rose-500/30">
@@ -256,51 +256,13 @@
     const ADMIN_PASS = "Tusar50##@";
     const CLOUD_NAME = "ghlprpz8";
     const UPLOAD_PRESET = "sx1oepje";
+    const FIREBASE_DB = "https://python-store-5571e-default-rtdb.firebaseio.com/";
 
     let tempAppLogoBase64 = "";
     let tempProdLogoBase64 = "";
     let itemToDeleteId = null;
 
-    const defaultInitialProducts = [
-      {
-        id: "p1",
-        title: "MINO SMS NUMBER BOT",
-        price: 125,
-        dollarPrice: 1.0,
-        isFree: false,
-        coupon_code: "",
-        file_url: "#",
-        likes: 2,
-        comments: 0,
-        sold: 6,
-        logo: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120&auto=format&fit=crop&q=80",
-        description: "MINO SMS NUMBER BOT . সমস্ত সিস্টেম অটোমেটিক বট এড করে নিবে আপনাকে শুধু এই প্যানেল এর Api key এড করে দিতে হবে। আর সব বট অটো করে নিবে।",
-        screenshots: ["https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80"],
-        status: "active"
-      },
-      {
-        id: "p2",
-        title: "ALL PANEL NUMBER BOT (TG & WS)",
-        price: 600,
-        dollarPrice: 4.8,
-        isFree: false,
-        coupon_code: "",
-        file_url: "#",
-        likes: 102,
-        comments: 1,
-        sold: 3,
-        logo: "https://images.unsplash.com/photo-1563089145-599997674d42?w=120&auto=format&fit=crop&q=80",
-        description: "CREATE PREMIUM TELEGRAM NUMBER AND OTP BOT ALL PANEL SUPPORT BOT.",
-        screenshots: ["https://images.unsplash.com/photo-1563089145-599997674d42?w=400&auto=format&fit=crop&q=80"],
-        status: "active"
-      }
-    ];
-
     window.addEventListener("DOMContentLoaded", () => {
-      applyStoredLogo();
-      if (!localStorage.getItem("store_products")) {
-        localStorage.setItem("store_products", JSON.stringify(defaultInitialProducts));
-      }
       loadSettingsData();
     });
 
@@ -370,33 +332,6 @@
       }
     }
 
-    function applyStoredLogo() {
-      const savedLogo = localStorage.getItem("store_app_logo");
-      if (savedLogo) {
-        const hImg = document.getElementById("header-logo-img");
-        const hIcon = document.getElementById("header-default-icon");
-        if(hImg && hIcon) {
-          hImg.src = savedLogo;
-          hImg.classList.remove("hidden");
-          hIcon.classList.add("hidden");
-        }
-        const lImg = document.getElementById("custom-lock-logo");
-        const lIcon = document.getElementById("default-lock-icon");
-        if(lImg && lIcon) {
-          lImg.src = savedLogo;
-          lImg.classList.remove("hidden");
-          lIcon.classList.add("hidden");
-        }
-        const sImg = document.getElementById("setting-preview-img");
-        const sIcon = document.getElementById("setting-preview-icon");
-        if(sImg && sIcon) {
-          sImg.src = savedLogo;
-          sImg.classList.remove("hidden");
-          sIcon.classList.add("hidden");
-        }
-      }
-    }
-
     function checkAdminPassword() {
       const input = document.getElementById("admin-pass-input").value;
       if (input === ADMIN_PASS) {
@@ -432,9 +367,8 @@
       };
       document.getElementById(activeBtnMap[tabId]).className = "py-2 rounded-xl bg-emerald-500 text-white shadow";
 
-      if (tabId === 'all-products') {
-        loadProducts();
-      }
+      if (tabId === 'all-products') loadProducts();
+      if (tabId === 'deposits') loadDeposits();
     }
 
     function toggleCouponBox() {
@@ -459,7 +393,7 @@
       }
     }
 
-    // ১. কোড আপলোড এবং সেভ
+    // ১. কোড আপলোড এবং Firebase-এ সেভ
     async function uploadEverythingAndSave() {
       const title = document.getElementById("p-title").value.trim();
       const price = parseFloat(document.getElementById("p-price").value) || 0;
@@ -479,7 +413,7 @@
       saveBtn.disabled = true;
 
       try {
-        saveBtn.innerText = "১/৩ ফাইল রেডি হচ্ছে...";
+        saveBtn.innerText = "১/৩ ফাইল আপলোড হচ্ছে...";
         let fileUrl = await uploadToCloudinary(fileInput.files[0], true);
         if (!fileUrl) fileUrl = "#";
 
@@ -496,9 +430,7 @@
           screenshotUrls.push(logoUrl);
         }
 
-        const prods = JSON.parse(localStorage.getItem("store_products")) || [];
-        prods.unshift({
-          id: "p_" + Date.now(),
+        const newProduct = {
           title: title,
           price: price,
           dollarPrice: dollar,
@@ -511,11 +443,17 @@
           status: "active",
           likes: 1,
           comments: 0,
-          sold: 0
+          sold: 0,
+          timestamp: Date.now()
+        };
+
+        saveBtn.innerText = `৩/৩ ডাটাবেসে সেভ হচ্ছে...`;
+        await fetch(`${FIREBASE_DB}products.json`, {
+          method: 'POST',
+          body: JSON.stringify(newProduct)
         });
 
-        localStorage.setItem("store_products", JSON.stringify(prods));
-        alert(`🎉 "${title}" সফলভাবে সেভ ও স্টোরে পাবলিশ হয়েছে!`);
+        alert(`🎉 "${title}" সরাসরি লাইভ স্টোরে পাবলিশ হয়েছে!`);
 
         document.getElementById("p-title").value = "";
         document.getElementById("p-file-input").value = "";
@@ -537,62 +475,68 @@
     }
 
     // ২. প্রোডাক্ট লিস্ট লোড
-    function loadProducts() {
-      const prods = JSON.parse(localStorage.getItem("store_products")) || [];
-      document.getElementById("total-prods-badge").innerText = `${prods.length} টি কোড`;
+    async function loadProducts() {
       const container = document.getElementById("admin-product-list");
-      container.innerHTML = "";
-      
-      if (!prods.length) {
-        container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">কোনো কোড নেই</p>`;
-        return;
-      }
+      container.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">লোড হচ্ছে...</p>`;
 
-      prods.forEach(p => {
-        const isOff = p.status === 'inactive';
-        container.innerHTML += `
-          <div class="card p-3 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs border ${isOff ? 'border-rose-900/40 opacity-75' : 'border-slate-800'}">
-            <div class="flex items-center space-x-2.5">
-              <img src="${p.logo}" class="w-11 h-11 rounded-xl object-cover border border-slate-700 shrink-0">
-              <div>
-                <h4 class="font-bold text-white line-clamp-1">${p.title}</h4>
-                <div class="flex items-center space-x-2 mt-0.5">
-                  <span class="text-[10px] text-amber-400 font-semibold">${p.isFree ? 'FREE CODE' : `৳${p.price} ($${p.dollarPrice})`}</span>
-                  <span class="text-[9px] px-1.5 py-0.2 rounded font-black ${isOff ? 'bg-rose-500/20 text-rose-400' : 'bg-emerald-500/20 text-emerald-400'}">
-                    ${isOff ? '● বন্ধ (OFF)' : '● চালু (ON)'}
-                  </span>
+      try {
+        const res = await fetch(`${FIREBASE_DB}products.json`);
+        const data = await res.json();
+        container.innerHTML = "";
+
+        if (!data) {
+          document.getElementById("total-prods-badge").innerText = `0 টি কোড`;
+          container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">কোনো কোড নেই</p>`;
+          return;
+        }
+
+        const keys = Object.keys(data).reverse();
+        document.getElementById("total-prods-badge").innerText = `${keys.length} টি কোড`;
+
+        keys.forEach(id => {
+          const p = data[id];
+          const isOff = p.status === 'inactive';
+          container.innerHTML += `
+            <div class="card p-3 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs border ${isOff ? 'border-rose-900/40 opacity-75' : 'border-slate-800'}">
+              <div class="flex items-center space-x-2.5">
+                <img src="${p.logo}" class="w-11 h-11 rounded-xl object-cover border border-slate-700 shrink-0">
+                <div>
+                  <h4 class="font-bold text-white line-clamp-1">${p.title}</h4>
+                  <div class="flex items-center space-x-2 mt-0.5">
+                    <span class="text-[10px] text-amber-400 font-semibold">${p.isFree ? 'FREE CODE' : `৳${p.price} ($${p.dollarPrice})`}</span>
+                    <span class="text-[9px] px-1.5 py-0.2 rounded font-black ${isOff ? 'bg-rose-500/20 text-rose-400' : 'bg-emerald-500/20 text-emerald-400'}">
+                      ${isOff ? '● বন্ধ (OFF)' : '● চালু (ON)'}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-            
-            <div class="flex items-center space-x-1.5 justify-end">
-              <button onclick="toggleProductStatus('${p.id}')" class="px-2.5 py-1.5 rounded-xl text-[10px] font-bold border transition ${isOff ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-amber-500/10 text-amber-400 border-amber-500/30'}">
-                <i class="fa-solid ${isOff ? 'fa-eye' : 'fa-eye-slash'} mr-1"></i> ${isOff ? 'চালু করুন' : 'অফ করুন'}
-              </button>
+              
+              <div class="flex items-center space-x-1.5 justify-end">
+                <button onclick="toggleProductStatus('${id}', '${p.status || 'active'}')" class="px-2.5 py-1.5 rounded-xl text-[10px] font-bold border transition ${isOff ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-amber-500/10 text-amber-400 border-amber-500/30'}">
+                  <i class="fa-solid ${isOff ? 'fa-eye' : 'fa-eye-slash'} mr-1"></i> ${isOff ? 'চালু করুন' : 'অফ করুন'}
+                </button>
 
-              <!-- ডিলিট বাটন (কাস্টম মোডাল ওপেন হবে) -->
-              <button onclick="openDeleteModal('${p.id}')" class="bg-rose-500/10 text-rose-400 border border-rose-500/30 px-2.5 py-1.5 rounded-xl text-[10px] font-bold hover:bg-rose-500 hover:text-white transition">
-                <i class="fa-solid fa-trash-can mr-1"></i> ডিলিট
-              </button>
+                <button onclick="openDeleteModal('${id}')" class="bg-rose-500/10 text-rose-400 border border-rose-500/30 px-2.5 py-1.5 rounded-xl text-[10px] font-bold hover:bg-rose-500 hover:text-white transition">
+                  <i class="fa-solid fa-trash-can mr-1"></i> ডিলিট
+                </button>
+              </div>
             </div>
-          </div>
-        `;
-      });
+          `;
+        });
+      } catch (e) {
+        container.innerHTML = `<p class="text-xs text-rose-500 text-center py-4">ডাটা লোড ব্যর্থ!</p>`;
+      }
     }
 
-    function toggleProductStatus(id) {
-      let prods = JSON.parse(localStorage.getItem("store_products")) || [];
-      prods = prods.map(p => {
-        if (p.id === id) {
-          p.status = (p.status === 'inactive') ? 'active' : 'inactive';
-        }
-        return p;
+    async function toggleProductStatus(id, currentStatus) {
+      const nextStatus = (currentStatus === 'inactive') ? 'active' : 'inactive';
+      await fetch(`${FIREBASE_DB}products/${id}/status.json`, {
+        method: 'PUT',
+        body: JSON.stringify(nextStatus)
       });
-      localStorage.setItem("store_products", JSON.stringify(prods));
       loadProducts();
     }
 
-    // কাস্টম ডিলিট মোডাল হ্যান্ডলিং (ক্লিয়ার Cancel ও OK বাটন)
     function openDeleteModal(id) {
       itemToDeleteId = id;
       document.getElementById("modal-delete-confirm").classList.remove("hidden");
@@ -603,109 +547,170 @@
       document.getElementById("modal-delete-confirm").classList.add("hidden");
     }
 
-    function executeDelete() {
+    async function executeDelete() {
       if (!itemToDeleteId) return;
-      let prods = (JSON.parse(localStorage.getItem("store_products")) || []).filter(x => x.id !== itemToDeleteId);
-      localStorage.setItem("store_products", JSON.stringify(prods));
+      await fetch(`${FIREBASE_DB}products/${itemToDeleteId}.json`, {
+        method: 'DELETE'
+      });
       closeDeleteModal();
       loadProducts();
     }
 
-    // ৩. অ্যাপের লোগো ও সেটিংস সেভ
+    // ৩. সেটিংস ও অ্যাপ লোগো
     async function saveAllSettings() {
       const btn = document.getElementById("settings-save-btn");
       btn.disabled = true;
       btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>সেভ হচ্ছে...</span>`;
 
       try {
-        if (tempAppLogoBase64) {
-          localStorage.setItem("store_app_logo", tempAppLogoBase64);
-          applyStoredLogo();
-        }
-
-        const settings = {
+        const updateObj = {
           bkash: document.getElementById("set-bkash").value.trim(),
           nagad: document.getElementById("set-nagad").value.trim(),
           dollarRate: document.getElementById("set-rate").value.trim()
         };
-        localStorage.setItem("store_settings", JSON.stringify(settings));
 
-        alert("✅ অ্যাপ লোগো এবং সমস্ত সেটিংস ১ সেকেন্ডে নিখুঁতভাবে সেভ হয়েছে!");
+        if (tempAppLogoBase64) {
+          updateObj.logo = tempAppLogoBase64;
+        }
+
+        await fetch(`${FIREBASE_DB}settings.json`, {
+          method: 'PATCH',
+          body: JSON.stringify(updateObj)
+        });
+
+        alert("✅ অ্যাপ লোগো এবং সমস্ত সেটিংস লাইভ ডাটাবেসে সেভ হয়েছে!");
+        loadSettingsData();
       } catch (err) {
         alert("সেভ করতে সমস্যা হয়েছে!");
-        console.error(err);
       } finally {
         btn.disabled = false;
         btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> <span>লোগো ও সেটিংস সেভ করুন</span>`;
       }
     }
 
-    function loadSettingsData() {
-      const s = JSON.parse(localStorage.getItem("store_settings"));
-      if (s) {
-        if(s.bkash) document.getElementById("set-bkash").value = s.bkash;
-        if(s.nagad) document.getElementById("set-nagad").value = s.nagad;
-        if(s.dollarRate) document.getElementById("set-rate").value = s.dollarRate;
+    async function loadSettingsData() {
+      try {
+        const res = await fetch(`${FIREBASE_DB}settings.json`);
+        const s = await res.json();
+        if (s) {
+          if (s.bkash) document.getElementById("set-bkash").value = s.bkash;
+          if (s.nagad) document.getElementById("set-nagad").value = s.nagad;
+          if (s.dollarRate) document.getElementById("set-rate").value = s.dollarRate;
+          if (s.logo) {
+            const hImg = document.getElementById("header-logo-img");
+            const hIcon = document.getElementById("header-default-icon");
+            hImg.src = s.logo;
+            hImg.classList.remove("hidden");
+            hIcon.classList.add("hidden");
+
+            const lImg = document.getElementById("custom-lock-logo");
+            const lIcon = document.getElementById("default-lock-icon");
+            lImg.src = s.logo;
+            lImg.classList.remove("hidden");
+            lIcon.classList.add("hidden");
+
+            const sImg = document.getElementById("setting-preview-img");
+            const sIcon = document.getElementById("setting-preview-icon");
+            sImg.src = s.logo;
+            sImg.classList.remove("hidden");
+            sIcon.classList.add("hidden");
+          }
+        }
+      } catch (e) {
+        console.error(e);
       }
     }
 
-    // ৪. ডিপোজিট ও ব্যালেন্স হ্যান্ডলিং
-    function loadDeposits() {
-      const deps = JSON.parse(localStorage.getItem("deposit_requests")) || [];
+    // ৪. ডিপোজিট অনুমোদন ও ব্যালেন্স
+    async function loadDeposits() {
       const container = document.getElementById("admin-deposit-list");
-      container.innerHTML = "";
-      if(!deps.length) {
-        container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">কোনো পেন্ডিং ডিপোজিট নেই</p>`;
-        return;
+      container.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">ডিপোজিট লোড হচ্ছে...</p>`;
+
+      try {
+        const res = await fetch(`${FIREBASE_DB}deposit_requests.json`);
+        const data = await res.json();
+        container.innerHTML = "";
+
+        if (!data) {
+          container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">কোনো পেন্ডিং ডিপোজিট নেই</p>`;
+          return;
+        }
+
+        Object.keys(data).forEach(id => {
+          const d = data[id];
+          container.innerHTML += `
+            <div class="card p-3 rounded-2xl text-xs space-y-2">
+              <div class="flex justify-between items-center">
+                <span class="text-[9px] bg-pink-500/20 text-pink-400 font-extrabold px-2 py-0.5 rounded">${d.method}</span>
+                <span class="font-black text-emerald-400 text-sm">৳${d.amount}</span>
+              </div>
+              <p class="text-[11px] text-slate-400">User ID: <span class="text-white font-mono">${d.userId}</span> (${d.userName || 'User'})</p>
+              <p class="text-[11px] text-slate-400">TrxID: <span class="text-amber-400 font-mono font-bold select-all">${d.trx}</span></p>
+              <div class="grid grid-cols-2 gap-2 pt-1">
+                <button onclick="approveDeposit('${id}', '${d.userId}', ${d.amount})" class="btn-green py-2 rounded-xl font-bold text-white text-xs">✓ Approve</button>
+                <button onclick="rejectDeposit('${id}')" class="bg-rose-600/20 text-rose-400 border border-rose-600/30 py-2 rounded-xl font-bold text-xs">✕ Reject</button>
+              </div>
+            </div>
+          `;
+        });
+      } catch (e) {
+        container.innerHTML = `<p class="text-xs text-rose-500 text-center py-4">লোড সমস্যা!</p>`;
       }
-      deps.forEach(d => {
-        container.innerHTML += `
-          <div class="card p-3 rounded-2xl text-xs space-y-2">
-            <div class="flex justify-between items-center">
-              <span class="text-[9px] bg-pink-500/20 text-pink-400 font-extrabold px-2 py-0.5 rounded">${d.method}</span>
-              <span class="font-black text-emerald-400 text-sm">৳${d.amount}</span>
-            </div>
-            <p class="text-[11px] text-slate-400">User ID: <span class="text-white font-mono">${d.userId}</span></p>
-            <p class="text-[11px] text-slate-400">TrxID: <span class="text-amber-400 font-mono font-bold">${d.trx}</span></p>
-            <div class="grid grid-cols-2 gap-2 pt-1">
-              <button onclick="approveDeposit('${d.id}', '${d.userId}', ${d.amount})" class="btn-green py-2 rounded-xl font-bold text-white text-xs">✓ Approve</button>
-              <button onclick="rejectDeposit('${d.id}')" class="bg-rose-600/20 text-rose-400 border border-rose-600/30 py-2 rounded-xl font-bold text-xs">✕ Reject</button>
-            </div>
-          </div>
-        `;
+    }
+
+    async function approveDeposit(reqId, userId, amount) {
+      try {
+        // ইউজারের বর্তমান ব্যালেন্স আনা
+        const res = await fetch(`${FIREBASE_DB}wallets/${userId}.json`);
+        const currentBal = (await res.json()) || 0;
+        const newBal = Number(currentBal) + Number(amount);
+
+        // ব্যালেন্স আপডেট
+        await fetch(`${FIREBASE_DB}wallets/${userId}.json`, {
+          method: 'PUT',
+          body: JSON.stringify(newBal)
+        });
+
+        // ডিপোজিট লিস্ট থেকে ডিলিট
+        await fetch(`${FIREBASE_DB}deposit_requests/${reqId}.json`, {
+          method: 'DELETE'
+        });
+
+        alert(`✅ User ID: ${userId}-এর একাউন্টে ৳${amount} যোগ হয়েছে!`);
+        loadDeposits();
+      } catch (e) {
+        alert("অনুমোদনে সমস্যা হয়েছে!");
+      }
+    }
+
+    async function rejectDeposit(reqId) {
+      await fetch(`${FIREBASE_DB}deposit_requests/${reqId}.json`, {
+        method: 'DELETE'
       });
-    }
-
-    function approveDeposit(id, userId, amount) {
-      const wallets = JSON.parse(localStorage.getItem("user_wallets")) || {};
-      wallets[userId] = (wallets[userId] || 0) + Number(amount);
-      localStorage.setItem("user_wallets", JSON.stringify(wallets));
-
-      let deps = (JSON.parse(localStorage.getItem("deposit_requests")) || []).filter(x => x.id !== id);
-      localStorage.setItem("deposit_requests", JSON.stringify(deps));
-      alert(`✅ User ID: ${userId}-এর অ্যাকাউন্টে ৳${amount} যোগ হয়েছে!`);
+      alert("❌ ডিপোজিট বাতিল করা হয়েছে!");
       loadDeposits();
     }
 
-    function rejectDeposit(id) {
-      let deps = (JSON.parse(localStorage.getItem("deposit_requests")) || []).filter(x => x.id !== id);
-      localStorage.setItem("deposit_requests", JSON.stringify(deps));
-      alert("❌ ডিপোজিট বাতিল!");
-      loadDeposits();
-    }
-
-    function modifyUserBalance(action) {
+    async function modifyUserBalance(action) {
       const uid = document.getElementById("target-user-id").value.trim();
       const amt = parseFloat(document.getElementById("target-user-amount").value);
-      if(!uid || !amt) return alert("User ID ও টাকার পরিমাণ দিন!");
-      
-      const wallets = JSON.parse(localStorage.getItem("user_wallets")) || {};
-      const cur = wallets[uid] || 0;
-      wallets[uid] = action === 'add' ? (cur + amt) : Math.max(0, cur - amt);
-      localStorage.setItem("user_wallets", JSON.stringify(wallets));
+      if (!uid || !amt) return alert("User ID ও টাকার পরিমাণ দিন!");
 
-      alert(`✅ User ${uid}-এর একাউন্টে ৳${amt} ${action === 'add' ? 'যোগ' : 'কর্তন'} হয়েছে! বর্তমান ব্যালেন্স: ৳${wallets[uid]}`);
-      document.getElementById("target-user-amount").value = "";
+      try {
+        const res = await fetch(`${FIREBASE_DB}wallets/${uid}.json`);
+        const cur = (await res.json()) || 0;
+        const finalBal = action === 'add' ? (cur + amt) : Math.max(0, cur - amt);
+
+        await fetch(`${FIREBASE_DB}wallets/${uid}.json`, {
+          method: 'PUT',
+          body: JSON.stringify(finalBal)
+        });
+
+        alert(`✅ User ${uid}-এর ব্যালেন্স সফলভাবে আপডেট হয়েছে! বর্তমান ব্যালেন্স: ৳${finalBal}`);
+        document.getElementById("target-user-amount").value = "";
+      } catch (e) {
+        alert("ব্যালেন্স আপডেট করতে সমস্যা হয়েছে!");
+      }
     }
   </script>
 </body>
