@@ -3,12 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>ELITE ZONE</title>
+  <title>Python Bot Coding Store</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
@@ -28,25 +25,25 @@
   <header class="flex items-center justify-between py-2 mb-4">
     <div class="flex items-center space-x-2.5">
       <div class="w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-black text-sm shadow">
-        <i class="fa-solid fa-shield-halved text-lg"></i>
+        <i class="fa-solid fa-code text-base"></i>
       </div>
       <div>
-        <h1 class="text-base font-black tracking-wider text-white flex items-center">
-          ELITE <span class="text-emerald-400 ml-1">ZONE</span>
+        <h1 class="text-xs font-black tracking-wider text-white uppercase">
+          PYTHON BOT <span class="text-emerald-400">CODING STORE</span>
         </h1>
         <p class="text-[10px] text-gray-400 font-medium" id="header-user">লোড হচ্ছে...</p>
       </div>
     </div>
 
     <div class="flex items-center space-x-2">
-      <button class="w-9 h-9 rounded-full bg-[#111c2e] border border-slate-700 flex items-center justify-center text-slate-300">
-        <i class="fa-regular fa-bell text-sm"></i>
+      <button class="w-8 h-8 rounded-full bg-[#111c2e] border border-slate-700 flex items-center justify-center text-slate-300">
+        <i class="fa-regular fa-bell text-xs"></i>
       </button>
-      <div onclick="openDepositStep1()" class="bg-emerald-600/20 border border-emerald-500/40 px-3 py-1.5 rounded-full flex items-center space-x-1.5 cursor-pointer">
+      <div onclick="openDepositStep1()" class="bg-emerald-600/20 border border-emerald-500/40 px-2.5 py-1 rounded-full flex items-center space-x-1 cursor-pointer">
         <i class="fa-solid fa-wallet text-emerald-400 text-xs"></i>
         <span class="text-xs font-bold text-white" id="user-balance">৳0</span>
       </div>
-      <div class="w-9 h-9 rounded-full overflow-hidden border border-emerald-500 bg-slate-800 flex items-center justify-center text-xs font-bold text-emerald-400" id="user-avatar-box">
+      <div class="w-8 h-8 rounded-full overflow-hidden border border-emerald-500 bg-slate-800 flex items-center justify-center text-xs font-bold text-emerald-400" id="user-avatar-box">
         U
       </div>
     </div>
@@ -88,7 +85,7 @@
     </div>
   </div>
 
-  <!-- ==================== ২. প্রোডাক্ট বিস্তারিত ভিউ (PRODUCT DETAILS) ==================== -->
+  <!-- ==================== ২. প্রোডাক্ট বিস্তারিত ভিউ ==================== -->
   <div id="view-details" class="hidden">
     <button onclick="showStoreView()" class="flex items-center space-x-1.5 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-300 mb-3">
       <i class="fa-solid fa-arrow-left"></i>
@@ -104,7 +101,7 @@
         </div>
       </div>
 
-      <!-- ৩টি স্ট্যাটাস মেম্বার -->
+      <!-- স্ট্যাটাস -->
       <div class="grid grid-cols-3 gap-2 py-2 border-y border-slate-100 text-center mb-4">
         <div>
           <p class="text-xs font-black text-slate-800">New</p>
@@ -132,9 +129,7 @@
           <span class="text-xs font-black text-slate-800 uppercase tracking-wider">Screenshots & Demo</span>
           <span class="text-[10px] text-slate-400">Slide horizontally &rarr;</span>
         </div>
-        <div id="detail-screenshots" class="flex space-x-2.5 overflow-x-auto hide-scrollbar pb-1">
-          <!-- ডাইনামিক স্ক্রিনশট আসবে -->
-        </div>
+        <div id="detail-screenshots" class="flex space-x-2.5 overflow-x-auto hide-scrollbar pb-1"></div>
       </div>
 
       <!-- ফিচার ডেসক্রিপশন -->
@@ -148,7 +143,7 @@
     </div>
   </div>
 
-  <!-- ==================== ৩. অপর্যাপ্ত ব্যালেন্স মোডাল (INSUFFICIENT BALANCE) ==================== -->
+  <!-- ==================== ৩. অপর্যাপ্ত ব্যালেন্স মোডাল ==================== -->
   <div id="modal-insufficient" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-[#0e1626] border border-slate-800 w-full max-w-sm rounded-3xl p-5 shadow-2xl relative">
       <button onclick="closeModal('modal-insufficient')" class="absolute right-4 top-4 w-7 h-7 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center text-xs">
@@ -165,7 +160,6 @@
         </div>
       </div>
 
-      <!-- প্রোডাক্ট সারাংশ -->
       <div class="card-inner p-3 rounded-2xl flex items-center space-x-3 mb-4">
         <img id="ins-img" class="w-12 h-12 rounded-xl object-cover border border-slate-700">
         <div>
@@ -175,10 +169,9 @@
         </div>
       </div>
 
-      <!-- ব্যালেন্স হিসেব বক্স -->
       <div class="card-inner p-3.5 rounded-2xl mb-4 space-y-2">
         <div class="flex justify-between items-center text-xs">
-          <span class="text-slate-400 flex items-center"><i class="fa-solid fa-wallet text-amber-400 mr-1.5"></i> আপনার বর্তমান ওয়ালেট ব্যালেন্স:</span>
+          <span class="text-slate-400 flex items-center"><i class="fa-solid fa-wallet text-amber-400 mr-1.5"></i> বর্তমান ওয়ালেট ব্যালেন্স:</span>
           <span class="font-black text-amber-400" id="ins-current-bal">৳0</span>
         </div>
         <div class="flex justify-between items-center text-xs">
@@ -190,19 +183,8 @@
           <p class="text-[11px] text-rose-400 font-bold flex items-center">
             <i class="fa-solid fa-triangle-exclamation mr-1.5"></i> পর্যাপ্ত ব্যালেন্স নেই!
           </p>
-          <p class="text-[10px] text-rose-300/80 mt-0.5" id="ins-short-msg">এই কোডটি কিনতে আপনার ওয়ালেটে আরো ৳125 প্রয়োজন।</p>
+          <p class="text-[10px] text-rose-300/80 mt-0.5" id="ins-short-msg">এই কোডটি কিনতে আপনার ওয়ালেটে আরো টাকা প্রয়োজন।</p>
         </div>
-      </div>
-
-      <!-- গ্যারান্টি ব্যাজ -->
-      <div class="card-inner p-3 rounded-2xl mb-4">
-        <div class="flex items-center space-x-1.5 text-xs text-amber-400 font-bold mb-1">
-          <i class="fa-solid fa-shield-check"></i>
-          <span>লাইফটাইম এক্সেস & ফুল সাপোর্ট</span>
-        </div>
-        <p class="text-[10px] text-slate-400 leading-normal">
-          একবার ক্রয় করলে আপনার একাউন্টে এই ফাইলের ফুল এক্সেস আজীবনের জন্য আনলক হয়ে যাবে।
-        </p>
       </div>
 
       <button onclick="openDepositFromModal()" class="w-full green-btn py-3 rounded-2xl text-xs font-extrabold text-white tracking-wide shadow-lg shadow-emerald-600/30 flex items-center justify-center space-x-1.5">
@@ -216,11 +198,10 @@
     </div>
   </div>
 
-  <!-- ==================== ৪. ডিপোজিট গেটওয়ে মোডাল (STEP 2 CHECKOUT) ==================== -->
+  <!-- ==================== ৪. ডিপোজিট গেটওয়ে মোডাল ==================== -->
   <div id="modal-deposit" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 hidden">
     <div class="bg-[#0b1320] border border-slate-800 w-full max-w-sm rounded-3xl p-4 shadow-2xl max-h-[92vh] overflow-y-auto hide-scrollbar">
       
-      <!-- হেডার -->
       <div class="flex justify-between items-center mb-3">
         <button onclick="closeModal('modal-deposit')" class="flex items-center space-x-1 text-slate-400 text-xs font-bold">
           <i class="fa-solid fa-arrow-left"></i>
@@ -231,7 +212,6 @@
         </span>
       </div>
 
-      <!-- অ্যামাউন্ট কার্ড -->
       <div class="bg-[#0f1b2d] border border-slate-800 p-3.5 rounded-2xl flex justify-between items-center mb-4">
         <div class="flex items-center space-x-2.5">
           <div class="w-9 h-9 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-bold text-sm">৳</div>
@@ -246,16 +226,13 @@
         </div>
       </div>
 
-      <!-- গেটওয়ে সিলেক্টর -->
       <div class="flex justify-between items-center mb-2.5">
         <h3 class="text-xs font-bold text-white">Select Payment Gateway</h3>
         <span class="text-[9px] bg-emerald-500/20 text-emerald-400 font-extrabold px-1.5 py-0.5 rounded">⚡ 0% Fee</span>
       </div>
-      <p class="text-[10px] text-slate-400 mb-3">Choose how you want to add money to your Elite Zone wallet</p>
+      <p class="text-[10px] text-slate-400 mb-3">Choose how you want to add money to your wallet</p>
 
-      <!-- গেটওয়ে গ্রিড -->
       <div class="grid grid-cols-2 gap-2.5 mb-4">
-        <!-- bKash -->
         <div onclick="selectGateway('bkash')" id="gw-bkash" class="card-dark p-3 rounded-2xl border-2 border-slate-800 cursor-pointer relative flex flex-col items-center text-center">
           <span class="text-[8px] bg-blue-500/20 text-cyan-400 font-extrabold px-1.5 py-0.5 rounded mb-2">🛡️ ADMIN APPROVAL</span>
           <div class="w-10 h-10 rounded-xl bg-pink-600/20 flex items-center justify-center text-pink-500 font-black text-sm mb-1">
@@ -265,7 +242,6 @@
           <span class="text-[9px] text-slate-400">Manual (5-10 mins)</span>
         </div>
 
-        <!-- Nagad -->
         <div onclick="selectGateway('nagad')" id="gw-nagad" class="card-dark p-3 rounded-2xl border-2 border-slate-800 cursor-pointer relative flex flex-col items-center text-center">
           <span class="text-[8px] bg-blue-500/20 text-cyan-400 font-extrabold px-1.5 py-0.5 rounded mb-2">🛡️ ADMIN APPROVAL</span>
           <div class="w-10 h-10 rounded-xl bg-orange-600/20 flex items-center justify-center text-orange-500 font-black text-sm mb-1">
@@ -275,7 +251,6 @@
           <span class="text-[9px] text-slate-400">Manual (5-10 mins)</span>
         </div>
 
-        <!-- USDT / BEP20 -->
         <div onclick="selectGateway('usdt')" id="gw-usdt" class="card-dark p-3 rounded-2xl border-2 border-slate-800 cursor-pointer relative flex flex-col items-center text-center">
           <span class="text-[8px] bg-emerald-500/20 text-emerald-400 font-extrabold px-1.5 py-0.5 rounded mb-2">⚡ AUTO APPROVAL</span>
           <div class="w-10 h-10 rounded-xl bg-teal-500/20 flex items-center justify-center text-teal-400 font-black text-sm mb-1">
@@ -286,7 +261,6 @@
           <span class="text-[9px] text-slate-400 mt-1 bg-slate-900 px-2 py-0.5 rounded font-mono" id="usdt-calc">$1 = ৳125 • $1.00</span>
         </div>
 
-        <!-- Binance -->
         <div onclick="selectGateway('binance')" id="gw-binance" class="card-dark p-3 rounded-2xl border-2 border-slate-800 cursor-pointer relative flex flex-col items-center text-center">
           <span class="text-[8px] bg-emerald-500/20 text-emerald-400 font-extrabold px-1.5 py-0.5 rounded mb-2">⚡ AUTO APPROVAL</span>
           <div class="w-10 h-10 rounded-xl bg-yellow-500/20 flex items-center justify-center text-yellow-400 font-black text-sm mb-1">
@@ -298,14 +272,12 @@
         </div>
       </div>
 
-      <!-- পেমেন্ট ইনপুট বক্স (ম্যানুয়াল মেথড নির্বাচন করলে দেখাবে) -->
       <div id="manual-pay-box" class="card-inner p-3 rounded-2xl mb-4 hidden">
         <p class="text-[11px] text-slate-300 mb-1" id="manual-label">নাম্বার:</p>
         <p class="text-xs font-black text-emerald-400 select-all mb-2.5 font-mono" id="manual-num">01828554448</p>
         <input type="text" id="manual-trx-input" placeholder="Transaction ID (TrxID) দিন" class="w-full bg-[#0a111c] border border-slate-700 rounded-xl p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
       </div>
 
-      <!-- সাবমিট বাটন -->
       <button onclick="handlePaymentContinue()" class="w-full green-btn py-3 rounded-2xl text-xs font-extrabold text-white tracking-wide shadow-lg shadow-emerald-600/30 flex items-center justify-center space-x-1.5 mb-2">
         <span>Continue to Payment</span>
         <i class="fa-solid fa-arrow-right"></i>
@@ -317,9 +289,7 @@
     </div>
   </div>
 
-  <!-- ==================== জাভাস্ক্রিপ্ট কোড ==================== -->
   <script>
-    // ১. টেলিগ্রাম ইনিট
     let tg = window.Telegram?.WebApp;
     if (tg) { tg.expand(); tg.ready(); }
 
@@ -327,7 +297,6 @@
     document.getElementById("header-user").innerText = user.first_name;
     document.getElementById("user-avatar-box").innerText = (user.first_name || "U")[0].toUpperCase();
 
-    // ২. স্টেট ভেরিয়েবল
     let userBalance = 0;
     let dollarRate = 125;
     let selectedProduct = null;
@@ -335,7 +304,6 @@
     let selectedGatewayType = 'bkash';
     let depositAmount = 125;
 
-    // ৩. ডেমো প্রোডাক্ট ডেটা (স্ক্রিনশটের হুবহু অনুযায়ী)
     const defaultProducts = [
       {
         id: "p1",
@@ -347,16 +315,8 @@
         comments: 0,
         sold: 6,
         logo: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120&auto=format&fit=crop&q=80",
-        description: `MINO SMS NUMBER BOT . সমস্ত সিস্টেম অটোমেটিক বট এড করে নিবে আপনাকে শুধু এই প্যানেল এর Api key এড করে দিতে হবে। আর সব বট অটো করে নিবে।
-
-সমস্ত মেসেজ User এর ইনবক্স এ আসবে।
-
-সমস্ত সিস্টেম অটোমেটিক`,
-        screenshots: [
-          "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80",
-          "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80",
-          "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80"
-        ]
+        description: `MINO SMS NUMBER BOT . সমস্ত সিস্টেম অটোমেটিক বট এড করে নিবে আপনাকে শুধু এই প্যানেল এর Api key এড করে দিতে হবে। আর সব বট অটো করে নিবে।`,
+        screenshots: ["https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80"]
       },
       {
         id: "p2",
@@ -368,24 +328,16 @@
         comments: 1,
         sold: 3,
         logo: "https://images.unsplash.com/photo-1563089145-599997674d42?w=120&auto=format&fit=crop&q=80",
-        description: `CREATE PREMIUM TELEGRAM NUMBER AND OTP BOT ALL PANEL SUPPORT BOT. WORKING STEX SMS --- VOLTX SMS... সমস্ত অটোমেটিক সিস্টেম।`,
-        screenshots: [
-          "https://images.unsplash.com/photo-1563089145-599997674d42?w=400&auto=format&fit=crop&q=80"
-        ]
+        description: `CREATE PREMIUM TELEGRAM NUMBER AND OTP BOT ALL PANEL SUPPORT BOT.`,
+        screenshots: ["https://images.unsplash.com/photo-1563089145-599997674d42?w=400&auto=format&fit=crop&q=80"]
       }
     ];
 
     let currentProducts = [...defaultProducts];
 
-    // ৪. প্রোডাক্ট রেন্ডার ইঞ্জিন (স্ক্রিনশট ৫ অনুযায়ী)
     function renderProducts(list) {
       const container = document.getElementById("product-list");
       container.innerHTML = "";
-
-      if (list.length === 0) {
-        container.innerHTML = `<p class="text-center text-xs text-slate-500 py-8">কোন প্রোডাক্ট পাওয়া যায়নি</p>`;
-        return;
-      }
 
       list.forEach(p => {
         const card = document.createElement("div");
@@ -400,7 +352,6 @@
                   🛡️ ${p.isFree ? 'FREE CODE' : 'PAID CODE'}
                 </span>
               </div>
-              <!-- ব্যাজ বার -->
               <div class="flex items-center space-x-2 mt-1 text-[10px]">
                 <span class="bg-[#08101c] border border-cyan-500/30 text-cyan-400 px-2 py-0.5 rounded-md font-bold">👍 ${p.likes} LIKES</span>
                 <span class="bg-[#08101c] border border-slate-800 text-slate-400 px-2 py-0.5 rounded-md">💬 ${p.comments} COMMENTS (OFF)</span>
@@ -408,33 +359,19 @@
               </div>
             </div>
           </div>
-
-          <!-- সংক্ষিপ্ত বিবরণ বক্স -->
-          <div class="card-inner p-2.5 rounded-xl text-[11px] text-slate-400 line-clamp-2 mb-3">
-            ${p.description}
-          </div>
-
-          <!-- একশন বাটন -->
+          <div class="card-inner p-2.5 rounded-xl text-[11px] text-slate-400 line-clamp-2 mb-3">${p.description}</div>
           <div class="grid grid-cols-2 gap-2">
-            <button onclick="openProductDetails('${p.id}')" class="py-2 rounded-xl text-xs font-bold bg-[#0f1b2d] border border-slate-700 text-slate-300 flex items-center justify-center space-x-1.5">
-              <i class="fa-regular fa-comment"></i>
-              <span>Details & View</span>
-            </button>
-            <button onclick="handleBuyClick('${p.id}')" class="py-2 rounded-xl text-xs font-extrabold gold-btn text-white shadow-md shadow-amber-600/30 flex items-center justify-center space-x-1">
-              <i class="fa-solid fa-cart-shopping"></i>
-              <span>Buy ৳${p.price} ($${p.dollarPrice})</span>
-            </button>
+            <button onclick="openProductDetails('${p.id}')" class="py-2 rounded-xl text-xs font-bold bg-[#0f1b2d] border border-slate-700 text-slate-300">Details & View</button>
+            <button onclick="handleBuyClick('${p.id}')" class="py-2 rounded-xl text-xs font-extrabold gold-btn text-white">Buy ৳${p.price} ($${p.dollarPrice})</button>
           </div>
         `;
         container.appendChild(card);
       });
     }
 
-    // ৫. প্রোডাক্ট বিস্তারিত পেজ খোলা (স্ক্রিনশট ২ অনুযায়ী)
     function openProductDetails(id) {
       selectedProduct = currentProducts.find(x => x.id === id);
       if (!selectedProduct) return;
-
       document.getElementById("detail-img").src = selectedProduct.logo;
       document.getElementById("detail-title").innerText = selectedProduct.title;
       document.getElementById("detail-desc").innerText = selectedProduct.description;
@@ -442,7 +379,6 @@
       document.getElementById("detail-cat-badge").innerText = selectedProduct.isFree ? 'FREE' : 'PAID';
       document.getElementById("detail-buy-text").innerText = `Buy code • ৳${selectedProduct.price} ($${selectedProduct.dollarPrice})`;
 
-      // স্ক্রিনশট রেন্ডার
       const scBox = document.getElementById("detail-screenshots");
       scBox.innerHTML = "";
       selectedProduct.screenshots.forEach(sc => {
@@ -450,10 +386,8 @@
       });
 
       document.getElementById("detail-action-btn").onclick = () => handleBuyClick(selectedProduct.id);
-
       document.getElementById("view-store").classList.add("hidden");
       document.getElementById("view-details").classList.remove("hidden");
-      window.scrollTo(0, 0);
     }
 
     function showStoreView() {
@@ -461,13 +395,11 @@
       document.getElementById("view-store").classList.remove("hidden");
     }
 
-    // ৬. বাই ক্লিক ও পর্যাপ্ত ব্যালেন্স হ্যান্ডলার (স্ক্রিনশট ১ অনুযায়ী)
     function handleBuyClick(id) {
       const prod = currentProducts.find(x => x.id === id);
       if (!prod) return;
 
       if (userBalance < prod.price) {
-        // ব্যালেন্স কম - স্ক্রিনশট ১ এর মোডাল ওপেন
         selectedProduct = prod;
         depositAmount = prod.price - userBalance;
         document.getElementById("ins-img").src = prod.logo;
@@ -476,7 +408,6 @@
         document.getElementById("ins-current-bal").innerText = `৳${userBalance}`;
         document.getElementById("ins-req-price").innerText = `- ৳${prod.price} ($${prod.dollarPrice})`;
         document.getElementById("ins-short-msg").innerText = `এই কোডটি কিনতে আপনার ওয়ালেটে আরো ৳${depositAmount} প্রয়োজন।`;
-
         openModal("modal-insufficient");
       } else {
         if (confirm(`৳${prod.price} দিয়ে এই সোর্স কোডটি কিনতে চান?`)) {
@@ -487,7 +418,6 @@
       }
     }
 
-    // ৭. ডিপোজিট গেটওয়ে মোডাল (স্ক্রিনশট ৩ অনুযায়ী)
     function openDepositFromModal() {
       closeModal("modal-insufficient");
       openDepositStep1();
@@ -505,12 +435,9 @@
     function selectGateway(type) {
       selectedGatewayType = type;
       ['bkash', 'nagad', 'usdt', 'binance'].forEach(t => {
-        const el = document.getElementById(`gw-${t}`);
-        el.className = "card-dark p-3 rounded-2xl border-2 border-slate-800 cursor-pointer relative flex flex-col items-center text-center";
+        document.getElementById(`gw-${t}`).className = "card-dark p-3 rounded-2xl border-2 border-slate-800 cursor-pointer relative flex flex-col items-center text-center";
       });
-
-      const activeEl = document.getElementById(`gw-${type}`);
-      activeEl.className = "card-dark p-3 rounded-2xl border-2 border-emerald-500 bg-emerald-500/10 cursor-pointer relative flex flex-col items-center text-center";
+      document.getElementById(`gw-${type}`).className = "card-dark p-3 rounded-2xl border-2 border-emerald-500 bg-emerald-500/10 cursor-pointer relative flex flex-col items-center text-center";
 
       const manualBox = document.getElementById("manual-pay-box");
       if (type === 'bkash' || type === 'nagad') {
@@ -525,10 +452,7 @@
     function handlePaymentContinue() {
       if (selectedGatewayType === 'bkash' || selectedGatewayType === 'nagad') {
         const trx = document.getElementById("manual-trx-input").value.trim();
-        if (!trx) {
-          alert("দয়া করে Transaction ID (TrxID) দিন!");
-          return;
-        }
+        if (!trx) return alert("দয়া করে TrxID দিন!");
         alert("✅ ডিপোজিট রিকোয়েস্ট পাঠানো হয়েছে! অ্যাডমিন যাচাই করে ব্যালেন্স যুক্ত করবেন।");
         closeModal("modal-deposit");
       } else {
@@ -536,13 +460,9 @@
       }
     }
 
-    // ইউটিলিটি
     function openModal(id) { document.getElementById(id).classList.remove("hidden"); }
     function closeModal(id) { document.getElementById(id).classList.add("hidden"); }
-
-    function updateBalanceUI() {
-      document.getElementById("user-balance").innerText = `৳${userBalance}`;
-    }
+    function updateBalanceUI() { document.getElementById("user-balance").innerText = `৳${userBalance}`; }
 
     function setFilter(type) {
       activeFilter = type;
@@ -562,7 +482,6 @@
       renderProducts(filtered);
     }
 
-    // প্রাথমিক লোড
     renderProducts(currentProducts);
   </script>
 </body>
