@@ -40,6 +40,9 @@
 
   <!-- ==================== ২. মূল অ্যাডমিন ড্যাশবোর্ড ==================== -->
   <div id="admin-content" class="hidden">
+    <div class="mx-3 mt-3 rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-3 text-[11px] leading-relaxed text-cyan-100">
+      <b>ইউজার প্যানেল সিঙ্ক:</b> Admin ও User HTML একই ওয়েবসাইটের একই ডোমেইনে রাখুন। একই ডোমেইনে সেভ করা পণ্য, ব্যানার, APK ও সেটিংস User Panel-এ দেখা যাবে। আলাদা ডোমেইন বা অন্য ডিভাইসে দেখাতে Backend/Database সংযোগ লাগবে।
+    </div>
     <header class="flex justify-between items-center py-2.5 mb-4 border-b border-slate-800">
       <div class="flex items-center space-x-2.5">
         <div id="header-logo-container" class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black text-xs border border-emerald-500/40 overflow-hidden">
@@ -505,8 +508,10 @@
       saveBtn.disabled = true;
 
       try {
-        let fileUrl = await uploadToCloudinary(fileInput.files[0], true);
-        if (!fileUrl) fileUrl = "#";
+        const fileUrl = await uploadToCloudinary(fileInput.files[0], true);
+        if (!fileUrl) {
+          throw new Error("মূল ফাইল আপলোড হয়নি। তাই প্রোডাক্ট পাবলিশ করা হয়নি।");
+        }
 
         let logoUrl = tempProdLogoBase64 || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800";
 
@@ -694,17 +699,19 @@
       if (!name) return alert("অ্যাপের নাম দিন!");
       if (!iconInput.files.length) return alert("গ্যালারি থেকে অ্যাপের লোগো ছবি দিন!");
       if (!realApkInput.files.length) return alert("আসল Mod APK ফাইলটি (.apk) সিলেক্ট করুন!");
+      const apkFile = realApkInput.files[0];
+      if (!apkFile.name.toLowerCase().endsWith(".apk")) return alert("শুধু .apk ফাইল সিলেক্ট করুন!");
+      if (apkFile.size === 0) return alert("APK ফাইলটি খালি। অন্য ফাইল দিন!");
+      if (apkFile.size > 100 * 1024 * 1024) return alert("APK ফাইল ১০০ MB-এর বেশি। ছোট ফাইল দিন বা উপযুক্ত ফাইল হোস্টিং ব্যবহার করুন!");
 
       const btn = document.getElementById("apk-btn");
       btn.innerText = "APK আপলোড হচ্ছে... একটু অপেক্ষা করুন";
       btn.disabled = true;
 
       try {
-        // ১. লোগো ছবি অপটিমাইজ
         const iconBase64 = await resizeAndCompressImage(iconInput.files[0], 200, 200, 0.85);
 
-        // ২. আসল APK ফাইল ক্লাউডিনারিতে আপলোড
-        let apkFileUrl = await uploadToCloudinary(realApkInput.files[0], true);
+        let apkFileUrl = await uploadToCloudinary(apkFile, true);
         if (!apkFileUrl) {
           alert("APK ফাইল আপলোডে সমস্যা হয়েছে। দয়া করে আবার চেষ্টা করুন!");
           btn.innerText = "➕ Mod APK পাবলিশ করুন";
@@ -712,7 +719,6 @@
           return;
         }
 
-        // ৩. লোকাল স্টোরেজে সেভ (সরাসরি apk_file_url হিসেবে)
         const apks = JSON.parse(localStorage.getItem("ez_mod_apks")) || [];
         apks.unshift({ 
           name, 
@@ -758,7 +764,6 @@
                 <p class="text-[8px] text-emerald-400">✓ Direct APK Ready</p>
               </div>
             </div>
-            <!-- মড এপিকে ডিলিট বাটন -->
             <button onclick="openDeleteDialog(() => deleteModApkItem(${idx}))" class="bg-rose-500/10 text-rose-400 border border-rose-500/30 px-2 py-1 rounded-lg text-xs font-bold hover:bg-rose-500 hover:text-white">
               <i class="fa-solid fa-trash-can mr-1"></i> ডিলিট
             </button>
@@ -800,7 +805,7 @@
 
     // ৬. ডিপোজিট ও ব্যালেন্স
     function loadDeposits() {
-      const deps = JSON.parse(localStorage.getItem("deposit_requests")) || [];
+      const deps = (JSON.parse(localStorage.getItem("deposit_requests")) || []).filter(d => !d.status || d.status === "pending");
       const container = document.getElementById("admin-deposit-list");
       container.innerHTML = "";
       if(!deps.length) {
@@ -814,8 +819,8 @@
               <span class="text-[9px] bg-pink-500/20 text-pink-400 font-extrabold px-2 py-0.5 rounded">${d.method}</span>
               <span class="font-black text-emerald-400 text-sm">৳${d.amount}</span>
             </div>
-            <p class="text-[11px] text-slate-400">User ID: <span class="text-white font-mono">${d.userId}</span></p>
-            <p class="text-[11px] text-slate-400">TrxID: <span class="text-amber-400 font-mono font-bold">${d.trx}</span></p>
+            <p class="text-[11px] text-slate-400">User ID: <span class="text-white font-mono">${d.userId}</span> (${d.userName || 'User'})</p>
+            <p class="text-[11px] text-slate-400">TrxID: <span class="text-amber-400 font-mono font-bold select-all">${d.trx}</span></p>
             <div class="grid grid-cols-2 gap-2 pt-1">
               <button onclick="approveDeposit('${d.id}', '${d.userId}', ${d.amount})" class="btn-green py-2 rounded-xl font-bold text-white text-xs">✓ Approve</button>
               <button onclick="rejectDeposit('${d.id}')" class="bg-rose-600/20 text-rose-400 border border-rose-600/30 py-2 rounded-xl font-bold text-xs">✕ Reject</button>
@@ -826,19 +831,33 @@
     }
 
     function approveDeposit(id, userId, amount) {
+      const deps = JSON.parse(localStorage.getItem("deposit_requests")) || [];
+      const request = deps.find(x => String(x.id) === String(id));
+      if (!request || request.status === "approved" || request.status === "rejected") {
+        alert("এই ডিপোজিট রিকোয়েস্টটি পাওয়া যায়নি বা আগেই প্রসেস করা হয়েছে।");
+        return;
+      }
       const wallets = JSON.parse(localStorage.getItem("user_wallets")) || {};
-      wallets[userId] = (wallets[userId] || 0) + Number(amount);
+      wallets[userId] = (Number(wallets[userId]) || 0) + Number(amount);
       localStorage.setItem("user_wallets", JSON.stringify(wallets));
-      let deps = (JSON.parse(localStorage.getItem("deposit_requests")) || []).filter(x => x.id !== id);
+      request.status = "approved";
+      request.processedAt = new Date().toISOString();
       localStorage.setItem("deposit_requests", JSON.stringify(deps));
       alert(`✅ User ID: ${userId}-কে ৳${amount} দেওয়া হয়েছে!`);
       loadDeposits();
     }
 
     function rejectDeposit(id) {
-      let deps = (JSON.parse(localStorage.getItem("deposit_requests")) || []).filter(x => x.id !== id);
+      const deps = JSON.parse(localStorage.getItem("deposit_requests")) || [];
+      const request = deps.find(x => String(x.id) === String(id));
+      if (!request || request.status === "approved" || request.status === "rejected") {
+        alert("এই ডিপোজিট রিকোয়েস্টটি পাওয়া যায়নি বা আগেই প্রসেস করা হয়েছে।");
+        return;
+      }
+      request.status = "rejected";
+      request.processedAt = new Date().toISOString();
       localStorage.setItem("deposit_requests", JSON.stringify(deps));
-      alert("❌ ডিপোজিট বাতিল!");
+      alert("❌ ডিপোজিট বাতিল করা হয়েছে। রেকর্ড রাখা হয়েছে।");
       loadDeposits();
     }
 
@@ -869,4 +888,4 @@
     }
   </script>
 </body>
-            </html>
+  </html>
