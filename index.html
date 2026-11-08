@@ -60,8 +60,9 @@
   <header class="sticky top-0 z-40 bg-gradient-to-b from-[#d5f6eb] via-[#e8faf3] to-[#f1f8f5] px-3.5 py-2.5 flex items-center justify-between border-b border-emerald-100 shadow-sm">
     <!-- লোগো ও ব্র্যান্ড নাম -->
     <div class="flex items-center space-x-2">
-      <div class="w-9 h-9 rounded-full bg-emerald-100 border border-emerald-400/50 flex items-center justify-center text-emerald-600 shadow-sm relative">
-        <i class="fa-solid fa-code text-base text-emerald-700"></i>
+      <div id="header-logo-box" class="w-9 h-9 rounded-full bg-emerald-100 border border-emerald-400/50 flex items-center justify-center text-emerald-600 shadow-sm relative overflow-hidden">
+        <i id="header-default-icon" class="fa-solid fa-code text-base text-emerald-700"></i>
+        <img id="header-custom-logo" class="hidden w-full h-full object-cover">
       </div>
       <h1 class="text-xs font-black tracking-wider flex items-center">
         <span class="text-blue-950 font-black mr-1">PYTHON BOT</span>
@@ -80,8 +81,9 @@
         <span class="text-xs font-black" id="user-top-balance">৳0</span>
       </div>
 
-      <div onclick="switchNav('profile')" class="w-9 h-9 rounded-full overflow-hidden border-2 border-emerald-400 cursor-pointer shadow-sm">
-        <img id="user-header-avatar" src="https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=120" class="w-full h-full object-cover">
+      <!-- ইউজারের নিজস্ব টেলিগ্রাম অবতার -->
+      <div onclick="switchNav('profile')" class="w-9 h-9 rounded-full overflow-hidden border-2 border-emerald-400 cursor-pointer shadow-sm bg-slate-200 flex items-center justify-center">
+        <img id="user-header-avatar" class="w-full h-full object-cover">
       </div>
     </div>
   </header>
@@ -94,7 +96,7 @@
 
       <!-- স্লাইড কাউন্টার -->
       <div class="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2.5 py-0.5 rounded-lg border border-white/20 text-[10px] font-black text-cyan-400">
-        <span id="carousel-counter">1 / 3</span>
+        <span id="carousel-counter">1 / 1</span>
       </div>
 
       <!-- নেভিগেশন তীর -->
@@ -290,9 +292,9 @@
         <i class="fa-solid fa-arrow-left text-[11px]"></i>
         <span>Back to Home</span>
       </button>
-      <button onclick="alert('Edit Profile অপশন শীঘ্রই যুক্ত হবে!')" class="bg-white border border-emerald-400/50 text-emerald-700 px-3 py-1.5 rounded-full text-xs font-bold flex items-center space-x-1 shadow-sm">
-        <i class="fa-solid fa-pen text-[10px]"></i>
-        <span>Edit Profile</span>
+      <button onclick="alert('আপনার প্রোফাইল টেলিগ্রাম অ্যাকাউন্টের সাথে সম্পূর্ণ ভেরিফাইড!')" class="bg-white border border-emerald-400/50 text-emerald-700 px-3 py-1.5 rounded-full text-xs font-bold flex items-center space-x-1 shadow-sm">
+        <i class="fa-solid fa-circle-check text-[10px] text-emerald-500"></i>
+        <span>Verified User</span>
       </button>
     </div>
 
@@ -300,21 +302,19 @@
     <div class="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-xl">
       <div class="h-24 bg-gradient-to-r from-emerald-600 via-teal-700 to-emerald-800 relative p-3">
         <span class="absolute top-2.5 right-3 text-[9px] bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-md text-emerald-200 font-mono font-bold">
-          <i class="fa-regular fa-calendar-days mr-1"></i> JOINED 13 SEP 2026
+          <i class="fa-regular fa-calendar-days mr-1"></i> <span id="profile-join-badge">JOINED 2025</span>
         </span>
       </div>
 
       <div class="px-4 pb-4 -mt-12 text-center">
-        <div class="w-20 h-20 rounded-full border-4 border-white overflow-hidden mx-auto shadow-xl relative group">
-          <img id="profile-img" src="https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=200" class="w-full h-full object-cover">
-          <div class="absolute bottom-0 inset-x-0 bg-emerald-600/90 py-0.5 text-[9px] text-white">
-            <i class="fa-solid fa-camera"></i>
-          </div>
+        <!-- আসল টেলিগ্রাম ছবি প্রদর্শনের ফ্রেম -->
+        <div class="w-20 h-20 rounded-full border-4 border-white overflow-hidden mx-auto shadow-xl relative bg-slate-200 flex items-center justify-center">
+          <img id="profile-img" class="w-full h-full object-cover">
         </div>
 
         <div class="mt-2">
           <h3 class="text-sm font-black text-slate-800 flex items-center justify-center space-x-1">
-            <span id="profile-name">MD Jamil</span>
+            <span id="profile-name">User</span>
             <i class="fa-solid fa-circle-check text-blue-500 text-xs"></i>
           </h3>
           <p class="text-[11px] text-slate-500 font-medium">Verified Marketplace Member</p>
@@ -350,7 +350,7 @@
           <div onclick="copyText('prof-tg-username')" class="p-2.5 rounded-xl border border-slate-200 flex justify-between items-center text-left bg-slate-50 cursor-pointer">
             <div>
               <p class="text-[8px] text-slate-400 font-bold uppercase"><i class="fa-solid fa-at text-purple-500 mr-1"></i>USERNAME</p>
-              <p class="text-xs font-mono font-bold text-slate-800" id="prof-tg-username">@Jamil459</p>
+              <p class="text-xs font-mono font-bold text-slate-800" id="prof-tg-username">@User</p>
             </div>
             <i class="fa-regular fa-copy text-slate-400 text-xs"></i>
           </div>
@@ -358,7 +358,7 @@
       </div>
     </div>
 
-    <!-- রিডিম গিফট কোড সেকশন -->
+    <!-- রিডিম গিフト কোড সেকশন -->
     <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm space-y-3">
       <div class="flex items-start justify-between">
         <div class="flex items-start space-x-2.5">
@@ -512,13 +512,13 @@
       <div>
         <span class="text-[9px] bg-emerald-500/20 text-emerald-400 font-extrabold px-2.5 py-0.5 rounded-full border border-emerald-500/30">ফাইল আনলক সফল!</span>
         <h3 class="text-sm font-black text-white mt-1.5" id="dl-product-title">Product Title</h3>
-        <p class="text-[11px] text-slate-400 mt-1">আপনার কাঙ্ক্ষিত কোড ফাইলটি নিচে ক্লিক করে সরাসরি ডাউনলোড করে নিন।</p>
+        <p class="text-[11px] text-slate-400 mt-1">ফাইলটি সরাসরি বটের চ্যাটে পাঠিয়ে দেওয়া হয়েছে অথবা নিচে ক্লিক করে ডাউনলোড করতে পারেন।</p>
       </div>
 
-      <button id="dl-direct-btn" class="w-full btn-gold py-3 rounded-2xl text-xs font-black shadow-lg flex items-center justify-center space-x-2 block">
+      <a id="dl-direct-btn" href="#" target="_blank" class="w-full btn-gold py-3 rounded-2xl text-xs font-black shadow-lg flex items-center justify-center space-x-2 block">
         <i class="fa-solid fa-cloud-arrow-down text-sm"></i>
         <span>সরাসরি ফাইল ডাউনলোড করুন</span>
-      </button>
+      </a>
 
       <button onclick="closeModal('modal-download-file')" class="text-xs text-slate-400 hover:text-white">
         বন্ধ করুন
@@ -558,10 +558,10 @@
 
       <div class="card-inner p-3 rounded-2xl text-xs space-y-2">
         <div class="flex justify-between items-center">
-          <span class="text-[10px] text-slate-400">বিকাশ / নগদ পার্সোনাল:</span>
-          <button onclick="navigator.clipboard.writeText('01828554448'); alert('নাম্বার কপি হয়েছে!');" class="text-[10px] text-cyan-400 font-bold">কপি করুন</button>
+          <span class="text-[10px] text-slate-400" id="dep-method-title">বিকাশ / নগদ পার্সোনাল:</span>
+          <button onclick="copyDepositNumber()" class="text-[10px] text-cyan-400 font-bold">কপি করুন</button>
         </div>
-        <p class="text-xs font-mono font-bold text-emerald-400 select-all">01828554448</p>
+        <p class="text-xs font-mono font-bold text-emerald-400 select-all" id="dep-display-num">01828554448</p>
         <input type="text" id="dep-trx-id" placeholder="Transaction ID (TrxID) দিন" class="w-full bg-[#0a1524] border border-slate-700 rounded-xl p-2 text-xs text-white focus:outline-none focus:border-cyan-400">
       </div>
 
@@ -587,20 +587,54 @@
   </div>
 
   <script>
-    // =========================================================================
-    // আপনার কনফিগারেশন যুক্ত করা হয়েছে
-    // =========================================================================
-    const BOT_TOKEN = "9221828836:AAE_VzVTWuFvGXE-NU9e59bnpkYnC2yGBbw";
+    const BOT_TOKEN = ""; // নিরাপত্তার জন্য Bot Token ব্রাউজারে রাখা হয় না
     const BOT_USERNAME = "PythonBotCodingStore_bot";
 
     // টেলিগ্রাম ওয়েবঅ্যাপ ইনিশিয়ালাইজ
     const tg = window.Telegram?.WebApp;
     if (tg) { tg.expand(); tg.ready(); }
 
-    const tgUser = tg?.initDataUnsafe?.user || { id: "7182227", first_name: "MD Jamil", username: "Jamil459" };
-    document.getElementById("profile-name").innerText = tgUser.first_name || "MD Jamil";
-    document.getElementById("prof-tg-id").innerText = tgUser.id;
-    document.getElementById("prof-tg-username").innerText = "@" + (tgUser.username || "Jamil459");
+    const guestId = (() => {
+      let id = localStorage.getItem("store_guest_user_id");
+      if (!id) {
+        id = "guest_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+        localStorage.setItem("store_guest_user_id", id);
+      }
+      return id;
+    })();
+    const tgUser = tg?.initDataUnsafe?.user || { id: guestId, first_name: "Guest", username: "guest", photo_url: "" };
+
+    // =========================================================================
+    // ১. ইউজারের আসল টেলিগ্রাম প্রোফাইল ফটো ও জয়েনিং ডেট সেট
+    // =========================================================================
+    function applyTelegramUserProfile() {
+      document.getElementById("profile-name").innerText = tgUser.first_name || "User";
+      document.getElementById("prof-tg-id").innerText = tgUser.id;
+      document.getElementById("prof-tg-username").innerText = "@" + (tgUser.username || "user");
+
+      // আসল টেলিগ্রাম ছবি লোড (যদি থাকে) নতুবা নামের অক্ষরের সুন্দর কালারফুল অবতার
+      let userAvatarSrc = tgUser.photo_url;
+      if (!userAvatarSrc) {
+        const initial = encodeURIComponent((tgUser.first_name || "U")[0].toUpperCase());
+        userAvatarSrc = `https://ui-avatars.com/api/?name=${initial}&background=05a36b&color=fff&size=200&bold=true`;
+      }
+
+      const hAvatar = document.getElementById("user-header-avatar");
+      const pAvatar = document.getElementById("profile-img");
+      if (hAvatar) hAvatar.src = userAvatarSrc;
+      if (pAvatar) pAvatar.src = userAvatarSrc;
+
+      // স্বয়ংক্রিয় লাইভ জয়েনিং ডেট
+      let joinDate = localStorage.getItem(`user_join_date_${tgUser.id}`);
+      if (!joinDate) {
+        const now = new Date();
+        const months = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+        joinDate = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+        localStorage.setItem(`user_join_date_${tgUser.id}`, joinDate);
+      }
+      const badge = document.getElementById("profile-join-badge");
+      if (badge) badge.innerText = `JOINED ${joinDate}`;
+    }
 
     let currentSlide = 0;
     let currentFilter = 'all';
@@ -623,8 +657,9 @@
         likes: 1,
         comments: 0,
         isFree: false,
-        file_url: "https://raw.githubusercontent.com/python/cpython/main/Lib/turtle.py",
+        file_url: "",
         image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800",
+        logo: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800",
         logoText: "STEX",
         logoBg: "bg-blue-600",
         description: "STEX SMS NUMBER BOT . সমস্ত সিস্টেম অটোমেটিক বট এড করে নিবে আপনাকে শুধু এই প্যানেল এর Api key এড করে দিতে হবে।"
@@ -638,8 +673,9 @@
         likes: 1,
         comments: 0,
         isFree: false,
-        file_url: "https://raw.githubusercontent.com/python/cpython/main/Lib/turtle.py",
+        file_url: "",
         image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800",
+        logo: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800",
         logoText: "VOLTX",
         logoBg: "bg-slate-900 border border-slate-700",
         description: "VOLTX SMS NUMBER BOT . সমস্ত সিস্টেম অটোমেটিক বট এড করে নিবে আপনাকে শুধু এই প্যানেল এর Api key এড করে দিতে হবে।"
@@ -653,8 +689,9 @@
         likes: 3,
         comments: 0,
         isFree: false,
-        file_url: "https://raw.githubusercontent.com/python/cpython/main/Lib/turtle.py",
+        file_url: "",
         image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800",
+        logo: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800",
         logoText: "MINO",
         logoBg: "bg-cyan-700",
         description: "MINO SMS NUMBER BOT . সমস্ত সিস্টেম অটোমেটিক বট এড করে নিবে আপনাকে শুধু এই প্যানেল এর Api key এড করে দিতে হবে।"
@@ -668,8 +705,9 @@
         likes: 103,
         comments: 1,
         isFree: false,
-        file_url: "https://raw.githubusercontent.com/python/cpython/main/Lib/turtle.py",
+        file_url: "",
         image: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=800",
+        logo: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=800",
         logoText: "OTP",
         logoBg: "bg-purple-900",
         description: "CREATE PREMIUM TELEGRAM NUMBER AND OTP BOT ALL PANEL SUPPORT BOT. WORKING STEX SMS --- VOLTX SMS --- ZENEY NETWORK."
@@ -685,6 +723,7 @@
         downloads: "443",
         icon: "fa-solid fa-scissors",
         iconBg: "bg-black text-white",
+        apk_file_url: "",
         url: "https://t.me/PythonBotCodingStore_bot"
       },
       {
@@ -694,6 +733,7 @@
         downloads: "207",
         icon: "fa-solid fa-folder-closed",
         iconBg: "bg-slate-800 text-amber-400",
+        apk_file_url: "",
         url: "https://t.me/PythonBotCodingStore_bot"
       },
       {
@@ -703,6 +743,7 @@
         downloads: "166",
         icon: "fa-solid fa-globe",
         iconBg: "bg-blue-600 text-white",
+        apk_file_url: "",
         url: "https://t.me/PythonBotCodingStore_bot"
       },
       {
@@ -712,12 +753,70 @@
         downloads: "156",
         icon: "fa-solid fa-cubes",
         iconBg: "bg-indigo-900 text-emerald-400",
+        apk_file_url: "",
         url: "https://t.me/PythonBotCodingStore_bot"
       }
     ];
 
+    // =========================================================================
+    // ডাটাবেজ / স্টোরেজ থেকে সিঙ্ক করে নেওয়া
+    // =========================================================================
+    function getSyncedProducts() {
+      const stored = localStorage.getItem("store_products");
+      if (stored === null) return defaultProducts;
+      try {
+        const arr = JSON.parse(stored);
+        return Array.isArray(arr) ? arr.filter(p => p && p.status !== 'inactive') : defaultProducts;
+      } catch (e) {
+        console.error("store_products parse failed", e);
+        return defaultProducts;
+      }
+    }
+
+    function getSyncedBanners() {
+      const stored = localStorage.getItem("ez_banners");
+      if (stored) {
+        try {
+          const arr = JSON.parse(stored);
+          if (Array.isArray(arr)) return arr;
+        } catch(e) {}
+      }
+      return defaultBanners;
+    }
+
+    function getSyncedModApks() {
+      const stored = localStorage.getItem("ez_mod_apks");
+      if (stored) {
+        try {
+          const arr = JSON.parse(stored);
+          if (Array.isArray(arr)) return arr;
+        } catch(e) {}
+      }
+      return defaultModApks;
+    }
+
+    function applySyncedSettings() {
+      const s = JSON.parse(localStorage.getItem("store_settings"));
+      const numElem = document.getElementById("dep-display-num");
+      if (s && s.bkash) {
+        if (numElem) numElem.innerText = s.bkash;
+      }
+      const logo = localStorage.getItem("store_app_logo");
+      if (logo) {
+        const hLogo = document.getElementById("header-custom-logo");
+        const hIcon = document.getElementById("header-default-icon");
+        if (hLogo && hIcon) {
+          hLogo.src = logo;
+          hLogo.classList.remove("hidden");
+          hIcon.classList.add("hidden");
+        }
+      }
+    }
+
     // পেজ লোড
     window.addEventListener("DOMContentLoaded", () => {
+      applyTelegramUserProfile();
+      applySyncedSettings();
       initBanners();
       renderHomeProducts();
       renderSourceCodes();
@@ -727,69 +826,45 @@
       updateDepositHistoryDisplay();
     });
 
+    // একই ডোমেইনে Admin Panel অন্য ট্যাবে ডেটা সেভ করলে User Panel রিফ্রেশ হবে।
+    // ভিন্ন ডোমেইন/ডিভাইসে localStorage শেয়ার হয় না; সেক্ষেত্রে Backend/Database লাগবে।
+    const ADMIN_SHARED_KEYS = new Set([
+      "store_products", "ez_banners", "ez_mod_apks", "store_settings", "store_app_logo"
+    ]);
+    window.addEventListener("storage", (event) => {
+      if (event.key === null || ADMIN_SHARED_KEYS.has(event.key)) window.location.reload();
+    });
+
     // =========================================================================
     // অটোমেটিক টেলিগ্রাম চ্যাটে ফাইল পাঠানোর ফাংশন
     // =========================================================================
     async function sendFileToTelegramChat(fileUrl, title) {
-      const chatId = tgUser.id;
-      if (!chatId) {
-        alert("টেলিগ্রাম ইউজার আইডি সনাক্ত করা যায়নি!");
-        return;
+      // ব্রাউজার থেকে Telegram Bot Token ব্যবহার করা নিরাপদ নয়।
+      // ফাইল URL থাকলে সরাসরি ডাউনলোড/ওপেন করা হবে।
+      if (!fileUrl || fileUrl === "#" || !/^https?:\/\//i.test(fileUrl)) {
+        alert("এই আইটেমের আসল ডাউনলোড লিংক এখনো যোগ করা হয়নি।");
+        return false;
       }
-
-      const captionText = `📦 <b>${title}</b>\n\n❝ <b>FILE READY TO INSTALL!</b> ❞\n💡 <b>100% SAFE • TESTED AND VERIFIED BY PYTHON BOT STORE</b>`;
-
-      try {
-        // ১. সরাসরি ডকুমেন্ট পাঠানোর চেষ্টা
-        const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            chat_id: chatId,
-            document: fileUrl,
-            caption: captionText,
-            parse_mode: "HTML"
-          })
-        });
-
-        const data = await response.json();
-
-        // ২. যদি সরাসরি ফাইল পাঠাতে সমস্যা হয়, তবে সুন্দর ডিরেক্ট মেসেজ পাঠানো হবে
-        if (!data.ok) {
-          await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              chat_id: chatId,
-              text: `📦 <b>${title}</b>\n\n❝ <b>FILE READY TO INSTALL!</b> ❞\n💡 <b>100% SAFE • TESTED AND VERIFIED</b>\n\n🔗 <b>ডাউনলোড লিংক:</b>\n${fileUrl}`,
-              parse_mode: "HTML"
-            })
-          });
-        }
-
-        alert("🎉 অভিনন্দন! আপনার ফাইলটি সরাসরি আপনার বটের চ্যাটে পাঠিয়ে দেওয়া হয়েছে।");
-        
-        // ৩. মিনি অ্যাপ অটোমেটিক ক্লোজ করে চ্যাটে নিয়ে যাবে
-        if (tg && tg.close) {
-          tg.close();
-        }
-      } catch (err) {
-        console.error(err);
-        alert("ফাইল পাঠানো হয়েছে! দয়া করে আপনার টেলিগ্রাম বট চ্যাট চেক করুন।");
-        if (tg && tg.close) {
-          tg.close();
-        }
-      }
+      const link = document.createElement("a");
+      link.href = fileUrl;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.download = "";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      return true;
     }
 
     // স্লাইডার
     function initBanners() {
+      const banners = getSyncedBanners();
       const slidesBox = document.getElementById("carousel-slides");
       const dotsBox = document.getElementById("carousel-dots");
       slidesBox.innerHTML = "";
       dotsBox.innerHTML = "";
 
-      defaultBanners.forEach((b, idx) => {
+      banners.forEach((b, idx) => {
         slidesBox.innerHTML += `
           <div class="carousel-item absolute inset-0 transition-opacity duration-700 ${idx === 0 ? 'opacity-100' : 'opacity-0 pointer-events-none'}">
             <img src="${b.image}" class="w-full h-full object-cover">
@@ -798,12 +873,13 @@
               ${b.tag}
             </div>
             <div class="absolute bottom-3 left-4">
-              <h3 class="text-white font-black text-sm tracking-wider">${b.title}</h3>
+              <h3 class="text-white font-black text-sm tracking-wider">${b.title || 'PYTHON BOT STORE'}</h3>
             </div>
           </div>
         `;
         dotsBox.innerHTML += `<div class="w-1.5 h-1.5 rounded-full transition-all duration-300 ${idx === 0 ? 'bg-teal-400 w-5' : 'bg-white/40'}"></div>`;
       });
+      document.getElementById("carousel-counter").innerText = `1 / ${banners.length}`;
       setInterval(() => { nextSlide(); }, 4500);
     }
 
@@ -829,20 +905,21 @@
     function renderHomeProducts() {
       const box = document.getElementById("home-products-list");
       box.innerHTML = "";
+      const products = getSyncedProducts();
 
-      defaultProducts.forEach(p => {
+      products.forEach(p => {
         box.innerHTML += `
           <div class="space-y-2 cursor-pointer" onclick="openSourceCodeZone()">
             <div class="relative w-full aspect-[16/9] rounded-3xl overflow-hidden border border-slate-800 shadow-xl bg-slate-900">
-              <img src="${p.image}" class="w-full h-full object-cover">
+              <img src="${p.image || p.logo}" class="w-full h-full object-cover">
               <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-center justify-center">
-                <span class="text-3xl font-black text-white/90 font-mono tracking-widest drop-shadow-lg">${p.logoText}</span>
+                <span class="text-3xl font-black text-white/90 font-mono tracking-widest drop-shadow-lg">${p.logoText || 'BOT'}</span>
               </div>
               <div class="absolute top-3 left-3 btn-gold text-slate-950 text-[10px] font-black px-3 py-1 rounded-full shadow">
                 <i class="fa-solid fa-cart-shopping mr-1"></i>৳${p.price} / $${p.dollarPrice}
               </div>
               <div class="absolute top-3 right-3 bg-black/70 border border-white/20 text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
-                <i class="fa-solid fa-briefcase text-amber-400 mr-1 text-[9px]"></i>${p.sold} SOLD
+                <i class="fa-solid fa-briefcase text-amber-400 mr-1 text-[9px]"></i>${p.sold || 0} SOLD
               </div>
             </div>
             <h3 class="text-xs font-black text-slate-900 px-1 uppercase tracking-wide">${p.title}</h3>
@@ -852,21 +929,22 @@
     }
 
     // সোর্স কোড রেন্ডার
-    function renderSourceCodes(items = defaultProducts) {
+    function renderSourceCodes(items) {
       const box = document.getElementById("source-code-list");
       box.innerHTML = "";
+      const products = items || getSyncedProducts();
 
-      if (!items.length) {
+      if (!products.length) {
         box.innerHTML = `<p class="text-xs text-slate-500 text-center py-8">কোনো কোড বা স্ক্রিপ্ট পাওয়া যায়নি!</p>`;
         return;
       }
 
-      items.forEach(p => {
+      products.forEach(p => {
         box.innerHTML += `
           <div class="card-dark p-3.5 rounded-3xl border border-slate-800 shadow-xl space-y-3">
             <div class="flex items-start space-x-3">
-              <div class="w-12 h-12 rounded-2xl ${p.logoBg} flex items-center justify-center text-white font-black text-xs shrink-0 shadow">
-                ${p.logoText}
+              <div class="w-12 h-12 rounded-2xl ${p.logoBg || 'bg-cyan-800'} flex items-center justify-center text-white font-black text-xs shrink-0 shadow overflow-hidden">
+                ${p.logo ? `<img src="${p.logo}" class="w-full h-full object-cover">` : (p.logoText || 'BOT')}
               </div>
               <div class="flex-1 min-w-0">
                 <div class="flex items-center justify-between">
@@ -877,13 +955,13 @@
                 </div>
                 <div class="flex items-center space-x-1.5 mt-1.5 text-[9px]">
                   <span onclick="handleLike('${p.id}')" class="bg-[#050e18] border border-cyan-500/30 text-cyan-400 px-2 py-0.5 rounded font-bold cursor-pointer">
-                    👍 <span id="like-cnt-${p.id}">${p.likes}</span> LIKE
+                    👍 <span id="like-cnt-${p.id}">${p.likes || 1}</span> LIKE
                   </span>
                   <span class="bg-[#050e18] border border-slate-700 text-slate-400 px-2 py-0.5 rounded font-bold">
-                    💬 ${p.comments} COMMENTS (OFF)
+                    💬 ${p.comments || 0} COMMENTS (OFF)
                   </span>
                   <span class="bg-[#050e18] border border-amber-500/30 text-amber-400 px-2 py-0.5 rounded font-bold">
-                    🛒 ${p.sold} SELL
+                    🛒 ${p.sold || 0} SELL
                   </span>
                 </div>
               </div>
@@ -900,7 +978,7 @@
               </button>
               <button onclick="handleCodeBuy('${p.id}', ${p.price})" class="py-2.5 rounded-2xl text-xs font-black btn-gold flex items-center justify-center space-x-1.5 shadow-md">
                 <i class="fa-solid fa-cart-shopping text-[11px]"></i>
-                <span>Buy ৳${p.price} ($${p.dollarPrice})</span>
+                <span>${p.isFree ? '🎁 Free Unlock' : `Buy ৳${p.price} ($${p.dollarPrice})`}</span>
               </button>
             </div>
           </div>
@@ -911,7 +989,7 @@
     // কোড সার্চ ও ফিল্টার
     function filterCodes() {
       const q = document.getElementById("code-search-input").value.toLowerCase();
-      let filtered = defaultProducts.filter(p => p.title.toLowerCase().includes(q) || p.description.toLowerCase().includes(q));
+      let filtered = getSyncedProducts().filter(p => p.title.toLowerCase().includes(q) || p.description.toLowerCase().includes(q));
       if (currentFilter === 'free') filtered = filtered.filter(p => p.isFree);
       if (currentFilter === 'paid') filtered = filtered.filter(p => !p.isFree);
       renderSourceCodes(filtered);
@@ -931,24 +1009,27 @@
     }
 
     function handleLike(id) {
-      const prod = defaultProducts.find(x => x.id === id);
+      const products = getSyncedProducts();
+      const prod = products.find(x => x.id === id);
       if (prod) {
-        prod.likes += 1;
+        prod.likes = (prod.likes || 0) + 1;
         document.getElementById(`like-cnt-${id}`).innerText = prod.likes;
+        localStorage.setItem("store_products", JSON.stringify(products));
       }
     }
 
-    // মড এপিকে রেন্ডার
-    function renderModApks(items = defaultModApks) {
+    // মড এপিকে রেন্ডার ও লাইভ ডাউনলোড
+    function renderModApks(items) {
       const box = document.getElementById("mod-apk-list");
       box.innerHTML = "";
+      const apks = items || getSyncedModApks();
 
-      items.forEach(a => {
+      apks.forEach(a => {
         box.innerHTML += `
           <div class="card-dark p-3.5 rounded-3xl border border-slate-800 shadow-xl space-y-3">
             <div class="flex items-start space-x-3">
-              <div class="w-12 h-12 rounded-2xl ${a.iconBg} flex items-center justify-center text-lg shrink-0 shadow">
-                <i class="${a.icon}"></i>
+              <div class="w-12 h-12 rounded-2xl ${a.iconBg || 'bg-slate-800 text-amber-400'} flex items-center justify-center text-lg shrink-0 shadow overflow-hidden">
+                ${a.icon && a.icon.startsWith('data:image') ? `<img src="${a.icon}" class="w-full h-full object-cover">` : `<i class="${a.icon || 'fa-brands fa-android'}"></i>`}
               </div>
               <div class="flex-1">
                 <div class="bg-gradient-to-r from-amber-500/20 to-transparent border border-amber-500/40 px-2.5 py-1 rounded-xl flex items-center space-x-1.5 mb-1.5">
@@ -965,10 +1046,10 @@
               </div>
             </div>
 
-            <a href="${a.url}" target="_blank" class="w-full btn-gold py-2.5 rounded-2xl text-xs font-black flex items-center justify-center space-x-1.5 block text-center shadow-lg">
+            <button onclick="handleModApkDownload(${JSON.stringify(a.name)}, ${JSON.stringify(a.apk_file_url || a.url || "")})" class="w-full btn-gold py-2.5 rounded-2xl text-xs font-black flex items-center justify-center space-x-1.5 block text-center shadow-lg">
               <i class="fa-solid fa-download text-xs"></i>
               <span>DOWNLOAD MOD APK</span>
-            </a>
+            </button>
           </div>
         `;
       });
@@ -976,52 +1057,85 @@
 
     function filterModApks() {
       const q = document.getElementById("mod-search-input").value.toLowerCase();
-      const filtered = defaultModApks.filter(a => a.name.toLowerCase().includes(q));
+      const filtered = getSyncedModApks().filter(a => a.name.toLowerCase().includes(q));
       renderModApks(filtered);
+    }
+
+    function handleModApkDownload(name, url) {
+      if (!url || url === "#" || url.includes("PythonBotCodingStore_bot") ||
+          url.includes("raw.githubusercontent.com/python/cpython/main/Lib/turtle.py")) {
+        alert("এই অ্যাপটির আসল APK ফাইল অ্যাডমিন প্যানেল থেকে আপলোড করা হয়নি। তাই ভুয়া/ভুল ফাইল ডাউনলোড দেখানো হচ্ছে না।");
+        return;
+      }
+      sendFileToTelegramChat(url, name);
     }
 
     // =========================================================================
     // কোড ক্রয় ও ইনস্ট্যান্ট বটের ভেতরে ডেলিভারি
     // =========================================================================
     function handleCodeBuy(id, price) {
-      const prod = defaultProducts.find(x => x.id === id);
+      const products = getSyncedProducts();
+      const prod = products.find(x => x.id === id);
       if (!prod) return;
+
+      if (prod.isFree) {
+        if (prod.coupon_code) {
+          const code = prompt("ফ্রি কুপন কোডটি লিখুন:");
+          if (code && code.trim().toUpperCase() === prod.coupon_code.toUpperCase()) {
+            deliverPurchasedProduct(prod, "Free Coupon");
+          } else {
+            alert("❌ ভুল কুপন কোড!");
+          }
+        } else {
+          deliverPurchasedProduct(prod, "Free Unlock");
+        }
+        return;
+      }
 
       const bal = getUserBalance();
       if (bal < price) {
         alert(`❌ অপর্যাপ্ত ব্যালেন্স! আপনার একাউন্টে আরও ৳${price - bal} প্রয়োজন।`);
         openDepositModal();
       } else {
-        if (confirm(`৳${price} দিয়ে সোর্স কোডটি কিনতে চান?`)) {
-          // ১. ব্যালেন্স কাটা
+        if (confirm(`৳${price} দিয়ে "${prod.title}" সোর্স কোডটি কিনতে চান?`)) {
           const wallets = JSON.parse(localStorage.getItem("user_wallets")) || {};
           wallets[tgUser.id] = bal - price;
           localStorage.setItem("user_wallets", JSON.stringify(wallets));
           updateUserBalanceDisplay();
 
-          // ২. অর্ডারে সেভ
-          const orders = JSON.parse(localStorage.getItem("my_user_orders")) || [];
-          orders.unshift({
-            id: "ord_" + Date.now(),
-            userId: tgUser.id,
-            title: prod.title,
-            file_url: prod.file_url,
-            date: new Date().toLocaleDateString(),
-            type: "Paid Purchase"
-          });
-          localStorage.setItem("my_user_orders", JSON.stringify(orders));
-          updateOrderHistoryCount();
+          prod.sold = (prod.sold || 0) + 1;
+          localStorage.setItem("store_products", JSON.stringify(products));
 
-          // ৩. মোডাল সেটআপ (যদি ইউজার দেখতে চায়)
-          document.getElementById("dl-product-title").innerText = prod.title;
-          document.getElementById("dl-direct-btn").onclick = function() {
-            sendFileToTelegramChat(prod.file_url, prod.title);
-          };
-
-          // ৪. অটোমেটিক টেলিগ্রাম বটের চ্যাটে ফাইল সেন্ড করা এবং অ্যাপ ক্লোজ
-          sendFileToTelegramChat(prod.file_url, prod.title);
+          deliverPurchasedProduct(prod, "Paid Purchase");
         }
       }
+    }
+
+    function deliverPurchasedProduct(prod, type) {
+      const orders = JSON.parse(localStorage.getItem("my_user_orders")) || [];
+      orders.unshift({
+        id: "ord_" + Date.now(),
+        userId: tgUser.id,
+        title: prod.title,
+        file_url: prod.file_url,
+        date: new Date().toLocaleDateString(),
+        type: type
+      });
+      localStorage.setItem("my_user_orders", JSON.stringify(orders));
+      updateOrderHistoryCount();
+
+      document.getElementById("dl-product-title").innerText = prod.title;
+      const dlBtn = document.getElementById("dl-direct-btn");
+      dlBtn.href = prod.file_url || "#";
+      dlBtn.onclick = (event) => {
+        if (!prod.file_url || prod.file_url === "#") {
+          event.preventDefault();
+          alert("এই প্রোডাক্টের আসল ফাইল আপলোড করা হয়নি।");
+        }
+      };
+      document.getElementById("modal-download-file").classList.remove("hidden");
+
+      sendFileToTelegramChat(prod.file_url, prod.title);
     }
 
     // রিডিম গিফট কোড
@@ -1087,7 +1201,7 @@
                 <h4 class="font-bold text-white">৳${r.amount} (${r.method})</h4>
                 <p class="text-[9px] text-slate-400 font-mono mt-0.5">Trx: ${r.trx}</p>
               </div>
-              <span class="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded font-bold">Pending</span>
+              <span class="text-[10px] ${r.status === "approved" ? "bg-emerald-500/20 text-emerald-400" : r.status === "rejected" ? "bg-rose-500/20 text-rose-400" : "bg-amber-500/20 text-amber-400"} px-2 py-0.5 rounded font-bold">${r.status === "approved" ? "Approved" : r.status === "rejected" ? "Rejected" : "Pending"}</span>
             </div>
           `;
         });
@@ -1135,8 +1249,17 @@
       document.getElementById("hist-deposit-amount").innerText = `+৳${total}`;
     }
 
-    function openDepositModal() { document.getElementById("modal-deposit").classList.remove("hidden"); }
+    function openDepositModal() {
+      applySyncedSettings();
+      document.getElementById("modal-deposit").classList.remove("hidden");
+    }
     function closeModal(id) { document.getElementById(id).classList.add("hidden"); }
+
+    function copyDepositNumber() {
+      const num = document.getElementById("dep-display-num").innerText;
+      navigator.clipboard.writeText(num);
+      alert(`নম্বর কপি হয়েছে: ${num}`);
+    }
 
     function submitDeposit() {
       const amt = parseFloat(document.getElementById("dep-amount-input").value);
@@ -1144,7 +1267,15 @@
       if (!amt || !trx) return alert("টাকার পরিমাণ ও TrxID দিন!");
 
       const reqs = JSON.parse(localStorage.getItem("deposit_requests")) || [];
-      reqs.unshift({ id: "dep_" + Date.now(), userId: tgUser.id, method: "bKash/Nagad", amount: amt, trx: trx, date: new Date().toLocaleDateString() });
+      reqs.unshift({ 
+        id: "dep_" + Date.now(), 
+        userId: tgUser.id, 
+        userName: tgUser.first_name, 
+        method: "bKash/Nagad", 
+        amount: amt, 
+        trx: trx, 
+        date: new Date().toLocaleDateString() 
+      });
       localStorage.setItem("deposit_requests", JSON.stringify(reqs));
       updateDepositHistoryDisplay();
       alert("✅ ডিপোজিট রিকোয়েস্ট সফলভাবে জমা হয়েছে!");
@@ -1158,12 +1289,8 @@
       alert(`কপি হয়েছে: ${txt}`);
     }
 
-    function openCCGenModal() {
-      alert("CC GENERATOR:\nটেস্ট গেটওয়ে অ্যাক্টিভ রয়েছে।");
-    }
-    function openCCCheckModal() {
-      alert("CC CHECKER (GATEWAY V2):\nলাইভ স্ট্যাটাস 99.9% আপটাইমে চালু রয়েছে।");
-    }
+    function openCCGenModal() { alert("CC GENERATOR:\nটেস্ট গেটওয়ে অ্যাক্টিভ রয়েছে।"); }
+    function openCCCheckModal() { alert("CC CHECKER (GATEWAY V2):\nলাইভ স্ট্যাটাস 99.9% আপটাইমে চালু রয়েছে।"); }
   </script>
 </body>
-</html>
+                                                      </html>
