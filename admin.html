@@ -119,6 +119,16 @@
           </div>
         </div>
 
+        <!-- ৩-৪টি অতিরিক্ত ছবি (স্ক্রিনশট) অ্যাড করার অংশ -->
+        <div class="bg-purple-500/10 border border-purple-500/30 p-3 rounded-xl space-y-2">
+          <div class="flex justify-between items-center">
+            <label class="text-[11px] text-purple-300 font-bold">আরও স্ক্রিনশট / ছবি যোগ করুন (সর্বোচ্চ ৪টি):</label>
+            <button type="button" onclick="clearGallery()" class="text-[10px] text-rose-400 font-bold">সব মুছুন</button>
+          </div>
+          <input type="file" id="p-gallery-input" accept="image/*" multiple onchange="previewProductGallery(event)" class="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:bg-purple-500 file:text-white cursor-pointer">
+          <div id="prod-gallery-preview" class="grid grid-cols-4 gap-2 pt-1 hidden"></div>
+        </div>
+
         <div>
           <label class="text-[11px] text-slate-400 block mb-1">বিস্তারিত বিবরণ (Description):</label>
           <textarea id="p-desc" rows="3" placeholder="বটের সমস্ত ফিচার ও বিস্তারিত..." class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white"></textarea>
@@ -246,13 +256,11 @@
   </div>
 
   <script>
-    const CLOUD_NAME = "ghlprpz8";
-    const UPLOAD_PRESET = "sx1oepje";
-
     let currentAdminPass = "";
     let adminData = { products: [], banners: [], mod_apks: [], deposits: [], settings: {} };
     let tempAppLogoBase64 = "";
     let tempProdLogoBase64 = "";
+    let tempProdGallery = [];
     let itemDeleteCallback = null;
 
     function escapeHtml(str) {
@@ -299,6 +307,46 @@
       document.getElementById("prod-logo-icon").classList.add("hidden");
     }
 
+    async function previewProductGallery(event) {
+      const files = Array.from(event.target.files || []);
+      for (const file of files) {
+        if (tempProdGallery.length >= 4) {
+          alert("সর্বোচ্চ ৪টি অতিরিক্ত ছবি যোগ করা যাবে!");
+          break;
+        }
+        const img = await resizeAndCompressImage(file, 600, 600, 0.75);
+        tempProdGallery.push(img);
+      }
+      event.target.value = "";
+      renderGalleryPreviews();
+    }
+
+    function removeGalleryImage(idx) {
+      tempProdGallery.splice(idx, 1);
+      renderGalleryPreviews();
+    }
+
+    function clearGallery() {
+      tempProdGallery = [];
+      renderGalleryPreviews();
+    }
+
+    function renderGalleryPreviews() {
+      const box = document.getElementById("prod-gallery-preview");
+      if (!tempProdGallery.length) {
+        box.innerHTML = "";
+        box.classList.add("hidden");
+        return;
+      }
+      box.classList.remove("hidden");
+      box.innerHTML = tempProdGallery.map((img, i) => `
+        <div class="relative aspect-square rounded-xl overflow-hidden border border-purple-500/40 bg-slate-900">
+          <img src="${img}" class="w-full h-full object-cover">
+          <button type="button" onclick="removeGalleryImage(${i})" class="absolute top-1 right-1 w-5 h-5 rounded-full bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center">✕</button>
+        </div>
+      `).join("");
+    }
+
     async function checkAdminPassword() {
       const input = document.getElementById("admin-pass-input").value;
       const btn = document.getElementById("login-btn");
@@ -339,6 +387,7 @@
       if (body) opts.body = JSON.stringify(body);
       const res = await fetch(url, opts);
       if (res.status === 401) { logoutAdmin(); throw new Error("Unauthorized"); }
+      if (!res.ok) throw new Error("Server error");
       return res.json();
     }
 
@@ -361,6 +410,11 @@
         hImg.src = s.appLogo;
         hImg.classList.remove("hidden");
         document.getElementById("header-default-icon").classList.add("hidden");
+
+        const sImg = document.getElementById("setting-preview-img");
+        sImg.src = s.appLogo;
+        sImg.classList.remove("hidden");
+        document.getElementById("setting-preview-icon").classList.add("hidden");
       }
     }
 
@@ -379,15 +433,20 @@
       }
     }
 
-    async function uploadToCloudinary(file) {
+    async function uploadFileToServer(file) {
       try {
         const formData = new FormData();
         formData.append("file", file);
-        formData.append("upload_preset", UPLOAD_PRESET);
-        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/raw/upload`, { method: "POST", body: formData });
+        const res = await fetch("/api/admin/upload", {
+          method: "POST",
+          headers: { "X-Admin-Pass": currentAdminPass },
+          body: formData
+        });
         const data = await res.json();
-        return data.secure_url || null;
-      } catch (e) { return null; }
+        return data.ok ? data.url : null;
+      } catch (e) {
+        return null;
+      }
     }
 
     async function uploadEverythingAndSave() {
@@ -409,9 +468,9 @@
 
       try {
         if (!fileUrl && fileInput.files.length) {
-          fileUrl = await uploadToCloudinary(fileInput.files[0]);
+          fileUrl = await uploadFileToServer(fileInput.files[0]);
           if (!fileUrl) {
-            alert("❌ Cloudinary-তে ফাইল আপলোড ব্যর্থ হয়েছে! অনুগ্রহ করে নিচের বক্সে সরাসরি ডাউনলোড লিংক (Google Drive/GitHub) দিন।");
+            alert("❌ ফাইল আপলোড ব্যর্থ হয়েছে! ফাইলটি ৫০ MB-এর বড় হলে নিচের বক্সে Google Drive / MediaFire লিংক দিন।");
             return;
           }
         }
@@ -419,7 +478,8 @@
         const logoUrl = tempProdLogoBase64 || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400";
         await apiAdmin("/api/admin/product", "POST", {
           title, price, dollarPrice: dollar, isFree: type === 'free',
-          coupon_code: coupon, file_url: fileUrl, logo: logoUrl, description: desc
+          coupon_code: coupon, file_url: fileUrl, logo: logoUrl,
+          gallery: tempProdGallery, description: desc
         });
 
         alert(`🎉 "${title}" সফলভাবে পাবলিশ হয়েছে!`);
@@ -428,9 +488,15 @@
         document.getElementById("p-file-url").value = "";
         document.getElementById("p-desc").value = "";
         document.getElementById("p-coupon").value = "";
+        document.getElementById("p-logo-input").value = "";
+        document.getElementById("prod-logo-preview").classList.add("hidden");
+        document.getElementById("prod-logo-icon").classList.remove("hidden");
         tempProdLogoBase64 = "";
+        clearGallery();
         await loadAllAdminData();
         switchTab('all-products');
+      } catch (e) {
+        alert("❌ সেভ করতে সমস্যা হয়েছে!");
       } finally {
         saveBtn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i><span>স্টোরে পাবলিশ করুন</span>`;
         saveBtn.disabled = false;
@@ -445,6 +511,7 @@
 
       prods.forEach(p => {
         const isOff = p.status === 'inactive';
+        const gCount = (p.gallery || []).length;
         box.innerHTML += `
           <div class="card p-3 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs border ${isOff ? 'border-rose-900/40 opacity-75' : 'border-slate-800'}">
             <div class="flex items-center space-x-2.5">
@@ -454,6 +521,7 @@
                 <div class="flex items-center space-x-2 mt-0.5">
                   <span class="text-[10px] text-amber-400 font-semibold">${p.isFree ? 'FREE CODE' : `৳${p.price} ($${p.dollarPrice})`}</span>
                   <span class="text-[9px] px-1.5 rounded font-black ${isOff ? 'bg-rose-500/20 text-rose-400' : 'bg-emerald-500/20 text-emerald-400'}">${isOff ? '● বন্ধ' : '● চালু'}</span>
+                  ${gCount ? `<span class="text-[9px] text-purple-300">📷 ${gCount}</span>` : ''}
                 </div>
               </div>
             </div>
@@ -528,15 +596,19 @@
       btn.disabled = true; btn.innerText = "আপলোড হচ্ছে...";
       try {
         if (!apkUrl && realApkInput.files.length) {
-          apkUrl = await uploadToCloudinary(realApkInput.files[0]);
-          if (!apkUrl) return alert("❌ Cloudinary আপলোড ব্যর্থ হয়েছে! সরাসরি ডাউনলোড লিংক দিন।");
+          apkUrl = await uploadFileToServer(realApkInput.files[0]);
+          if (!apkUrl) return alert("❌ ফাইল আপলোড ব্যর্থ হয়েছে! ফাইল ৫০ MB-এর বড় হলে নিচের বক্সে সরাসরি লিংক দিন।");
         }
         const icon = iconInput.files.length ? await resizeAndCompressImage(iconInput.files[0], 180, 180, 0.8) : "";
         await apiAdmin("/api/admin/modapk", "POST", { name, rank, downloads, icon, apk_file_url: apkUrl });
         alert("✅ Mod APK পাবলিশ হয়েছে!");
         document.getElementById("apk-name").value = "";
         document.getElementById("apk-file-url").value = "";
+        document.getElementById("apk-real-file").value = "";
+        document.getElementById("apk-icon-file").value = "";
         await loadAllAdminData();
+      } catch (e) {
+        alert("❌ পাবলিশ করতে সমস্যা হয়েছে!");
       } finally { btn.disabled = false; btn.innerText = "➕ Mod APK পাবলিশ করুন"; }
     }
 
@@ -597,15 +669,19 @@
     }
 
     async function saveAllSettings() {
-      const body = {
-        bkash: document.getElementById("set-bkash").value.trim(),
-        nagad: document.getElementById("set-nagad").value.trim(),
-        dollarRate: document.getElementById("set-rate").value.trim()
-      };
-      if (tempAppLogoBase64) body.appLogo = tempAppLogoBase64;
-      await apiAdmin("/api/admin/settings", "POST", body);
-      alert("✅ সেটিংস সেভ হয়েছে!");
-      await loadAllAdminData();
+      try {
+        const body = {
+          bkash: document.getElementById("set-bkash").value.trim(),
+          nagad: document.getElementById("set-nagad").value.trim(),
+          dollarRate: document.getElementById("set-rate").value.trim()
+        };
+        if (tempAppLogoBase64) body.appLogo = tempAppLogoBase64;
+        await apiAdmin("/api/admin/settings", "POST", body);
+        alert("✅ সেটিংস সেভ হয়েছে!");
+        await loadAllAdminData();
+      } catch (e) {
+        alert("❌ সেভ করতে সমস্যা হয়েছে!");
+      }
     }
 
     function openDeleteDialog(cb) { itemDeleteCallback = cb; document.getElementById("modal-delete-confirm").classList.remove("hidden"); }
@@ -613,4 +689,4 @@
     function executeDelete() { if (itemDeleteCallback) itemDeleteCallback(); closeDeleteModal(); }
   </script>
 </body>
-                                                                                  </html>
+</html>
