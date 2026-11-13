@@ -1,5 +1,9 @@
 import os
+import json
+import uuid
+import base64
 import sqlite3
+import urllib.request
 from datetime import datetime
 from flask import Flask, request, jsonify, send_from_directory
 
@@ -7,6 +11,14 @@ app = Flask(__name__, static_folder=".")
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16MB limit
 
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "").strip()
+WEB_APP_URL = os.environ.get("RENDER_EXTERNAL_URL", "https://python-bot-store.onrender.com").strip().rstrip("/")
+WELCOME_IMAGE_URL = os.environ.get("WELCOME_IMAGE_URL", "").strip()
+
+SUPPORT_CHANNEL_URL = "https://t.me/DragonTGSupportGroup"
+SUPPORT_ADMIN_URL = "https://t.me/Jamil459"
+NOTIFY_CHAT_ID = "-1004327400838"
+
 DB_PATH = "store.db"
 
 
@@ -121,6 +133,61 @@ def init_db():
 init_db()
 
 
+def tg_api(method, payload):
+    if not BOT_TOKEN:
+        return None
+    req = urllib.request.Request(
+        f"https://api.telegram.org/bot{BOT_TOKEN}/{method}",
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except Exception:
+        return None
+
+
+def tg_send_photo_bytes(chat_id, img_bytes, filename, caption, reply_markup=None):
+    if not BOT_TOKEN:
+        return None
+    boundary = f"----Boundary{uuid.uuid4().hex}"
+    parts = []
+
+    def add_field(name, value):
+        parts.append(f"--{boundary}\r\n".encode())
+        parts.append(f'Content-Disposition: form-data; name="{name}"\r\n\r\n'.encode())
+        parts.append(f"{value}\r\n".encode("utf-8"))
+
+    add_field("chat_id", str(chat_id))
+    add_field("caption", caption)
+    add_field("parse_mode", "HTML")
+    if reply_markup:
+        add_field("reply_markup", json.dumps(reply_markup))
+
+    mime = "image/png" if filename.lower().endswith(".png") else "image/jpeg"
+    parts.append(f"--{boundary}\r\n".encode())
+    parts.append(f'Content-Disposition: form-data; name="photo"; filename="{filename}"\r\n'.encode())
+    parts.append(f"Content-Type: {mime}\r\n\r\n".encode())
+    parts.append(img_bytes)
+    parts.append(b"\r\n")
+    parts.append(f"--{boundary}--\r\n".encode())
+
+    body = b"".join(parts)
+    req = urllib.request.Request(
+        f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto",
+        data=body,
+        headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except Exception:
+        return None
+
+
 def check_admin():
     return request.headers.get("X-Admin-Pass", "") == ADMIN_PASSWORD
 
@@ -144,7 +211,7 @@ def ensure_user(conn, user_id, first_name="User", username="user"):
     return user
 
 
-# ==================== HTML পেজ সার্ভ ====================
+# ==================== HTML ও বট রুট ====================
 @app.route("/")
 def serve_index():
     return send_from_directory(".", "index.html")
@@ -159,6 +226,130 @@ def serve_admin():
 @app.route("/health")
 def health():
     return jsonify({"status": "ok"}), 200
+
+
+@app.route("/setup-bot")
+def setup_bot():
+    if not BOT_TOKEN:
+        return "❌ Render-এ BOT_TOKEN সেট করা নেই! Environment Variables-এ BOT_TOKEN যোগ করুন।", 400
+
+    webhook_url = f"{WEB_APP_URL}/telegram-webhook"
+    w_res = tg_api("setWebhook", {"url": webhook_url})
+    m_res = tg_api("setChatMenuButton", {
+        "menu_button": {
+            "type": "web_app",
+            "text": "OPEN STORE",
+            "web_app": {"url": WEB_APP_URL}
+        }
+    })
+    return jsonify({"status": "✅ Bot Connected!", "webhook": w_res, "menu_button": m_res})
+
+
+@app.route("/telegram-webhook", methods=["POST"])
+def telegram_webhook():
+    update = request.get_json(silent=True) or {}
+    msg = update.get("message") or {}
+    text = (msg.get("text") or "").strip()
+    chat = msg.get("chat") or {}
+    chat_id = chat.get("id")
+    from_user = msg.get("from") or {}
+
+    if chat_id and text.startswith("/start"):
+        conn = get_db()
+        ensure_user(
+            conn,
+            chat_id,
+            from_user.get("first_name", "User"),
+            from_user.get("username", "user"),
+        )
+        banner = conn.execute("SELECT image FROM banners ORDER BY id DESC LIMIT 1").fetchone()
+        settings = get_settings_dict(conn)
+        conn.close()
+
+        caption = (
+            "<blockquote>✈️ <b><i>WELCOME TO PYTHON BOT CODING STORE!</i></b></blockquote>\n"
+            "<blockquote>👑 <b><i>YOUR ULTIMATE DIGITAL RESOURCE HUB!</i></b></blockquote>\n"
+            "━━━━━━━━━━━━━━━━━━\n"
+            "<blockquote>💡 <b><i>EXPLORE PYTHON BOT CODING STORE AND FIND WHAT YOU NEED!</i></b></blockquote>\n"
+            "<blockquote>🔔 <b><i>ADVANCED DEVELOPER TOOLS</i></b></blockquote>\n"
+            "<blockquote>🤖 <b><i>UNLIMITED PREMIUM MOD APKS</i></b></blockquote>\n"
+            "<blockquote>💻 <b><i>ALL TYPES CODING FILES AND SOURCES</i></b></blockquote>\n"
+            "━━━━━━━━━━━━━━━━━━"
+        )
+
+        markup = {
+            "inline_keyboard": [
+                [
+                    {
+                        "text": "🚀 OPEN STORE",
+                        "web_app": {"url": WEB_APP_URL}
+                    }
+                ],
+                [
+                    {
+                        "text": "📢 Support Channel",
+                        "url": SUPPORT_CHANNEL_URL
+                    },
+                    {
+                        "text": "👨‍💻 Support Admin",
+                        "url": SUPPORT_ADMIN_URL
+                    }
+                ]
+            ]
+        }
+
+        sent = None
+
+        # ১. Env ভ্যারিয়েবল ছবির লিংক থাকলে
+        if WELCOME_IMAGE_URL:
+            sent = tg_api("sendPhoto", {
+                "chat_id": chat_id,
+                "photo": WELCOME_IMAGE_URL,
+                "caption": caption,
+                "parse_mode": "HTML",
+                "reply_markup": markup,
+            })
+
+        # ২. গিটহাবে welcome.jpg বা welcome.png ফাইল থাকলে
+        if not sent or not sent.get("ok"):
+            for fname in ["welcome.jpg", "welcome.png", "welcome.jpeg"]:
+                if os.path.exists(fname):
+                    try:
+                        with open(fname, "rb") as f:
+                            sent = tg_send_photo_bytes(chat_id, f.read(), fname, caption, markup)
+                        if sent and sent.get("ok"):
+                            break
+                    except Exception:
+                        pass
+
+        # ৩. অ্যাডমিন প্যানেলের ব্যানার বা মূল লোগো থাকলে
+        if not sent or not sent.get("ok"):
+            img_data = (banner["image"] if banner else "") or settings.get("appLogo", "")
+            if img_data.startswith("data:image") and "," in img_data:
+                try:
+                    img_bytes = base64.b64decode(img_data.split(",", 1)[1])
+                    sent = tg_send_photo_bytes(chat_id, img_bytes, "welcome.jpg", caption, markup)
+                except Exception:
+                    sent = None
+            elif img_data.startswith("http"):
+                sent = tg_api("sendPhoto", {
+                    "chat_id": chat_id,
+                    "photo": img_data,
+                    "caption": caption,
+                    "parse_mode": "HTML",
+                    "reply_markup": markup,
+                })
+
+        # ৪. কোনো ছবি না থাকলে সাধারণ মেসেজ
+        if not sent or not sent.get("ok"):
+            tg_api("sendMessage", {
+                "chat_id": chat_id,
+                "text": caption,
+                "parse_mode": "HTML",
+                "reply_markup": markup,
+            })
+
+    return jsonify({"ok": True})
 
 
 # ==================== ইউজার / স্টোর API ====================
@@ -222,13 +413,22 @@ def api_like(pid):
 @app.route("/api/send-apk", methods=["POST"])
 def api_send_apk():
     data = request.get_json(silent=True) or {}
+    uid = str(data.get("user_id", ""))
     apk_id = data.get("apk_id")
     conn = get_db()
     conn.execute("UPDATE mod_apks SET downloads = downloads + 1 WHERE id = ?", (apk_id,))
     conn.commit()
-    row = conn.execute("SELECT apk_file_url FROM mod_apks WHERE id = ?", (apk_id,)).fetchone()
+    row = conn.execute("SELECT name, apk_file_url FROM mod_apks WHERE id = ?", (apk_id,)).fetchone()
     conn.close()
-    return jsonify({"ok": True, "url": row["apk_file_url"] if row else "#"})
+
+    url = row["apk_file_url"] if row else "#"
+    if row and BOT_TOKEN and uid.isdigit():
+        tg_api("sendMessage", {
+            "chat_id": int(uid),
+            "text": f"🤖 <b>{row['name']}</b>\n\n📥 ডাউনলোড লিংক:\n{url}",
+            "parse_mode": "HTML"
+        })
+    return jsonify({"ok": True, "url": url})
 
 
 @app.route("/api/buy", methods=["POST"])
@@ -265,6 +465,14 @@ def api_buy():
     )
     conn.commit()
     conn.close()
+
+    if BOT_TOKEN and uid.isdigit():
+        tg_api("sendMessage", {
+            "chat_id": int(uid),
+            "text": f"✅ <b>{prod['title']}</b> ফাইলটি আনলক হয়েছে!\n\n📥 ডাউনলোড লিংক:\n{prod['file_url']}",
+            "parse_mode": "HTML"
+        })
+
     return jsonify({"ok": True, "title": prod["title"], "file_url": prod["file_url"]})
 
 
@@ -288,6 +496,21 @@ def api_deposit():
     )
     conn.commit()
     conn.close()
+
+    # নতুন ডিপোজিট রিকোয়েস্ট গ্রুপ/চ্যানেলে নোটিফিকেশন পাঠাবে
+    if BOT_TOKEN and NOTIFY_CHAT_ID:
+        tg_api("sendMessage", {
+            "chat_id": NOTIFY_CHAT_ID,
+            "text": (
+                f"💰 <b>নতুন ডিপোজিট রিকোয়েস্ট!</b>\n\n"
+                f"👤 User: {user_name} (<code>{uid}</code>)\n"
+                f"💳 Method: {method}\n"
+                f"💵 Amount: ৳{amount}\n"
+                f"🧾 TrxID: <code>{trx}</code>"
+            ),
+            "parse_mode": "HTML"
+        })
+
     return jsonify({"ok": True})
 
 
@@ -297,7 +520,6 @@ def api_redeem():
     uid = str(data.get("user_id", ""))
     code = (data.get("code") or "").strip().upper()
 
-    # গিফট কোড তালিকা (চাইলে এখানে নতুন কোড যোগ করতে পারবেন)
     gift_codes = {
         "WELCOME50": 50,
         "BONUS20": 20,
