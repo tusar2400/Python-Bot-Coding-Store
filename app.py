@@ -5,10 +5,11 @@ import base64
 import sqlite3
 import urllib.request
 from datetime import datetime
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, Response
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__, static_folder=".")
-app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16MB limit
+app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024
 
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "").strip()
@@ -52,10 +53,25 @@ def init_db():
             coupon_code TEXT DEFAULT '',
             file_url TEXT DEFAULT '',
             logo TEXT DEFAULT '',
+            gallery TEXT DEFAULT '[]',
             description TEXT DEFAULT '',
             status TEXT DEFAULT 'active',
             sold INTEGER DEFAULT 0,
             likes INTEGER DEFAULT 1
+        )
+    """)
+
+    try:
+        cur.execute("ALTER TABLE products ADD COLUMN gallery TEXT DEFAULT '[]'")
+    except sqlite3.OperationalError:
+        pass
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS uploads (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            filename TEXT,
+            mimetype TEXT,
+            data BLOB
         )
     """)
 
@@ -211,7 +227,20 @@ def ensure_user(conn, user_id, first_name="User", username="user"):
     return user
 
 
-# ==================== HTML ও বট রুট ====================
+def safe_json_list(raw):
+    try:
+        val = json.loads(raw or "[]")
+        return val if isinstance(val, list) else []
+    except Exception:
+        return []
+
+
+def full_url(url):
+    if url and url.startswith("/"):
+        return f"{WEB_APP_URL}{url}"
+    return url
+
+
 @app.route("/")
 def serve_index():
     return send_from_directory(".", "index.html")
@@ -228,11 +257,24 @@ def health():
     return jsonify({"status": "ok"}), 200
 
 
+@app.route("/download/<int:fid>/<path:filename>")
+def download_uploaded_file(fid, filename):
+    conn = get_db()
+    row = conn.execute("SELECT filename, mimetype, data FROM uploads WHERE id = ?", (fid,)).fetchone()
+    conn.close()
+    if not row:
+        return "File not found", 404
+    return Response(
+        row["data"],
+        mimetype=row["mimetype"] or "application/octet-stream",
+        headers={"Content-Disposition": f'attachment; filename="{row["filename"]}"'},
+    )
+
+
 @app.route("/setup-bot")
 def setup_bot():
     if not BOT_TOKEN:
-        return "❌ Render-এ BOT_TOKEN সেট করা নেই! Environment Variables-এ BOT_TOKEN যোগ করুন।", 400
-
+        return "❌ Render-এ BOT_TOKEN সেট করা নেই!", 400
     webhook_url = f"{WEB_APP_URL}/telegram-webhook"
     w_res = tg_api("setWebhook", {"url": webhook_url})
     m_res = tg_api("setChatMenuButton", {
@@ -256,12 +298,7 @@ def telegram_webhook():
 
     if chat_id and text.startswith("/start"):
         conn = get_db()
-        ensure_user(
-            conn,
-            chat_id,
-            from_user.get("first_name", "User"),
-            from_user.get("username", "user"),
-        )
+        ensure_user(conn, chat_id, from_user.get("first_name", "User"), from_user.get("username", "user"))
         banner = conn.execute("SELECT image FROM banners ORDER BY id DESC LIMIT 1").fetchone()
         settings = get_settings_dict(conn)
         conn.close()
@@ -276,41 +313,23 @@ def telegram_webhook():
             "<blockquote>💻 <b><i>ALL TYPES CODING FILES AND SOURCES</i></b></blockquote>\n"
             "━━━━━━━━━━━━━━━━━━"
         )
-
         markup = {
             "inline_keyboard": [
+                [{"text": "🚀 OPEN STORE", "web_app": {"url": WEB_APP_URL}}],
                 [
-                    {
-                        "text": "🚀 OPEN STORE",
-                        "web_app": {"url": WEB_APP_URL}
-                    }
+                    {"text": "📢 Support Channel", "url": SUPPORT_CHANNEL_URL},
+                    {"text": "👨‍💻 Support Admin", "url": SUPPORT_ADMIN_URL},
                 ],
-                [
-                    {
-                        "text": "📢 Support Channel",
-                        "url": SUPPORT_CHANNEL_URL
-                    },
-                    {
-                        "text": "👨‍💻 Support Admin",
-                        "url": SUPPORT_ADMIN_URL
-                    }
-                ]
             ]
         }
 
         sent = None
-
-        # ১. Env ভ্যারিয়েবল ছবির লিংক থাকলে
         if WELCOME_IMAGE_URL:
             sent = tg_api("sendPhoto", {
-                "chat_id": chat_id,
-                "photo": WELCOME_IMAGE_URL,
-                "caption": caption,
-                "parse_mode": "HTML",
-                "reply_markup": markup,
+                "chat_id": chat_id, "photo": WELCOME_IMAGE_URL,
+                "caption": caption, "parse_mode": "HTML", "reply_markup": markup,
             })
 
-        # ২. গিটহাবে welcome.jpg বা welcome.png ফাইল থাকলে
         if not sent or not sent.get("ok"):
             for fname in ["welcome.jpg", "welcome.png", "welcome.jpeg"]:
                 if os.path.exists(fname):
@@ -322,7 +341,6 @@ def telegram_webhook():
                     except Exception:
                         pass
 
-        # ৩. অ্যাডমিন প্যানেলের ব্যানার বা মূল লোগো থাকলে
         if not sent or not sent.get("ok"):
             img_data = (banner["image"] if banner else "") or settings.get("appLogo", "")
             if img_data.startswith("data:image") and "," in img_data:
@@ -333,26 +351,19 @@ def telegram_webhook():
                     sent = None
             elif img_data.startswith("http"):
                 sent = tg_api("sendPhoto", {
-                    "chat_id": chat_id,
-                    "photo": img_data,
-                    "caption": caption,
-                    "parse_mode": "HTML",
-                    "reply_markup": markup,
+                    "chat_id": chat_id, "photo": img_data,
+                    "caption": caption, "parse_mode": "HTML", "reply_markup": markup,
                 })
 
-        # ৪. কোনো ছবি না থাকলে সাধারণ মেসেজ
         if not sent or not sent.get("ok"):
             tg_api("sendMessage", {
-                "chat_id": chat_id,
-                "text": caption,
-                "parse_mode": "HTML",
-                "reply_markup": markup,
+                "chat_id": chat_id, "text": caption,
+                "parse_mode": "HTML", "reply_markup": markup,
             })
 
     return jsonify({"ok": True})
 
 
-# ==================== ইউজার / স্টোর API ====================
 @app.route("/api/store-data", methods=["POST"])
 def api_store_data():
     data = request.get_json(silent=True) or {}
@@ -373,6 +384,7 @@ def api_store_data():
             "isFree": bool(p["is_free"]),
             "hasCoupon": bool(p["coupon_code"]),
             "logo": p["logo"],
+            "gallery": safe_json_list(p["gallery"]),
             "description": p["description"],
             "sold": p["sold"],
             "likes": p["likes"],
@@ -425,7 +437,7 @@ def api_send_apk():
     if row and BOT_TOKEN and uid.isdigit():
         tg_api("sendMessage", {
             "chat_id": int(uid),
-            "text": f"🤖 <b>{row['name']}</b>\n\n📥 ডাউনলোড লিংক:\n{url}",
+            "text": f"🤖 <b>{row['name']}</b>\n\n📥 ডাউনলোড লিংক:\n{full_url(url)}",
             "parse_mode": "HTML"
         })
     return jsonify({"ok": True, "url": url})
@@ -469,7 +481,7 @@ def api_buy():
     if BOT_TOKEN and uid.isdigit():
         tg_api("sendMessage", {
             "chat_id": int(uid),
-            "text": f"✅ <b>{prod['title']}</b> ফাইলটি আনলক হয়েছে!\n\n📥 ডাউনলোড লিংক:\n{prod['file_url']}",
+            "text": f"✅ <b>{prod['title']}</b> ফাইলটি আনলক হয়েছে!\n\n📥 ডাউনলোড লিংক:\n{full_url(prod['file_url'])}",
             "parse_mode": "HTML"
         })
 
@@ -497,7 +509,6 @@ def api_deposit():
     conn.commit()
     conn.close()
 
-    # নতুন ডিপোজিট রিকোয়েস্ট গ্রুপ/চ্যানেলে নোটিফিকেশন পাঠাবে
     if BOT_TOKEN and NOTIFY_CHAT_ID:
         tg_api("sendMessage", {
             "chat_id": NOTIFY_CHAT_ID,
@@ -519,11 +530,7 @@ def api_redeem():
     data = request.get_json(silent=True) or {}
     uid = str(data.get("user_id", ""))
     code = (data.get("code") or "").strip().upper()
-
-    gift_codes = {
-        "WELCOME50": 50,
-        "BONUS20": 20,
-    }
+    gift_codes = {"WELCOME50": 50, "BONUS20": 20}
 
     if code not in gift_codes:
         return jsonify({"ok": False, "msg": "❌ ভুল বা মেয়াদোত্তীর্ণ রিডিম কোড!"})
@@ -543,13 +550,33 @@ def api_redeem():
     return jsonify({"ok": True, "bonus": bonus})
 
 
-# ==================== অ্যাডমিন API ====================
 @app.route("/api/admin/login", methods=["POST"])
 def admin_login():
     data = request.get_json(silent=True) or {}
     if data.get("password") == ADMIN_PASSWORD:
         return jsonify({"ok": True})
     return jsonify({"ok": False}), 401
+
+
+@app.route("/api/admin/upload", methods=["POST"])
+def admin_upload_file():
+    if not check_admin():
+        return jsonify({"ok": False, "msg": "Unauthorized"}), 401
+    f = request.files.get("file")
+    if not f or not f.filename:
+        return jsonify({"ok": False, "msg": "কোনো ফাইল পাওয়া যায়নি"}), 400
+    safe_name = secure_filename(f.filename) or "file.bin"
+    raw = f.read()
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO uploads (filename, mimetype, data) VALUES (?, ?, ?)",
+        (safe_name, f.mimetype or "application/octet-stream", raw),
+    )
+    fid = cur.lastrowid
+    conn.commit()
+    conn.close()
+    return jsonify({"ok": True, "url": f"/download/{fid}/{safe_name}"})
 
 
 @app.route("/api/admin/all", methods=["GET"])
@@ -569,6 +596,7 @@ def admin_all():
             "coupon_code": p["coupon_code"],
             "file_url": p["file_url"],
             "logo": p["logo"],
+            "gallery": safe_json_list(p["gallery"]),
             "description": p["description"],
             "status": p["status"],
             "sold": p["sold"],
@@ -609,10 +637,13 @@ def admin_add_product():
     if not check_admin():
         return jsonify({"error": "Unauthorized"}), 401
     data = request.get_json(silent=True) or {}
+    gallery = data.get("gallery") or []
+    if not isinstance(gallery, list):
+        gallery = []
     conn = get_db()
     conn.execute(
-        """INSERT INTO products (title, price, dollar_price, is_free, coupon_code, file_url, logo, description, status)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active')""",
+        """INSERT INTO products (title, price, dollar_price, is_free, coupon_code, file_url, logo, gallery, description, status)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')""",
         (
             data.get("title", ""),
             float(data.get("price", 0)),
@@ -621,6 +652,7 @@ def admin_add_product():
             data.get("coupon_code", ""),
             data.get("file_url", ""),
             data.get("logo", ""),
+            json.dumps(gallery[:4]),
             data.get("description", ""),
         ),
     )
