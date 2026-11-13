@@ -1,1 +1,960 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>PYTHON BOT CODING STORE</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+  <style>
+    body {
+      background-color: #f1f8f5;
+      color: #0f172a;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .card-dark {
+      background: radial-gradient(120% 120% at 50% 10%, #0d1e30 0%, #060e18 100%);
+      border: 1px solid #142a42;
+    }
+    .card-inner {
+      background: #040910;
+      border: 1px solid #102133;
+    }
+    .btn-gold {
+      background: linear-gradient(180deg, #fbb019 0%, #e59002 100%);
+      color: #0c141d;
+      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+    }
+    .btn-gold:active { transform: scale(0.98); }
+    .btn-cyan {
+      background: linear-gradient(90deg, #06b6d4 0%, #0ea5e9 100%);
+      color: #ffffff;
+    }
+    .purple-zone {
+      background: radial-gradient(120% 120% at 50% 10%, #350c47 0%, #160421 100%);
+      border: 1px solid #7c3aed55;
+    }
+    .teal-zone {
+      background: radial-gradient(120% 120% at 50% 10%, #073844 0%, #04171d 100%);
+      border: 1px solid #06b6d455;
+    }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="pb-24 select-none">
+
+  <!-- ==================== শীর্ষ হেডার বার ==================== -->
+  <header class="sticky top-0 z-40 bg-gradient-to-b from-[#d5f6eb] via-[#e8faf3] to-[#f1f8f5] px-3.5 py-2.5 flex items-center justify-between border-b border-emerald-100 shadow-sm">
+    <div class="flex items-center space-x-2">
+      <div id="header-logo-box" class="w-9 h-9 rounded-full bg-emerald-100 border border-emerald-400/50 flex items-center justify-center text-emerald-600 shadow-sm relative overflow-hidden">
+        <i id="header-default-icon" class="fa-solid fa-code text-base text-emerald-700"></i>
+        <img id="header-custom-logo" class="hidden w-full h-full object-cover" alt="Logo">
+      </div>
+      <h1 class="text-xs font-black tracking-wider flex items-center">
+        <span class="text-blue-950 font-black mr-1">PYTHON BOT</span>
+        <span class="text-emerald-500 font-black">STORE</span>
+      </h1>
+    </div>
+
+    <div class="flex items-center space-x-2">
+      <button onclick="loadStoreData()" title="রিফ্রেশ" class="w-9 h-9 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-600">
+        <i class="fa-solid fa-rotate-right text-sm"></i>
+      </button>
+
+      <div onclick="openDepositModal()" class="bg-[#05a36b] hover:bg-[#048858] text-white px-3 py-1.5 rounded-full flex items-center space-x-1.5 shadow-sm cursor-pointer transition">
+        <i class="fa-solid fa-wallet text-xs"></i>
+        <span class="text-xs font-black" id="user-top-balance">৳0</span>
+      </div>
+
+      <div onclick="switchNav('profile')" class="w-9 h-9 rounded-full overflow-hidden border-2 border-emerald-400 cursor-pointer shadow-sm bg-slate-200 flex items-center justify-center">
+        <img id="user-header-avatar" class="w-full h-full object-cover" alt="User">
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== ট্যাব ১: হোম পেজ (HOME) ==================== -->
+  <main id="tab-home" class="px-3.5 pt-2.5 space-y-4">
+    <div class="relative w-full aspect-[16/9] rounded-3xl overflow-hidden border border-slate-800 shadow-2xl bg-[#09111e]">
+      <div id="carousel-slides" class="w-full h-full relative"></div>
+
+      <div class="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2.5 py-0.5 rounded-lg border border-white/20 text-[10px] font-black text-cyan-400">
+        <span id="carousel-counter">1 / 1</span>
+      </div>
+
+      <button onclick="prevSlide()" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/60 border border-white/20 text-white flex items-center justify-center text-xs">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+      <button onclick="nextSlide()" class="absolute right-2.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/60 border border-white/20 text-white flex items-center justify-center text-xs">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+
+      <div id="carousel-dots" class="absolute bottom-2.5 right-4 flex space-x-1.5 items-center"></div>
+    </div>
+
+    <div class="flex justify-between items-center pt-1 px-1">
+      <div class="flex items-center space-x-2">
+        <div class="w-1.5 h-4 bg-teal-500 rounded-full"></div>
+        <h2 class="text-sm font-black text-slate-800 tracking-wide">Developer Files</h2>
+      </div>
+      <button onclick="openSourceCodeZone()" class="bg-[#0b1b2d] border border-cyan-500/30 text-cyan-400 text-[11px] font-bold px-3 py-1 rounded-xl flex items-center space-x-1 shadow-sm">
+        <span>View All</span>
+        <i class="fa-solid fa-arrow-right text-[9px]"></i>
+      </button>
+    </div>
+
+    <div id="home-products-list" class="space-y-4">
+      <p class="text-xs text-center text-slate-400 py-6">লোড হচ্ছে...</p>
+    </div>
+  </main>
+
+  <!-- ==================== ট্যাব ২: টুলস পেজ (TOOLS) ==================== -->
+  <main id="tab-tools" class="px-3.5 pt-3 space-y-3.5 hidden">
+    <div class="purple-zone p-4 rounded-3xl relative overflow-hidden shadow-xl text-white">
+      <div class="flex items-start space-x-3 mb-3">
+        <div class="w-12 h-12 rounded-2xl bg-purple-500/20 border border-purple-400/40 flex items-center justify-center text-purple-300 text-xl font-bold">
+          <i class="fa-regular fa-compass"></i>
+        </div>
+        <div class="flex-1">
+          <div class="flex items-center space-x-2">
+            <h3 class="text-sm font-black tracking-wider">ANIME ZONE</h3>
+            <span class="text-[9px] bg-pink-600 text-white px-2 py-0.5 rounded-full font-black uppercase tracking-wider">🔥 HOT & NEW</span>
+          </div>
+          <p class="text-[10px] text-purple-200/70 mt-0.5">アニメ • WATCH ALL POPULAR ANIME</p>
+        </div>
+      </div>
+
+      <div class="flex space-x-2 mb-3 text-[10px]">
+        <span class="bg-purple-900/60 border border-purple-500/40 text-purple-200 px-2.5 py-0.5 rounded-full font-bold">⚡ 4K ULTRA HD</span>
+        <span class="bg-purple-900/60 border border-purple-500/40 text-purple-200 px-2.5 py-0.5 rounded-full font-bold">🎞️ SUB & DUB</span>
+      </div>
+
+      <button onclick="alert('Python Bot Coding Store - Anime Zone শীঘ্রই লাইভ হবে!')" class="w-full py-2.5 rounded-2xl text-xs font-black bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg flex items-center justify-center space-x-1.5">
+        <i class="fa-solid fa-play text-[10px]"></i>
+        <span>ENTER ANIME ZONE</span>
+        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+      </button>
+    </div>
+
+    <div class="teal-zone p-4 rounded-3xl relative overflow-hidden shadow-xl text-white">
+      <div class="flex items-start space-x-3 mb-3">
+        <div class="w-12 h-12 rounded-2xl bg-cyan-600/30 border border-cyan-400/40 flex items-center justify-center text-cyan-300 text-base font-mono font-bold">
+          &lt;DEV/&gt;
+        </div>
+        <div class="flex-1">
+          <h3 class="text-sm font-black tracking-wider">SOURCE CODE ZONE</h3>
+          <p class="text-[10px] text-cyan-300/80 mt-0.5">&lt;CODE/&gt; • SOURCE CODE & SCRIPTS SUITE</p>
+        </div>
+      </div>
+
+      <div class="flex space-x-2 mb-3 text-[10px]">
+        <span class="bg-cyan-950/70 border border-cyan-500/40 text-cyan-300 px-2.5 py-0.5 rounded-full font-bold">⚡ DEV TOOLS</span>
+        <span class="bg-cyan-950/70 border border-cyan-500/40 text-cyan-300 px-2.5 py-0.5 rounded-full font-bold">🚀 NEW FEATURES</span>
+      </div>
+
+      <button onclick="openSourceCodeZone()" class="w-full py-2.5 rounded-2xl text-xs font-black bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg flex items-center justify-center space-x-1.5">
+        <i class="fa-solid fa-terminal text-[10px]"></i>
+        <span>ENTER SOURCE CODE ZONE</span>
+        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+      </button>
+    </div>
+  </main>
+
+  <!-- ==================== ট্যাব ৩: সোর্স কোড লিস্ট (SOURCE CODE ZONE) ==================== -->
+  <main id="tab-source-zone" class="px-3.5 pt-3 space-y-3 hidden">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <button onclick="switchNav('tools')" class="w-8 h-8 rounded-xl bg-[#091523] border border-cyan-500/40 flex items-center justify-center text-cyan-400 shadow">
+          <i class="fa-solid fa-arrow-left text-xs"></i>
+        </button>
+        <div class="flex items-center space-x-1.5 bg-[#091523] border border-cyan-500/40 px-3 py-1.5 rounded-xl">
+          <span class="text-cyan-400 text-xs font-mono font-bold">&lt;DEV/&gt;</span>
+          <span class="text-xs font-black text-white tracking-wide">SOURCE CODE ZONE</span>
+          <span class="text-[9px] bg-cyan-500/20 text-cyan-300 font-mono font-bold px-1.5 rounded">&lt;PRO/&gt;</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="relative">
+      <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-cyan-400 text-xs"></i>
+      <input type="text" id="code-search-input" oninput="filterCodes()" placeholder="Search developer tools, scripts..."
+        class="w-full bg-[#081321] border border-slate-700/80 rounded-2xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-cyan-400 shadow-inner">
+    </div>
+
+    <div class="flex space-x-2">
+      <button onclick="setFilter('all')" id="filter-all" class="px-3 py-1 rounded-xl text-xs font-bold bg-cyan-500 text-white shadow">ALL</button>
+      <button onclick="setFilter('free')" id="filter-free" class="px-3 py-1 rounded-xl text-xs font-bold bg-[#091523] text-slate-400 border border-slate-700">FREE CODE</button>
+      <button onclick="setFilter('paid')" id="filter-paid" class="px-3 py-1 rounded-xl text-xs font-bold bg-[#091523] text-slate-400 border border-slate-700">PAID CODE</button>
+    </div>
+
+    <div id="source-code-list" class="space-y-3.5 pt-1"></div>
+  </main>
+
+  <!-- ==================== ট্যাব ৪: মড এপিকে (MOD APK) ==================== -->
+  <main id="tab-modapk" class="px-3.5 pt-3 space-y-3.5 hidden">
+    <div class="card-dark p-4 rounded-3xl border border-cyan-500/40 shadow-xl space-y-3">
+      <div class="flex items-center space-x-3">
+        <div class="w-12 h-12 rounded-2xl bg-cyan-900/40 border border-cyan-400/50 flex items-center justify-center text-cyan-300 text-2xl relative shadow">
+          <i class="fa-solid fa-robot"></i>
+          <span class="absolute top-1 right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-[#091523]"></span>
+        </div>
+        <div>
+          <div class="flex space-x-1.5 mb-1">
+            <span class="text-[9px] bg-cyan-950 border border-cyan-500/40 text-cyan-300 px-2 py-0.5 rounded font-extrabold uppercase">⚡ PYTHON MOD HUB</span>
+            <span class="text-[9px] bg-slate-900 border border-slate-700 text-cyan-200 px-2 py-0.5 rounded font-bold">100% VIRUS FREE</span>
+          </div>
+          <h2 class="text-sm font-black text-white tracking-wider">VIP MOD <span class="text-cyan-400">APK STORE</span></h2>
+        </div>
+      </div>
+
+      <a href="https://t.me/PythonBotCodingStore_bot" target="_blank" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-bold text-xs flex items-center justify-center space-x-1.5 shadow-md">
+        <i class="fa-brands fa-telegram text-sm"></i>
+        <span>Join Telegram Channel</span>
+      </a>
+
+      <div class="relative">
+        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-cyan-400 text-xs"></i>
+        <input type="text" id="mod-search-input" oninput="filterModApks()" placeholder="Search VIP Games & Premium Mod Apk..."
+          class="w-full bg-[#050b14] border border-slate-700 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400">
+      </div>
+    </div>
+
+    <div id="mod-apk-list" class="space-y-3.5"></div>
+  </main>
+
+  <!-- ==================== ট্যাব ৫: প্রোফাইল (MY PROFILE) ==================== -->
+  <main id="tab-profile" class="px-3.5 pt-3 space-y-3.5 hidden">
+    <div class="flex justify-between items-center px-1">
+      <button onclick="switchNav('home')" class="bg-white border border-slate-200 text-slate-700 px-3 py-1.5 rounded-full text-xs font-bold flex items-center space-x-1.5 shadow-sm">
+        <i class="fa-solid fa-arrow-left text-[11px]"></i>
+        <span>Back to Home</span>
+      </button>
+      <button onclick="alert('আপনার প্রোফাইল টেলিগ্রাম অ্যাকাউন্টের সাথে সম্পূর্ণ ভেরিফাইড!')" class="bg-white border border-emerald-400/50 text-emerald-700 px-3 py-1.5 rounded-full text-xs font-bold flex items-center space-x-1 shadow-sm">
+        <i class="fa-solid fa-circle-check text-[10px] text-emerald-500"></i>
+        <span>Verified User</span>
+      </button>
+    </div>
+
+    <div class="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-xl">
+      <div class="h-24 bg-gradient-to-r from-emerald-600 via-teal-700 to-emerald-800 relative p-3">
+        <span class="absolute top-2.5 right-3 text-[9px] bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-md text-emerald-200 font-mono font-bold">
+          <i class="fa-regular fa-calendar-days mr-1"></i> <span id="profile-join-badge">JOINED 2026</span>
+        </span>
+      </div>
+
+      <div class="px-4 pb-4 -mt-12 text-center">
+        <div class="w-20 h-20 rounded-full border-4 border-white overflow-hidden mx-auto shadow-xl relative bg-slate-200 flex items-center justify-center">
+          <img id="profile-img" class="w-full h-full object-cover" alt="Profile">
+        </div>
+
+        <div class="mt-2">
+          <h3 class="text-sm font-black text-slate-800 flex items-center justify-center space-x-1">
+            <span id="profile-name">User</span>
+            <i class="fa-solid fa-circle-check text-blue-500 text-xs"></i>
+          </h3>
+          <p class="text-[11px] text-slate-500 font-medium">Verified Marketplace Member</p>
+        </div>
+
+        <div class="p-3 rounded-2xl border border-emerald-200/80 mt-3 flex justify-between items-center bg-[#f0fbf7]">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-lg shadow-sm">
+              <i class="fa-solid fa-wallet"></i>
+            </div>
+            <div class="text-left">
+              <p class="text-[9px] uppercase font-bold text-slate-500">AVAILABLE BALANCE</p>
+              <p class="text-base font-black text-slate-900" id="profile-balance">৳0</p>
+            </div>
+          </div>
+          <button onclick="openDepositModal()" class="bg-[#05a36b] hover:bg-[#048858] text-white px-3.5 py-2 rounded-xl text-xs font-black shadow transition flex items-center space-x-1">
+            <i class="fa-solid fa-plus text-[10px]"></i>
+            <span>Add Money</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 mt-2.5">
+          <div onclick="copyText('prof-tg-id')" class="p-2.5 rounded-xl border border-slate-200 flex justify-between items-center text-left bg-slate-50 cursor-pointer">
+            <div>
+              <p class="text-[8px] text-slate-400 font-bold uppercase"><i class="fa-brands fa-telegram text-blue-500 mr-1"></i>TELEGRAM ID</p>
+              <p class="text-xs font-mono font-bold text-slate-800" id="prof-tg-id">---</p>
+            </div>
+            <i class="fa-regular fa-copy text-slate-400 text-xs"></i>
+          </div>
+
+          <div onclick="copyText('prof-tg-username')" class="p-2.5 rounded-xl border border-slate-200 flex justify-between items-center text-left bg-slate-50 cursor-pointer">
+            <div>
+              <p class="text-[8px] text-slate-400 font-bold uppercase"><i class="fa-solid fa-at text-purple-500 mr-1"></i>USERNAME</p>
+              <p class="text-xs font-mono font-bold text-slate-800" id="prof-tg-username">@User</p>
+            </div>
+            <i class="fa-regular fa-copy text-slate-400 text-xs"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- রিডিম গিফট কোড -->
+    <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+      <div class="flex items-start justify-between">
+        <div class="flex items-start space-x-2.5">
+          <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center text-base">
+            <i class="fa-solid fa-gift"></i>
+          </div>
+          <div>
+            <h4 class="text-xs font-black text-slate-800">Redeem Gift Code</h4>
+            <p class="text-[10px] text-slate-500">Have a promo or gift code? Claim instant wallet balance.</p>
+          </div>
+        </div>
+        <span class="text-[9px] bg-amber-100 text-amber-800 font-black px-2 py-0.5 rounded-full uppercase">INSTANT BONUS</span>
+      </div>
+
+      <div class="flex space-x-2">
+        <input type="text" id="input-redeem-code" placeholder="ENTER REDEEM CODE" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs uppercase font-mono font-bold text-slate-800 focus:outline-none focus:border-emerald-500">
+        <button onclick="handleRedeemCode()" class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold text-xs px-4 py-2 rounded-xl flex items-center space-x-1 shadow-sm">
+          <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i>
+          <span>Redeem</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- অ্যাক্টিভিটি ও হিস্ট্রি -->
+    <div>
+      <div class="flex justify-between items-center mb-2 px-1">
+        <span class="text-xs font-black text-slate-700"><i class="fa-solid fa-sparkles text-emerald-500 mr-1"></i> ACTIVITY & HISTORY</span>
+        <span class="text-[10px] text-slate-400">Tap to view details</span>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2.5">
+        <div onclick="openMyOrdersModal()" class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm cursor-pointer hover:border-cyan-400 transition">
+          <div class="flex justify-between items-center mb-2">
+            <div class="w-8 h-8 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center text-sm"><i class="fa-solid fa-bag-shopping"></i></div>
+            <span class="text-[9px] bg-cyan-100 text-cyan-700 font-extrabold px-2 py-0.5 rounded-full" id="hist-order-count">0 ORDERS</span>
+          </div>
+          <h5 class="text-xs font-black text-slate-800">My Orders</h5>
+          <p class="text-[9px] text-slate-500 mt-0.5">Purchased files & items</p>
+        </div>
+
+        <div onclick="openDepositHistoryModal()" class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm cursor-pointer hover:border-emerald-400 transition">
+          <div class="flex justify-between items-center mb-2">
+            <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm"><i class="fa-solid fa-circle-down"></i></div>
+            <span class="text-[9px] bg-emerald-100 text-emerald-700 font-extrabold px-2 py-0.5 rounded-full" id="hist-deposit-amount">+৳0</span>
+          </div>
+          <h5 class="text-xs font-black text-slate-800">Deposit History</h5>
+          <p class="text-[9px] text-slate-500 mt-0.5">Wallet top-up records</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ফুটার -->
+    <div class="card-dark p-4 rounded-3xl border border-slate-800 text-white space-y-3.5 shadow-xl mt-4">
+      <div class="flex items-center space-x-2">
+        <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center"><i class="fa-solid fa-code"></i></div>
+        <div>
+          <h4 class="text-xs font-black tracking-wider">PYTHON BOT CODING STORE</h4>
+          <p class="text-[9px] text-slate-400 font-bold">PREMIUM MARKETPLACE <span class="text-emerald-400">● BD</span></p>
+        </div>
+      </div>
+      <div class="pt-1">
+        <h6 class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">SUPPORT CENTER</h6>
+        <a href="https://t.me/PythonBotCodingStore_bot" target="_blank" class="p-3 rounded-2xl bg-[#040e1a] border border-cyan-500/30 flex justify-between items-center block">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-base"><i class="fa-brands fa-telegram"></i></div>
+            <div>
+              <p class="text-[9px] text-slate-400">Help line [9AM-12PM]</p>
+              <p class="text-xs font-bold text-cyan-400">Telegram Support <i class="fa-solid fa-chevron-right text-[9px]"></i></p>
+            </div>
+          </div>
+        </a>
+      </div>
+      <div class="text-center pt-2 text-[10px] text-slate-500 flex items-center justify-center space-x-1.5">
+        <i class="fa-solid fa-shield text-emerald-500"></i>
+        <span>© PYTHON BOT CODING STORE 2026 | All Rights Reserved</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- ==================== বটম নেভিগেশন বার ==================== -->
+  <nav class="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-200 z-50 px-2 py-2 flex justify-around items-center text-[10px] font-black shadow-lg">
+    <button onclick="switchNav('home')" id="nav-btn-home" class="flex flex-col items-center space-y-1 text-emerald-600"><i class="fa-solid fa-house text-base"></i><span>HOME</span></button>
+    <button onclick="switchNav('tools')" id="nav-btn-tools" class="flex flex-col items-center space-y-1 text-slate-400"><i class="fa-solid fa-code text-base"></i><span>TOOLS</span></button>
+    <button onclick="openDepositModal()" id="nav-btn-wallet" class="flex flex-col items-center space-y-1 text-slate-400"><i class="fa-solid fa-wallet text-base"></i><span>WALLET</span></button>
+    <button onclick="switchNav('modapk')" id="nav-btn-modapk" class="flex flex-col items-center space-y-1 text-slate-400"><i class="fa-brands fa-android text-base"></i><span>MOD APK</span></button>
+    <button onclick="switchNav('profile')" id="nav-btn-profile" class="flex flex-col items-center space-y-1 text-slate-400"><i class="fa-solid fa-user text-base"></i><span>MY PROFILE</span></button>
+  </nav>
+
+  <!-- ==================== ফাইল ডাউনলোড মোডাল ==================== -->
+  <div id="modal-download-file" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="card-dark border border-emerald-500/40 w-full max-w-sm rounded-3xl p-5 shadow-2xl text-center space-y-4">
+      <div class="w-14 h-14 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto text-2xl border border-emerald-500/40">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <div>
+        <span class="text-[9px] bg-emerald-500/20 text-emerald-400 font-extrabold px-2.5 py-0.5 rounded-full border border-emerald-500/30">ফাইল আনলক সফল!</span>
+        <h3 class="text-sm font-black text-white mt-1.5" id="dl-product-title">Product Title</h3>
+        <p class="text-[11px] text-slate-400 mt-1">ফাইলটি আপনার টেলিগ্রাম বটের চ্যাটে পাঠিয়ে দেওয়া হয়েছে অথবা নিচে ক্লিক করে ডাউনলোড করতে পারেন।</p>
+      </div>
+      <a id="dl-direct-btn" href="#" target="_blank" class="w-full btn-gold py-3 rounded-2xl text-xs font-black shadow-lg flex items-center justify-center space-x-2 block">
+        <i class="fa-solid fa-cloud-arrow-down text-sm"></i>
+        <span>সরাসরি ফাইল ডাউনলোড করুন</span>
+      </a>
+      <button onclick="closeModal('modal-download-file')" class="text-xs text-slate-400 hover:text-white">বন্ধ করুন</button>
+    </div>
+  </div>
+
+  <!-- ==================== মাই অর্ডারস মোডাল ==================== -->
+  <div id="modal-my-orders" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 hidden">
+    <div class="card-dark border border-slate-800 w-full max-w-sm rounded-3xl p-4 shadow-2xl max-h-[85vh] overflow-y-auto hide-scrollbar space-y-3">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+        <h3 class="text-xs font-black text-white flex items-center"><i class="fa-solid fa-bag-shopping text-cyan-400 mr-1.5"></i> My Purchased Files</h3>
+        <button onclick="closeModal('modal-my-orders')" class="w-6 h-6 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center text-xs"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="my-orders-list" class="space-y-2"></div>
+    </div>
+  </div>
+
+  <!-- ==================== ডিপোজিট মোডাল ==================== -->
+  <div id="modal-deposit" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 hidden">
+    <div class="card-dark border border-slate-800 w-full max-w-sm rounded-3xl p-4 shadow-2xl space-y-3">
+      <div class="flex justify-between items-center">
+        <h3 class="text-xs font-black text-white">ওয়ালেট রিচার্জ (Add Money)</h3>
+        <button onclick="closeModal('modal-deposit')" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center text-xs"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div>
+        <label class="text-[10px] text-slate-400 block mb-1">টাকার পরিমাণ (BDT):</label>
+        <input type="number" id="dep-amount-input" value="125" class="w-full bg-[#040a12] border border-slate-700 rounded-xl p-2.5 text-xs text-white font-mono focus:outline-none focus:border-emerald-500">
+      </div>
+
+      <div>
+        <label class="text-[10px] text-slate-400 block mb-1">পেমেন্ট মেথড:</label>
+        <select id="dep-method-select" onchange="updateDepositNumber()" class="w-full bg-[#040a12] border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+          <option value="bKash">bKash Personal</option>
+          <option value="Nagad">Nagad Personal</option>
+        </select>
+      </div>
+
+      <div class="card-inner p-3 rounded-2xl text-xs space-y-2">
+        <div class="flex justify-between items-center">
+          <span class="text-[10px] text-slate-400" id="dep-method-title">bKash Personal:</span>
+          <button onclick="copyDepositNumber()" class="text-[10px] text-cyan-400 font-bold">কপি করুন</button>
+        </div>
+        <p class="text-xs font-mono font-bold text-emerald-400 select-all" id="dep-display-num">লোড হচ্ছে...</p>
+        <input type="text" id="dep-trx-id" placeholder="Transaction ID (TrxID) দিন" class="w-full bg-[#0a1524] border border-slate-700 rounded-xl p-2 text-xs text-white focus:outline-none focus:border-cyan-400">
+      </div>
+
+      <button onclick="submitDeposit()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-2.5 rounded-xl text-xs font-black text-white shadow-lg">কনফার্ম ডিপোজিট</button>
+    </div>
+  </div>
+
+  <!-- ==================== ডিপোজিট হিস্ট্রি মোডাল ==================== -->
+  <div id="modal-dep-history" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 hidden">
+    <div class="card-dark border border-slate-800 w-full max-w-sm rounded-3xl p-4 shadow-2xl max-h-[80vh] overflow-y-auto hide-scrollbar space-y-3">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+        <h3 class="text-xs font-black text-white flex items-center"><i class="fa-solid fa-clock-rotate-left text-emerald-400 mr-1.5"></i> Deposit Records</h3>
+        <button onclick="closeModal('modal-dep-history')" class="w-6 h-6 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center text-xs"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="dep-history-list" class="space-y-2"></div>
+    </div>
+  </div>
+
+  <script>
+    const tg = window.Telegram?.WebApp;
+    if (tg) { tg.expand(); tg.ready(); }
+
+    const tgUser = tg?.initDataUnsafe?.user || { id: "7182227", first_name: "Demo User", username: "demo_user" };
+
+    let storeData = {
+      user: { id: String(tgUser.id), balance: 0, joined_at: "2026" },
+      products: [],
+      banners: [],
+      mod_apks: [],
+      orders: [],
+      deposits: [],
+      settings: { bkash: "018XXXXXXXX", nagad: "018XXXXXXXX", dollarRate: "125", appLogo: "" }
+    };
+
+    let currentSlide = 0;
+    let carouselTimer = null;
+    let currentFilter = 'all';
+
+    function escapeHtml(str) {
+      return String(str || "").replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+    }
+
+    function applyTelegramUserProfile() {
+      document.getElementById("profile-name").innerText = tgUser.first_name || "User";
+      document.getElementById("prof-tg-id").innerText = tgUser.id;
+      document.getElementById("prof-tg-username").innerText = "@" + (tgUser.username || "user");
+
+      let userAvatarSrc = tgUser.photo_url;
+      if (!userAvatarSrc) {
+        const initial = encodeURIComponent((tgUser.first_name || "U")[0].toUpperCase());
+        userAvatarSrc = `https://ui-avatars.com/api/?name=${initial}&background=05a36b&color=fff&size=200&bold=true`;
+      }
+      document.getElementById("user-header-avatar").src = userAvatarSrc;
+      document.getElementById("profile-img").src = userAvatarSrc;
+    }
+
+    async function loadStoreData() {
+      try {
+        const res = await fetch("/api/store-data", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_id: tgUser.id,
+            first_name: tgUser.first_name || "User",
+            username: tgUser.username || "user"
+          })
+        });
+        if (!res.ok) throw new Error("Server error");
+        storeData = await res.json();
+
+        document.getElementById("profile-join-badge").innerText = `JOINED ${storeData.user.joined_at || "2026"}`;
+        applySyncedSettings();
+        initBanners();
+        renderHomeProducts();
+        filterCodes();
+        filterModApks();
+        updateUserBalanceDisplay();
+        updateOrderHistoryCount();
+        updateDepositHistoryDisplay();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      applyTelegramUserProfile();
+      loadStoreData();
+    });
+
+    function applySyncedSettings() {
+      const s = storeData.settings || {};
+      updateDepositNumber();
+      if (s.appLogo) {
+        const hLogo = document.getElementById("header-custom-logo");
+        const hIcon = document.getElementById("header-default-icon");
+        hLogo.src = s.appLogo;
+        hLogo.classList.remove("hidden");
+        hIcon.classList.add("hidden");
+      }
+    }
+
+    function updateDepositNumber() {
+      const method = document.getElementById("dep-method-select").value;
+      const s = storeData.settings || {};
+      document.getElementById("dep-method-title").innerText = `${method} Personal:`;
+      document.getElementById("dep-display-num").innerText = method === "Nagad" ? (s.nagad || "018XXXXXXXX") : (s.bkash || "018XXXXXXXX");
+    }
+
+    function initBanners() {
+      const banners = storeData.banners || [];
+      const slidesBox = document.getElementById("carousel-slides");
+      const dotsBox = document.getElementById("carousel-dots");
+      slidesBox.innerHTML = "";
+      dotsBox.innerHTML = "";
+
+      if (!banners.length) {
+        slidesBox.innerHTML = `<div class="flex items-center justify-center h-full text-slate-500 text-xs">কোনো ব্যানার নেই</div>`;
+        document.getElementById("carousel-counter").innerText = "0 / 0";
+        return;
+      }
+
+      banners.forEach((b, idx) => {
+        slidesBox.innerHTML += `
+          <div class="carousel-item absolute inset-0 transition-opacity duration-700 ${idx === 0 ? 'opacity-100' : 'opacity-0 pointer-events-none'}">
+            <img src="${escapeHtml(b.image)}" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-t from-[#060d17] via-transparent to-black/60"></div>
+            <div class="absolute top-3 left-3 bg-pink-600 text-white font-extrabold text-[9px] px-2.5 py-0.5 rounded-full uppercase">${escapeHtml(b.tag)}</div>
+            <div class="absolute bottom-3 left-4"><h3 class="text-white font-black text-sm tracking-wider">${escapeHtml(b.title || 'PYTHON BOT STORE')}</h3></div>
+          </div>
+        `;
+        dotsBox.innerHTML += `<div class="w-1.5 h-1.5 rounded-full transition-all duration-300 ${idx === 0 ? 'bg-teal-400 w-5' : 'bg-white/40'}"></div>`;
+      });
+      currentSlide = 0;
+      document.getElementById("carousel-counter").innerText = `1 / ${banners.length}`;
+      if (!carouselTimer) {
+        carouselTimer = setInterval(() => nextSlide(), 4500);
+      }
+    }
+
+    function renderSlide(index) {
+      const items = document.querySelectorAll(".carousel-item");
+      const dots = document.getElementById("carousel-dots").children;
+      if (!items.length) return;
+      currentSlide = (index + items.length) % items.length;
+      items.forEach((item, i) => {
+        item.classList.toggle("opacity-100", i === currentSlide);
+        item.classList.toggle("opacity-0", i !== currentSlide);
+        item.classList.toggle("pointer-events-none", i !== currentSlide);
+      });
+      Array.from(dots).forEach((dot, i) => {
+        dot.className = `h-1.5 rounded-full transition-all duration-300 ${i === currentSlide ? 'bg-teal-400 w-5' : 'bg-white/40 w-1.5'}`;
+      });
+      document.getElementById("carousel-counter").innerText = `${currentSlide + 1} / ${items.length}`;
+    }
+    function nextSlide() { renderSlide(currentSlide + 1); }
+    function prevSlide() { renderSlide(currentSlide - 1); }
+
+    function renderHomeProducts() {
+      const box = document.getElementById("home-products-list");
+      box.innerHTML = "";
+      const products = storeData.products || [];
+      if (!products.length) {
+        box.innerHTML = `<p class="text-xs text-center text-slate-500 py-6">স্টোরে এখনো কোনো ফাইল যোগ করা হয়নি।</p>`;
+        return;
+      }
+
+      products.forEach(p => {
+        const imgUrl = p.logo || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800";
+        box.innerHTML += `
+          <div class="space-y-2 cursor-pointer" onclick="openSourceCodeZone()">
+            <div class="relative w-full aspect-[16/9] rounded-3xl overflow-hidden border border-slate-800 shadow-xl bg-slate-900">
+              <img src="${escapeHtml(imgUrl)}" class="w-full h-full object-cover">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+              <div class="absolute top-3 left-3 btn-gold text-slate-950 text-[10px] font-black px-3 py-1 rounded-full shadow">
+                <i class="fa-solid fa-cart-shopping mr-1"></i>${p.isFree ? 'FREE' : `৳${p.price} / $${p.dollarPrice}`}
+              </div>
+              <div class="absolute top-3 right-3 bg-black/70 border border-white/20 text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
+                <i class="fa-solid fa-briefcase text-amber-400 mr-1 text-[9px]"></i>${p.sold || 0} SOLD
+              </div>
+            </div>
+            <h3 class="text-xs font-black text-slate-900 px-1 uppercase tracking-wide">${escapeHtml(p.title)}</h3>
+          </div>
+        `;
+      });
+    }
+
+    function renderSourceCodes(items) {
+      const box = document.getElementById("source-code-list");
+      box.innerHTML = "";
+      const products = items || storeData.products || [];
+      if (!products.length) {
+        box.innerHTML = `<p class="text-xs text-slate-500 text-center py-8">কোনো কোড বা স্ক্রিপ্ট পাওয়া যায়নি!</p>`;
+        return;
+      }
+
+      products.forEach(p => {
+        box.innerHTML += `
+          <div class="card-dark p-3.5 rounded-3xl border border-slate-800 shadow-xl space-y-3">
+            <div class="flex items-start space-x-3">
+              <div class="w-12 h-12 rounded-2xl bg-cyan-800 flex items-center justify-center text-white font-black text-xs shrink-0 shadow overflow-hidden">
+                ${p.logo ? `<img src="${escapeHtml(p.logo)}" class="w-full h-full object-cover">` : 'BOT'}
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                  <h4 class="text-xs font-black text-white truncate">${escapeHtml(p.title)}</h4>
+                  <span class="text-[9px] bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded font-black shrink-0 ml-1">
+                    🛡️ ${p.isFree ? 'FREE CODE' : 'PAID CODE'}
+                  </span>
+                </div>
+                <div class="flex items-center space-x-1.5 mt-1.5 text-[9px]">
+                  <span onclick="handleLike(${p.id})" class="bg-[#050e18] border border-cyan-500/30 text-cyan-400 px-2 py-0.5 rounded font-bold cursor-pointer">
+                    👍 <span id="like-cnt-${p.id}">${p.likes || 1}</span> LIKE
+                  </span>
+                  <span class="bg-[#050e18] border border-amber-500/30 text-amber-400 px-2 py-0.5 rounded font-bold">
+                    🛒 ${p.sold || 0} SELL
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-inner p-2.5 rounded-xl text-[10px] text-slate-300 leading-relaxed font-sans">
+              ${escapeHtml(p.description)}
+            </div>
+
+            <div class="pt-0.5">
+              <button onclick="handleCodeBuy(${p.id})" class="w-full py-2.5 rounded-2xl text-xs font-black btn-gold flex items-center justify-center space-x-1.5 shadow-md">
+                <i class="fa-solid fa-cart-shopping text-[11px]"></i>
+                <span>${p.isFree ? '🎁 Free Unlock' : `Buy ৳${p.price} ($${p.dollarPrice})`}</span>
+              </button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function filterCodes() {
+      const q = (document.getElementById("code-search-input")?.value || "").toLowerCase();
+      let filtered = (storeData.products || []).filter(p => p.title.toLowerCase().includes(q) || p.description.toLowerCase().includes(q));
+      if (currentFilter === 'free') filtered = filtered.filter(p => p.isFree);
+      if (currentFilter === 'paid') filtered = filtered.filter(p => !p.isFree);
+      renderSourceCodes(filtered);
+    }
+
+    function setFilter(type) {
+      currentFilter = type;
+      ['all', 'free', 'paid'].forEach(t => {
+        const btn = document.getElementById(`filter-${t}`);
+        btn.className = (t === type)
+          ? "px-3 py-1 rounded-xl text-xs font-bold bg-cyan-500 text-white shadow"
+          : "px-3 py-1 rounded-xl text-xs font-bold bg-[#091523] text-slate-400 border border-slate-700";
+      });
+      filterCodes();
+    }
+
+    async function handleLike(id) {
+      try {
+        const res = await fetch(`/api/like/${id}`, { method: "POST" });
+        const data = await res.json();
+        if (data.ok) {
+          document.getElementById(`like-cnt-${id}`).innerText = data.likes;
+        }
+      } catch (e) {}
+    }
+
+    function renderModApks(items) {
+      const box = document.getElementById("mod-apk-list");
+      box.innerHTML = "";
+      const apks = items || storeData.mod_apks || [];
+      if (!apks.length) {
+        box.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">কোনো Mod APK পাওয়া যায়নি।</p>`;
+        return;
+      }
+
+      apks.forEach(a => {
+        box.innerHTML += `
+          <div class="card-dark p-3.5 rounded-3xl border border-slate-800 shadow-xl space-y-3">
+            <div class="flex items-start space-x-3">
+              <div class="w-12 h-12 rounded-2xl bg-slate-800 text-amber-400 flex items-center justify-center text-lg shrink-0 shadow overflow-hidden">
+                ${a.icon ? `<img src="${escapeHtml(a.icon)}" class="w-full h-full object-cover">` : `<i class="fa-brands fa-android"></i>`}
+              </div>
+              <div class="flex-1">
+                <div class="bg-gradient-to-r from-amber-500/20 to-transparent border border-amber-500/40 px-2.5 py-1 rounded-xl flex items-center space-x-1.5 mb-1.5">
+                  <i class="fa-solid fa-crown text-amber-400 text-xs"></i>
+                  <span class="text-xs font-black text-amber-300">${escapeHtml(a.name)}</span>
+                </div>
+                <div class="flex flex-wrap gap-1.5 text-[9px] font-bold">
+                  <span class="bg-purple-950 border border-purple-500/40 text-purple-300 px-2 py-0.5 rounded-full">✨ PREMIUM UNLOCK</span>
+                  <span class="bg-emerald-950 border border-emerald-500/40 text-emerald-300 px-2 py-0.5 rounded-full">✓ 100% WORKING</span>
+                  <span class="bg-cyan-950 border border-cyan-500/40 text-cyan-300 px-2 py-0.5 rounded-full">↓ ${a.downloads} DOWNLOAD</span>
+                  <span class="bg-amber-950 border border-amber-500/40 text-amber-300 px-2 py-0.5 rounded-full">🏆 ${escapeHtml(a.rank)}</span>
+                </div>
+              </div>
+            </div>
+            <button onclick="handleModApkDownload(${a.id})" class="w-full btn-gold py-2.5 rounded-2xl text-xs font-black flex items-center justify-center space-x-1.5 shadow-lg">
+              <i class="fa-solid fa-download text-xs"></i>
+              <span>DOWNLOAD MOD APK</span>
+            </button>
+          </div>
+        `;
+      });
+    }
+
+    function filterModApks() {
+      const q = (document.getElementById("mod-search-input")?.value || "").toLowerCase();
+      const filtered = (storeData.mod_apks || []).filter(a => a.name.toLowerCase().includes(q));
+      renderModApks(filtered);
+    }
+
+    async function handleModApkDownload(apkId) {
+      try {
+        const res = await fetch("/api/send-apk", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: tgUser.id, apk_id: apkId })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          alert("🎉 ফাইলটি আপনার টেলিগ্রাম বট চ্যাটে পাঠিয়ে দেওয়া হয়েছে!");
+          if (data.url && data.url !== "#") window.open(data.url, "_blank");
+        }
+      } catch (e) {
+        alert("ডাউনলোড করতে সমস্যা হয়েছে!");
+      }
+    }
+
+    async function handleCodeBuy(id) {
+      const prod = (storeData.products || []).find(x => x.id === id);
+      if (!prod) return;
+
+      let coupon = "";
+      if (prod.isFree) {
+        if (prod.hasCoupon) {
+          coupon = prompt("ফ্রি কুপন কোডটি লিখুন:");
+          if (!coupon) return;
+        }
+      } else {
+        const bal = storeData.user.balance || 0;
+        if (bal < prod.price) {
+          alert(`❌ অপর্যাপ্ত ব্যালেন্স! আপনার একাউন্টে আরও ৳${prod.price - bal} প্রয়োজন।`);
+          openDepositModal();
+          return;
+        }
+        if (!confirm(`৳${prod.price} দিয়ে "${prod.title}" সোর্স কোডটি কিনতে চান?`)) return;
+      }
+
+      try {
+        const res = await fetch("/api/buy", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: tgUser.id, product_id: id, coupon: coupon })
+        });
+        const data = await res.json();
+        if (!data.ok) return alert(data.msg || "কেনা সম্ভব হয়নি!");
+
+        document.getElementById("dl-product-title").innerText = data.title;
+        document.getElementById("dl-direct-btn").href = data.file_url || "#";
+        document.getElementById("modal-download-file").classList.remove("hidden");
+        await loadStoreData();
+      } catch (e) {
+        alert("সার্ভারের সাথে সংযোগ বিচ্ছিন্ন হয়েছে!");
+      }
+    }
+
+    async function handleRedeemCode() {
+      const code = document.getElementById("input-redeem-code").value.trim().toUpperCase();
+      if (!code) return alert("দয়া করে রিডিম কোডটি লিখুন!");
+
+      try {
+        const res = await fetch("/api/redeem", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: tgUser.id, code: code })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          alert(`🎉 অভিনন্দন! আপনি ৳${data.bonus} ফ্রি ব্যালেন্স বোনাস পেয়েছেন!`);
+          document.getElementById("input-redeem-code").value = "";
+          await loadStoreData();
+        } else {
+          alert(data.msg);
+        }
+      } catch (e) {
+        alert("সার্ভার ত্রুটি!");
+      }
+    }
+
+    function openMyOrdersModal() {
+      const orders = storeData.orders || [];
+      const box = document.getElementById("my-orders-list");
+      box.innerHTML = "";
+      if (!orders.length) {
+        box.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">আপনি এখনও কোনো ফাইল কেনেননি!</p>`;
+      } else {
+        orders.forEach(o => {
+          box.innerHTML += `
+            <div class="card-inner p-3 rounded-2xl text-xs flex justify-between items-center">
+              <div>
+                <h4 class="font-bold text-white">${escapeHtml(o.title)}</h4>
+                <p class="text-[9px] text-emerald-400 font-mono mt-0.5">${escapeHtml(o.type)} • ${escapeHtml(o.date)}</p>
+              </div>
+              <a href="${escapeHtml(o.file_url)}" target="_blank" class="btn-cyan px-3 py-1.5 rounded-xl font-bold text-[10px] flex items-center space-x-1 shadow">
+                <i class="fa-solid fa-download"></i><span>Download</span>
+              </a>
+            </div>
+          `;
+        });
+      }
+      document.getElementById("modal-my-orders").classList.remove("hidden");
+    }
+
+    function openDepositHistoryModal() {
+      const reqs = storeData.deposits || [];
+      const box = document.getElementById("dep-history-list");
+      box.innerHTML = "";
+      if (!reqs.length) {
+        box.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">কোনো ডিপোজিট রেকর্ড নেই!</p>`;
+      } else {
+        reqs.forEach(r => {
+          const badgeClass = r.status === "Approved"
+            ? "bg-emerald-500/20 text-emerald-400"
+            : (r.status === "Rejected" ? "bg-rose-500/20 text-rose-400" : "bg-amber-500/20 text-amber-400");
+          box.innerHTML += `
+            <div class="card-inner p-3 rounded-2xl text-xs flex justify-between items-center">
+              <div>
+                <h4 class="font-bold text-white">৳${r.amount} (${escapeHtml(r.method)})</h4>
+                <p class="text-[9px] text-slate-400 font-mono mt-0.5">Trx: ${escapeHtml(r.trx)}</p>
+              </div>
+              <span class="text-[10px] ${badgeClass} px-2 py-0.5 rounded font-bold">${escapeHtml(r.status)}</span>
+            </div>
+          `;
+        });
+      }
+      document.getElementById("modal-dep-history").classList.remove("hidden");
+    }
+
+    function switchNav(tab) {
+      ['home', 'tools', 'source-zone', 'modapk', 'profile'].forEach(t => document.getElementById(`tab-${t}`)?.classList.add("hidden"));
+      ['home', 'tools', 'wallet', 'modapk', 'profile'].forEach(n => document.getElementById(`nav-btn-${n}`)?.setAttribute("class", "flex flex-col items-center space-y-1 text-slate-400"));
+      document.getElementById(`tab-${tab}`)?.classList.remove("hidden");
+      document.getElementById(`nav-btn-${tab}`)?.setAttribute("class", "flex flex-col items-center space-y-1 text-emerald-600");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function openSourceCodeZone() {
+      ['home', 'tools', 'modapk', 'profile'].forEach(t => document.getElementById(`tab-${t}`).classList.add("hidden"));
+      document.getElementById("tab-source-zone").classList.remove("hidden");
+      document.getElementById("nav-btn-tools").setAttribute("class", "flex flex-col items-center space-y-1 text-emerald-600");
+    }
+
+    function updateUserBalanceDisplay() {
+      const bal = storeData.user.balance || 0;
+      document.getElementById("user-top-balance").innerText = `৳${bal}`;
+      document.getElementById("profile-balance").innerText = `৳${bal}`;
+    }
+
+    function updateOrderHistoryCount() {
+      document.getElementById("hist-order-count").innerText = `${(storeData.orders || []).length} ORDERS`;
+    }
+
+    function updateDepositHistoryDisplay() {
+      const total = (storeData.deposits || [])
+        .filter(r => r.status === "Approved")
+        .reduce((sum, r) => sum + r.amount, 0);
+      document.getElementById("hist-deposit-amount").innerText = `+৳${total}`;
+    }
+
+    function openDepositModal() {
+      updateDepositNumber();
+      document.getElementById("modal-deposit").classList.remove("hidden");
+    }
+    function closeModal(id) { document.getElementById(id).classList.add("hidden"); }
+
+    function copyDepositNumber() {
+      const num = document.getElementById("dep-display-num").innerText;
+      navigator.clipboard.writeText(num);
+      alert(`নম্বর কপি হয়েছে: ${num}`);
+    }
+
+    async function submitDeposit() {
+      const amt = parseFloat(document.getElementById("dep-amount-input").value);
+      const method = document.getElementById("dep-method-select").value;
+      const trx = document.getElementById("dep-trx-id").value.trim();
+      if (!amt || amt <= 0 || !trx) return alert("সঠিক টাকার পরিমাণ ও TrxID দিন!");
+
+      try {
+        const res = await fetch("/api/deposit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_id: tgUser.id,
+            user_name: tgUser.first_name || "User",
+            method: method,
+            amount: amt,
+            trx: trx
+          })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          alert("✅ ডিপোজিট রিকোয়েস্ট সফলভাবে জমা হয়েছে! অ্যাডমিন যাচাই করলে ব্যালেন্স যোগ হবে।");
+          closeModal("modal-deposit");
+          document.getElementById("dep-trx-id").value = "";
+          await loadStoreData();
+        } else {
+          alert(data.msg || "ত্রুটি হয়েছে!");
+        }
+      } catch (e) {
+        alert("সার্ভারে পাঠানো যায়নি!");
+      }
+    }
+
+    function copyText(id) {
+      const txt = document.getElementById(id).innerText.replace('@', '');
+      navigator.clipboard.writeText(txt);
+      alert(`কপি হয়েছে: ${txt}`);
+    }
+  </script>
+</body>
+  </html>
