@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import uuid
 import base64
@@ -202,6 +203,79 @@ def tg_send_photo_bytes(chat_id, img_bytes, filename, caption, reply_markup=None
             return json.loads(resp.read().decode("utf-8"))
     except Exception:
         return None
+
+
+def tg_send_document_bytes(chat_id, file_bytes, filename, mimetype, caption=""):
+    if not BOT_TOKEN:
+        return None
+    boundary = f"----Boundary{uuid.uuid4().hex}"
+    parts = []
+
+    def add_field(name, value):
+        parts.append(f"--{boundary}\r\n".encode())
+        parts.append(f'Content-Disposition: form-data; name="{name}"\r\n\r\n'.encode())
+        parts.append(f"{value}\r\n".encode("utf-8"))
+
+    add_field("chat_id", str(chat_id))
+    if caption and len(caption) <= 1024:
+        add_field("caption", caption)
+        add_field("parse_mode", "HTML")
+
+    safe_fn = (filename or "file.bin").replace('"', "")
+    mime = mimetype or "application/octet-stream"
+    parts.append(f"--{boundary}\r\n".encode())
+    parts.append(f'Content-Disposition: form-data; name="document"; filename="{safe_fn}"\r\n'.encode())
+    parts.append(f"Content-Type: {mime}\r\n\r\n".encode())
+    parts.append(file_bytes)
+    parts.append(b"\r\n")
+    parts.append(f"--{boundary}--\r\n".encode())
+
+    body = b"".join(parts)
+    req = urllib.request.Request(
+        f"https://api.telegram.org/bot{BOT_TOKEN}/sendDocument",
+        data=body,
+        headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except Exception:
+        return None
+
+
+def send_file_or_link(chat_id, file_url, message_text):
+    if not BOT_TOKEN or not chat_id:
+        return
+    url_str = (file_url or "").strip()
+    match = re.search(r"/download/(\d+)/", url_str)
+    if match:
+        fid = int(match.group(1))
+        conn = get_db()
+        row = conn.execute("SELECT filename, mimetype, data FROM uploads WHERE id = ?", (fid,)).fetchone()
+        conn.close()
+        if row and row["data"] and len(row["data"]) <= 50 * 1024 * 1024:
+            res = tg_send_document_bytes(
+                chat_id,
+                row["data"],
+                row["filename"],
+                row["mimetype"],
+                message_text if len(message_text) <= 1024 else "",
+            )
+            if res and res.get("ok"):
+                if len(message_text) > 1024:
+                    tg_api("sendMessage", {
+                        "chat_id": int(chat_id),
+                        "text": message_text,
+                        "parse_mode": "HTML",
+                    })
+                return
+
+    tg_api("sendMessage", {
+        "chat_id": int(chat_id),
+        "text": message_text,
+        "parse_mode": "HTML",
+    })
 
 
 def check_admin():
@@ -435,11 +509,8 @@ def api_send_apk():
 
     url = row["apk_file_url"] if row else "#"
     if row and BOT_TOKEN and uid.isdigit():
-        tg_api("sendMessage", {
-            "chat_id": int(uid),
-            "text": f"🤖 <b>{row['name']}</b>\n\n📥 ডাউনলোড লিংক:\n{full_url(url)}",
-            "parse_mode": "HTML"
-        })
+        msg_text = f"🤖 <b>{row['name']}</b>\n\n📥 ডাউনলোড লিংক:\n{full_url(url)}"
+        send_file_or_link(int(uid), url, msg_text)
     return jsonify({"ok": True, "url": url})
 
 
@@ -479,11 +550,8 @@ def api_buy():
     conn.close()
 
     if BOT_TOKEN and uid.isdigit():
-        tg_api("sendMessage", {
-            "chat_id": int(uid),
-            "text": f"✅ <b>{prod['title']}</b> ফাইলটি আনলক হয়েছে!\n\n📥 ডাউনলোড লিংক:\n{full_url(prod['file_url'])}",
-            "parse_mode": "HTML"
-        })
+        msg_text = f"✅ <b>{prod['title']}</b> ফাইলটি আনলক হয়েছে!\n\n📥 ডাউনলোড লিংক:\n{full_url(prod['file_url'])}"
+        send_file_or_link(int(uid), prod["file_url"], msg_text)
 
     return jsonify({"ok": True, "title": prod["title"], "file_url": prod["file_url"]})
 
