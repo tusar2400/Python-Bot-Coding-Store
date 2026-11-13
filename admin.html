@@ -267,7 +267,7 @@
       return String(str || "").replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
     }
 
-    function resizeAndCompressImage(file, maxWidth = 400, maxHeight = 400, quality = 0.8) {
+    function resizeAndCompressImage(file, maxWidth = 1920, maxHeight = 1920, quality = 0.95) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -290,7 +290,7 @@
     async function previewAppLogo(event) {
       const file = event.target.files[0];
       if (!file) return;
-      tempAppLogoBase64 = await resizeAndCompressImage(file, 200, 200, 0.8);
+      tempAppLogoBase64 = await resizeAndCompressImage(file, 1024, 1024, 0.95);
       const sImg = document.getElementById("setting-preview-img");
       sImg.src = tempAppLogoBase64;
       sImg.classList.remove("hidden");
@@ -300,7 +300,7 @@
     async function previewProductLogo(event) {
       const file = event.target.files[0];
       if (!file) return;
-      tempProdLogoBase64 = await resizeAndCompressImage(file, 1280, 720, 0.9);
+      tempProdLogoBase64 = await resizeAndCompressImage(file, 1920, 1920, 0.95);
       const pImg = document.getElementById("prod-logo-preview");
       pImg.src = tempProdLogoBase64;
       pImg.classList.remove("hidden");
@@ -314,7 +314,7 @@
           alert("সর্বোচ্চ ৪টি অতিরিক্ত ছবি যোগ করা যাবে!");
           break;
         }
-        const img = await resizeAndCompressImage(file, 600, 600, 0.75);
+        const img = await resizeAndCompressImage(file, 1280, 1280, 0.90);
         tempProdGallery.push(img);
       }
       event.target.value = "";
@@ -551,7 +551,7 @@
       const btn = document.getElementById("banner-btn");
       btn.disabled = true;
       try {
-        const img = await resizeAndCompressImage(fileInput.files[0], 1280, 720, 0.9);
+        const img = await resizeAndCompressImage(fileInput.files[0], 1920, 1080, 0.95);
         await apiAdmin("/api/admin/banner", "POST", { tag, title, image: img });
         alert("✅ ব্যানার যুক্ত হয়েছে!");
         document.getElementById("b-tag").value = "";
