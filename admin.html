@@ -300,7 +300,7 @@
     async function previewProductLogo(event) {
       const file = event.target.files[0];
       if (!file) return;
-      tempProdLogoBase64 = await resizeAndCompressImage(file, 300, 300, 0.8);
+      tempProdLogoBase64 = await resizeAndCompressImage(file, 1280, 720, 0.9);
       const pImg = document.getElementById("prod-logo-preview");
       pImg.src = tempProdLogoBase64;
       pImg.classList.remove("hidden");
@@ -551,7 +551,7 @@
       const btn = document.getElementById("banner-btn");
       btn.disabled = true;
       try {
-        const img = await resizeAndCompressImage(fileInput.files[0], 800, 450, 0.8);
+        const img = await resizeAndCompressImage(fileInput.files[0], 1280, 720, 0.9);
         await apiAdmin("/api/admin/banner", "POST", { tag, title, image: img });
         alert("✅ ব্যানার যুক্ত হয়েছে!");
         document.getElementById("b-tag").value = "";
