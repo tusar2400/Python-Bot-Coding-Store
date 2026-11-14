@@ -232,12 +232,25 @@
           <input type="text" id="set-nagad" class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white font-mono">
         </div>
         <div>
+          <label class="text-[11px] text-slate-400 block mb-1">USDT/USDC (BEP20) Wallet Address:</label>
+          <input type="text" id="set-usdt" placeholder="0x..." class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white font-mono">
+        </div>
+        <div>
+          <label class="text-[11px] text-slate-400 block mb-1">Binance Pay ID:</label>
+          <input type="text" id="set-binance" placeholder="123456789" class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white font-mono">
+        </div>
+        <div>
           <label class="text-[11px] text-slate-400 block mb-1">ডলার রেট ($1 = কত BDT):</label>
           <input type="number" id="set-rate" class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white font-mono">
         </div>
         <button onclick="saveAllSettings()" class="w-full btn-blue py-3 rounded-xl font-bold text-white shadow text-xs">লোগো ও সেটিংস সেভ করুন</button>
       </div>
     </div>
+  </div>
+
+  <!-- ডিপোজিট স্ক্রিনশট প্রিভিউ মোডাল -->
+  <div id="modal-dep-screenshot" onclick="this.classList.add('hidden')" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <img id="dep-full-screenshot" class="max-w-full max-h-[85vh] rounded-2xl border border-slate-700 shadow-2xl object-contain" alt="Deposit Screenshot">
   </div>
 
   <!-- ডিলিট কনফার্মেশন মোডাল -->
@@ -265,6 +278,11 @@
 
     function escapeHtml(str) {
       return String(str || "").replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+    }
+
+    function openDepScreenshot(src) {
+      document.getElementById("dep-full-screenshot").src = src;
+      document.getElementById("modal-dep-screenshot").classList.remove("hidden");
     }
 
     function resizeAndCompressImage(file, maxWidth = 1920, maxHeight = 1920, quality = 0.95) {
@@ -404,6 +422,8 @@
       const s = adminData.settings || {};
       document.getElementById("set-bkash").value = s.bkash || "";
       document.getElementById("set-nagad").value = s.nagad || "";
+      document.getElementById("set-usdt").value = s.usdtAddress || "";
+      document.getElementById("set-binance").value = s.binanceId || "";
       document.getElementById("set-rate").value = s.dollarRate || "125";
       if (s.appLogo) {
         const hImg = document.getElementById("header-logo-img");
@@ -637,6 +657,14 @@
       const box = document.getElementById("admin-deposit-list");
       box.innerHTML = deps.length ? "" : `<p class="text-xs text-slate-500 text-center py-6">কোনো পেন্ডিং ডিপোজিট নেই</p>`;
       deps.forEach(d => {
+        const senderHtml = d.senderNumber ? `<p class="text-[11px] text-slate-400">Sender: <span class="text-cyan-400 font-mono font-bold select-all">${escapeHtml(d.senderNumber)}</span></p>` : "";
+        const shotHtml = d.screenshot ? `
+          <div class="pt-1">
+            <button type="button" onclick="openDepScreenshot('${escapeHtml(d.screenshot)}')" class="text-[10px] bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 px-2.5 py-1 rounded-lg font-bold inline-flex items-center space-x-1">
+              <i class="fa-regular fa-image"></i><span>পেমেন্ট স্ক্রিনশট দেখুন</span>
+            </button>
+          </div>
+        ` : "";
         box.innerHTML += `
           <div class="card p-3 rounded-2xl text-xs space-y-2 border border-slate-800">
             <div class="flex justify-between items-center">
@@ -644,7 +672,9 @@
               <span class="font-black text-emerald-400 text-sm">৳${d.amount}</span>
             </div>
             <p class="text-[11px] text-slate-400">User ID: <span class="text-white font-mono">${escapeHtml(d.userId)}</span> (${escapeHtml(d.userName)})</p>
+            ${senderHtml}
             <p class="text-[11px] text-slate-400">TrxID: <span class="text-amber-400 font-mono font-bold select-all">${escapeHtml(d.trx)}</span></p>
+            ${shotHtml}
             <div class="grid grid-cols-2 gap-2 pt-1">
               <button onclick="handleDeposit(${d.id}, 'approve')" class="btn-green py-2 rounded-xl font-bold text-white text-xs">✓ Approve</button>
               <button onclick="handleDeposit(${d.id}, 'reject')" class="bg-rose-600/20 text-rose-400 border border-rose-600/30 py-2 rounded-xl font-bold text-xs">✕ Reject</button>
@@ -673,6 +703,8 @@
         const body = {
           bkash: document.getElementById("set-bkash").value.trim(),
           nagad: document.getElementById("set-nagad").value.trim(),
+          usdtAddress: document.getElementById("set-usdt").value.trim(),
+          binanceId: document.getElementById("set-binance").value.trim(),
           dollarRate: document.getElementById("set-rate").value.trim()
         };
         if (tempAppLogoBase64) body.appLogo = tempAppLogoBase64;
