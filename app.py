@@ -1,6 +1,9 @@
 import os
 import re
 import json
+import time
+import hmac
+import hashlib
 import uuid
 import base64
 import sqlite3
@@ -16,6 +19,9 @@ ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "").strip()
 WEB_APP_URL = os.environ.get("RENDER_EXTERNAL_URL", "https://python-bot-store.onrender.com").strip().rstrip("/")
 WELCOME_IMAGE_URL = os.environ.get("WELCOME_IMAGE_URL", "").strip()
+
+BINANCE_API_KEY = os.environ.get("BINANCE_API_KEY", "").strip()
+BINANCE_SECRET_KEY = os.environ.get("BINANCE_SECRET_KEY", "").strip()
 
 SUPPORT_CHANNEL_URL = "https://t.me/DragonTGSupportGroup"
 SUPPORT_ADMIN_URL = "https://t.me/Jamil459"
@@ -115,9 +121,21 @@ def init_db():
             method TEXT,
             amount REAL,
             trx TEXT,
+            sender_number TEXT DEFAULT '',
+            screenshot TEXT DEFAULT '',
             status TEXT DEFAULT 'Pending'
         )
     """)
+
+    try:
+        cur.execute("ALTER TABLE deposits ADD COLUMN sender_number TEXT DEFAULT ''")
+    except sqlite3.OperationalError:
+        pass
+
+    try:
+        cur.execute("ALTER TABLE deposits ADD COLUMN screenshot TEXT DEFAULT ''")
+    except sqlite3.OperationalError:
+        pass
 
     cur.execute("""
         CREATE TABLE IF NOT EXISTS settings (
@@ -137,6 +155,12 @@ def init_db():
     defaults = {
         "bkash": "018XXXXXXXX",
         "nagad": "018XXXXXXXX",
+        "usdtAddress": "0x0000000000000000000000000000000000000000",
+        "binanceId": "123456789",
+        "status_bkash": "on",
+        "status_nagad": "on",
+        "status_usdt": "on",
+        "status_binance": "on",
         "dollarRate": "125",
         "appLogo": ""
     }
@@ -148,6 +172,46 @@ def init_db():
 
 
 init_db()
+
+
+def check_binance_payment(pay_order_id):
+    if not BINANCE_API_KEY or not BINANCE_SECRET_KEY:
+        return False, 0.0, "Binance API Key কনফিগার করা নেই।"
+    endpoint = "https://api.binance.com/sapi/v1/pay/transactions"
+    timestamp = int(time.time() * 1000)
+    query_string = f"timestamp={timestamp}"
+    signature = hmac.new(
+        BINANCE_SECRET_KEY.encode("utf-8"),
+        query_string.encode("utf-8"),
+        hashlib.sha256,
+    ).hexdigest()
+    url = f"{endpoint}?{query_string}&signature={signature}"
+    req = urllib.request.Request(
+        url,
+        headers={"X-MBX-APIKEY": BINANCE_API_KEY},
+        method="GET",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=12) as resp:
+            if resp.status != 200:
+                return False, 0.0, "Binance Server Error বা API ইস্যু।"
+            data = json.loads(resp.read().decode("utf-8"))
+            transactions = data.get("data", []) if isinstance(data, dict) else data
+            target = str(pay_order_id).strip()
+            for item in transactions:
+                oid = str(item.get("orderId", "")).strip()
+                tid = str(item.get("transactionId", "")).strip()
+                if target and (oid == target or tid == target):
+                    amount = float(item.get("amount", 0.0))
+                    currency = str(item.get("currency", "USDT")).upper()
+                    if amount <= 0:
+                        return False, 0.0, "এটি ইনকামিং পেমেন্ট নয়।"
+                    if currency not in ("USDT", "USDC", "BUSD", "FDUSD"):
+                        return False, 0.0, f"শুধুমাত্র USDT/USDC গ্রহণযোগ্য (পাওয়া গেছে: {currency})।"
+                    return True, amount, f"{amount} {currency}"
+            return False, 0.0, "এই Transaction ID টি আপনার Binance Pay হিস্টোরিতে পাওয়া যায়নি।"
+    except Exception as e:
+        return False, 0.0, f"Binance যাচাইকরণ ত্রুটি: {str(e)}"
 
 
 def tg_api(method, payload):
@@ -562,35 +626,112 @@ def api_deposit():
     uid = str(data.get("user_id", ""))
     user_name = data.get("user_name", "User")
     method = data.get("method", "bKash")
-    amount = float(data.get("amount", 0))
+    try:
+        amount = float(data.get("amount", 0))
+    except (TypeError, ValueError):
+        amount = 0
     trx = (data.get("trx") or "").strip()
+    sender_number = (data.get("sender_number") or "").strip()
+    screenshot = (data.get("screenshot") or "").strip()
 
-    if not uid or amount <= 0 or not trx:
-        return jsonify({"ok": False, "msg": "সঠিক তথ্য দিন!"})
+    if not uid or amount < 50 or not trx or not sender_number:
+        return jsonify({"ok": False, "msg": "সর্বনিম্ন ৳৫০, TrxID এবং Sender নম্বর সঠিকভাবে দিন!"})
 
     conn = get_db()
     ensure_user(conn, uid, user_name)
+    settings = get_settings_dict(conn)
+
+    status_map = {
+        "bKash": "status_bkash",
+        "Nagad": "status_nagad",
+        "USDT (BEP20)": "status_usdt",
+        "Binance": "status_binance",
+    }
+    status_key = status_map.get(method)
+    if status_key and settings.get(status_key, "on") == "off":
+        conn.close()
+        return jsonify({"ok": False, "msg": f"❌ দুঃখিত, বর্তমানে {method} পেমেন্ট মেথডটি বন্ধ রয়েছে!"})
+
+    if method == "Binance":
+        existing = conn.execute("SELECT id FROM deposits WHERE UPPER(trx) = UPPER(?)", (trx,)).fetchone()
+        if existing:
+            conn.close()
+            return jsonify({"ok": False, "msg": "❌ এই Order / Transaction ID টি ইতিপূর্বেই ব্যবহার করা হয়েছে!"})
+
+        is_valid, paid_usdt, res_msg = check_binance_payment(trx)
+        if not is_valid:
+            conn.close()
+            return jsonify({"ok": False, "msg": f"❌ {res_msg}"})
+
+        try:
+            d_rate = float(settings.get("dollarRate", "125") or 125)
+        except ValueError:
+            d_rate = 125.0
+        added_bdt = round(paid_usdt * d_rate, 2)
+
+        conn.execute(
+            """INSERT INTO deposits (user_id, user_name, method, amount, trx, sender_number, screenshot, status)
+               VALUES (?, ?, ?, ?, ?, ?, ?, 'Approved')""",
+            (uid, user_name, method, added_bdt, trx, sender_number, screenshot),
+        )
+        conn.execute("UPDATE users SET balance = balance + ? WHERE id = ?", (added_bdt, uid))
+        conn.commit()
+        conn.close()
+
+        if BOT_TOKEN and NOTIFY_CHAT_ID:
+            notify_text = (
+                f"⚡ <b>Binance Pay অটো ডিপোজিট সফল!</b>\n\n"
+                f"👤 User: {user_name} (<code>{uid}</code>)\n"
+                f"💳 Method: Binance ({res_msg})\n"
+                f"💵 Added: ৳{added_bdt}\n"
+                f"📱 Sender: <code>{sender_number}</code>\n"
+                f"🧾 TrxID: <code>{trx}</code>"
+            )
+            tg_api("sendMessage", {
+                "chat_id": NOTIFY_CHAT_ID,
+                "text": notify_text,
+                "parse_mode": "HTML"
+            })
+
+        return jsonify({
+            "ok": True,
+            "auto_approved": True,
+            "amount": added_bdt,
+            "msg": f"⚡ Binance Pay অটো ভেরিফাই সফল! আপনার ব্যালেন্সে ৳{added_bdt} যুক্ত হয়েছে।"
+        })
+
     conn.execute(
-        "INSERT INTO deposits (user_id, user_name, method, amount, trx, status) VALUES (?, ?, ?, ?, ?, 'Pending')",
-        (uid, user_name, method, amount, trx),
+        """INSERT INTO deposits (user_id, user_name, method, amount, trx, sender_number, screenshot, status)
+           VALUES (?, ?, ?, ?, ?, ?, ?, 'Pending')""",
+        (uid, user_name, method, amount, trx, sender_number, screenshot),
     )
     conn.commit()
     conn.close()
 
     if BOT_TOKEN and NOTIFY_CHAT_ID:
-        tg_api("sendMessage", {
-            "chat_id": NOTIFY_CHAT_ID,
-            "text": (
-                f"💰 <b>নতুন ডিপোজিট রিকোয়েস্ট!</b>\n\n"
-                f"👤 User: {user_name} (<code>{uid}</code>)\n"
-                f"💳 Method: {method}\n"
-                f"💵 Amount: ৳{amount}\n"
-                f"🧾 TrxID: <code>{trx}</code>"
-            ),
-            "parse_mode": "HTML"
-        })
+        notify_text = (
+            f"💰 <b>নতুন ডিপোজিট রিকোয়েস্ট!</b>\n\n"
+            f"👤 User: {user_name} (<code>{uid}</code>)\n"
+            f"💳 Method: {method}\n"
+            f"💵 Amount: ৳{amount}\n"
+            f"📱 Sender: <code>{sender_number}</code>\n"
+            f"🧾 TrxID: <code>{trx}</code>"
+        )
+        sent_photo = None
+        if screenshot.startswith("data:image") and "," in screenshot:
+            try:
+                img_bytes = base64.b64decode(screenshot.split(",", 1)[1])
+                sent_photo = tg_send_photo_bytes(NOTIFY_CHAT_ID, img_bytes, "deposit.jpg", notify_text)
+            except Exception:
+                sent_photo = None
+        if not sent_photo or not sent_photo.get("ok"):
+            tg_api("sendMessage", {
+                "chat_id": NOTIFY_CHAT_ID,
+                "text": notify_text,
+                "parse_mode": "HTML"
+            })
 
-    return jsonify({"ok": True})
+    return jsonify({"ok": True, "auto_approved": False})
 
 
 @app.route("/api/redeem", methods=["POST"])
@@ -684,6 +825,8 @@ def admin_all():
             "method": d["method"],
             "amount": d["amount"],
             "trx": d["trx"],
+            "senderNumber": d["sender_number"] if "sender_number" in d.keys() else "",
+            "screenshot": d["screenshot"] if "screenshot" in d.keys() else "",
             "status": d["status"],
         }
         for d in deps
@@ -854,7 +997,12 @@ def admin_settings():
         return jsonify({"error": "Unauthorized"}), 401
     data = request.get_json(silent=True) or {}
     conn = get_db()
-    for key in ["bkash", "nagad", "dollarRate", "appLogo"]:
+    allowed_keys = [
+        "bkash", "nagad", "usdtAddress", "binanceId",
+        "status_bkash", "status_nagad", "status_usdt", "status_binance",
+        "dollarRate", "appLogo"
+    ]
+    for key in allowed_keys:
         if key in data:
             conn.execute("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)", (key, str(data[key])))
     conn.commit()
