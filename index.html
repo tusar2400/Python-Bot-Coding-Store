@@ -507,6 +507,10 @@
         <p class="text-xs text-slate-500">Choose how you want to add money to your Python Bot Store wallet</p>
       </div>
 
+      <div id="dep-all-off-notice" class="hidden bg-rose-50 border border-rose-200 text-rose-600 rounded-2xl p-4 text-xs font-bold text-center">
+        ⚠️ বর্তমানে সকল পেমেন্ট মেথড সাময়িকভাবে বন্ধ রয়েছে।
+      </div>
+
       <div class="grid grid-cols-2 gap-3">
         <!-- BKASH -->
         <div id="gw-card-BKASH" onclick="selectDepositGateway('BKASH')" class="bg-white rounded-3xl p-3 border-2 border-[#05a36b] shadow-sm cursor-pointer transition flex flex-col justify-between space-y-3">
@@ -518,8 +522,9 @@
               <i class="fa-solid fa-check"></i>
             </span>
           </div>
-          <div class="w-14 h-14 mx-auto rounded-2xl bg-pink-50 border border-pink-100 flex items-center justify-center p-2">
-            <svg viewBox="0 0 64 64" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <div class="w-14 h-14 mx-auto rounded-2xl bg-pink-50 border border-pink-100 flex items-center justify-center p-2 overflow-hidden">
+            <img id="gw-img-BKASH" class="hidden w-full h-full object-contain" alt="bKash">
+            <svg id="gw-svg-BKASH" viewBox="0 0 64 64" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
               <rect width="64" height="64" rx="14" fill="#E2136E"/>
               <path d="M18 22L31 14L44 26L33 34L18 22Z" fill="#FFFFFF"/>
               <path d="M33 34L44 26L48 41L31 50L33 34Z" fill="#FFD1E6"/>
@@ -540,8 +545,9 @@
             </span>
             <span id="gw-radio-NAGAD" class="w-5 h-5 rounded-full border border-slate-300 flex items-center justify-center text-[10px]"></span>
           </div>
-          <div class="w-14 h-14 mx-auto rounded-2xl bg-orange-50 border border-orange-100 flex items-center justify-center p-2">
-            <svg viewBox="0 0 64 64" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <div class="w-14 h-14 mx-auto rounded-2xl bg-orange-50 border border-orange-100 flex items-center justify-center p-2 overflow-hidden">
+            <img id="gw-img-NAGAD" class="hidden w-full h-full object-contain" alt="Nagad">
+            <svg id="gw-svg-NAGAD" viewBox="0 0 64 64" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
               <rect width="64" height="64" rx="14" fill="#FFFFFF"/>
               <circle cx="32" cy="30" r="17" fill="#F25C19"/>
               <path d="M23 33C26 24 38 22 43 29C37 29 31 33 28 40C25 38 23 36 23 33Z" fill="#FFFFFF"/>
@@ -557,13 +563,14 @@
         <!-- USDT/USDC (BEP20) -->
         <div id="gw-card-USDT" onclick="selectDepositGateway('USDT')" class="bg-white rounded-3xl p-3 border border-slate-200 shadow-sm cursor-pointer transition flex flex-col justify-between space-y-2.5">
           <div class="flex items-center justify-between">
-            <span id="gw-badge-USDT" class="bg-emerald-50 text-[#05a36b] border border-emerald-200 text-[9px] font-black px-2 py-0.5 rounded-full flex items-center space-x-1">
-              <i class="fa-solid fa-bolt text-[8px]"></i><span>FAST VERIFY</span>
+            <span id="gw-badge-USDT" class="bg-blue-50 text-blue-600 border border-blue-200 text-[9px] font-black px-2 py-0.5 rounded-full flex items-center space-x-1">
+              <i class="fa-solid fa-shield-halved text-[8px]"></i><span>ADMIN APPROVAL</span>
             </span>
             <span id="gw-radio-USDT" class="w-5 h-5 rounded-full border border-slate-300 flex items-center justify-center text-[10px]"></span>
           </div>
-          <div class="w-14 h-14 mx-auto rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center p-2">
-            <svg viewBox="0 0 64 64" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <div class="w-14 h-14 mx-auto rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center p-2 overflow-hidden">
+            <img id="gw-img-USDT" class="hidden w-full h-full object-contain" alt="USDT">
+            <svg id="gw-svg-USDT" viewBox="0 0 64 64" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
               <rect width="64" height="64" rx="14" fill="#E6F8F0"/>
               <circle cx="32" cy="32" r="18" fill="#26A17B"/>
               <path d="M22 23H42V28H34.5V43H29.5V28H22V23Z" fill="#FFFFFF"/>
@@ -572,21 +579,22 @@
           </div>
           <div class="text-center space-y-1">
             <p class="text-xs font-black text-slate-900">USDT/USDC (BEP20)</p>
-            <p class="text-[10px] text-[#05a36b] font-bold">⚡ INSTANT CHECK</p>
+            <p class="text-[10px] text-slate-500">Manual (5-10 mins)</p>
             <div class="bg-slate-50 border border-slate-200 rounded-full py-0.5 px-2 text-[10px] font-bold text-slate-600" id="gw-usdt-rate">$1 = ৳125 • $0.40</div>
           </div>
         </div>
 
-        <!-- BINANCE -->
+        <!-- BINANCE (AUTO APPROVAL) -->
         <div id="gw-card-BINANCE" onclick="selectDepositGateway('BINANCE')" class="bg-white rounded-3xl p-3 border border-slate-200 shadow-sm cursor-pointer transition flex flex-col justify-between space-y-2.5">
           <div class="flex items-center justify-between">
             <span id="gw-badge-BINANCE" class="bg-emerald-50 text-[#05a36b] border border-emerald-200 text-[9px] font-black px-2 py-0.5 rounded-full flex items-center space-x-1">
-              <i class="fa-solid fa-bolt text-[8px]"></i><span>FAST VERIFY</span>
+              <i class="fa-solid fa-bolt text-[8px]"></i><span>AUTO APPROVAL</span>
             </span>
             <span id="gw-radio-BINANCE" class="w-5 h-5 rounded-full border border-slate-300 flex items-center justify-center text-[10px]"></span>
           </div>
-          <div class="w-14 h-14 mx-auto rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center p-2">
-            <svg viewBox="0 0 64 64" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <div class="w-14 h-14 mx-auto rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center p-2 overflow-hidden">
+            <img id="gw-img-BINANCE" class="hidden w-full h-full object-contain" alt="Binance">
+            <svg id="gw-svg-BINANCE" viewBox="0 0 64 64" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
               <rect width="64" height="64" rx="14" fill="#181A20"/>
               <path d="M32 16L39.5 23.5L35 28L32 25L29 28L24.5 23.5L32 16Z" fill="#F0B90B"/>
               <path d="M21 27L25.5 31.5L21 36L16.5 31.5L21 27Z" fill="#F0B90B"/>
@@ -597,13 +605,13 @@
           </div>
           <div class="text-center space-y-1">
             <p class="text-xs font-black text-slate-900">Binance</p>
-            <p class="text-[10px] text-[#05a36b] font-bold">⚡ INSTANT CHECK</p>
+            <p class="text-[10px] text-[#05a36b] font-bold">⚡ INSTANT (1 SEC)</p>
             <div class="bg-slate-50 border border-slate-200 rounded-full py-0.5 px-2 text-[10px] font-bold text-slate-600" id="gw-binance-rate">$1 = ৳125 • $0.40</div>
           </div>
         </div>
       </div>
 
-      <button onclick="goToDepositStep3()" class="w-full py-3.5 rounded-2xl text-sm font-black bg-[#05a36b] hover:bg-[#048858] text-white shadow-lg shadow-emerald-500/25 flex items-center justify-center space-x-2 transition">
+      <button id="dep-step2-continue-btn" onclick="goToDepositStep3()" class="w-full py-3.5 rounded-2xl text-sm font-black bg-[#05a36b] hover:bg-[#048858] text-white shadow-lg shadow-emerald-500/25 flex items-center justify-center space-x-2 transition">
         <span>Continue to Payment</span>
         <i class="fa-solid fa-arrow-right text-xs"></i>
       </button>
@@ -621,7 +629,7 @@
           <i class="fa-solid fa-arrow-left text-[11px]"></i>
           <span>Change Method</span>
         </button>
-        <div class="bg-blue-50 border border-blue-200 text-blue-600 px-3 py-1 rounded-full text-[10px] font-black tracking-wide flex items-center space-x-1">
+        <div id="dep-step3-approval-badge" class="bg-blue-50 border border-blue-200 text-blue-600 px-3 py-1 rounded-full text-[10px] font-black tracking-wide flex items-center space-x-1">
           <i class="fa-solid fa-shield-halved text-[10px]"></i>
           <span>ADMIN APPROVAL</span>
         </div>
@@ -694,7 +702,7 @@
 
         <div class="space-y-1.5">
           <label class="text-xs font-extrabold text-slate-800 flex items-center justify-between">
-            <span>Transaction ID (TrxID)</span>
+            <span id="dep-trx-label">Transaction ID (TrxID)</span>
             <span class="text-rose-500 font-black">*</span>
           </label>
           <div class="flex items-center bg-white border border-slate-200 focus-within:border-[#05a36b] rounded-2xl px-3 py-2 gap-2">
@@ -782,7 +790,7 @@
         </div>
         <div class="bg-[#f3fbf7] border border-emerald-100 rounded-2xl p-3 flex items-start space-x-2.5">
           <span class="w-6 h-6 rounded-full bg-[#05a36b] text-white font-black text-xs flex items-center justify-center shrink-0 mt-0.5">3</span>
-          <p class="leading-relaxed">পেমেন্টের পর TrxID টি বসিয়ে সাবমিট করলেই অ্যাডমিন যাচাই করে ব্যালেন্স যুক্ত করবেন।</p>
+          <p class="leading-relaxed">পেমেন্টের পর TrxID টি বসিয়ে সাবমিট করলেই অ্যাডমিন যাচাই করে ব্যালেন্স যুক্ত করবেন (Binance-এ অটোমেটিক তাৎক্ষণিক যুক্ত হবে)।</p>
         </div>
       </div>
 
@@ -856,6 +864,14 @@
         nagad: "018XXXXXXXX",
         usdtAddress: "0x0000000000000000000000000000000000000000",
         binanceId: "123456789",
+        status_bkash: "on",
+        status_nagad: "on",
+        status_usdt: "on",
+        status_binance: "on",
+        bkashLogo: "",
+        nagadLogo: "",
+        usdtLogo: "",
+        binanceLogo: "",
         dollarRate: "125",
         appLogo: ""
       }
@@ -935,6 +951,7 @@
 
     function applySyncedSettings() {
       const s = storeData.settings || {};
+      applyPaymentGatewaySettings();
       updateDepositStep3Details();
       if (s.appLogo) {
         const hLogo = document.getElementById("header-custom-logo");
@@ -942,6 +959,53 @@
         hLogo.src = s.appLogo;
         hLogo.classList.remove("hidden");
         hIcon.classList.add("hidden");
+      }
+    }
+
+    function applyPaymentGatewaySettings() {
+      const s = storeData.settings || {};
+      const gateways = [
+        { code: "BKASH", statusKey: "status_bkash", logoKey: "bkashLogo" },
+        { code: "NAGAD", statusKey: "status_nagad", logoKey: "nagadLogo" },
+        { code: "USDT", statusKey: "status_usdt", logoKey: "usdtLogo" },
+        { code: "BINANCE", statusKey: "status_binance", logoKey: "binanceLogo" }
+      ];
+
+      let firstActive = null;
+      gateways.forEach(gw => {
+        const isOff = s[gw.statusKey] === "off";
+        const card = document.getElementById(`gw-card-${gw.code}`);
+        if (isOff) {
+          card.classList.add("hidden");
+        } else {
+          card.classList.remove("hidden");
+          if (!firstActive) firstActive = gw.code;
+        }
+
+        const imgEl = document.getElementById(`gw-img-${gw.code}`);
+        const svgEl = document.getElementById(`gw-svg-${gw.code}`);
+        if (s[gw.logoKey]) {
+          imgEl.src = s[gw.logoKey];
+          imgEl.classList.remove("hidden");
+          svgEl.classList.add("hidden");
+        } else {
+          imgEl.classList.add("hidden");
+          svgEl.classList.remove("hidden");
+        }
+      });
+
+      const notice = document.getElementById("dep-all-off-notice");
+      const contBtn = document.getElementById("dep-step2-continue-btn");
+      if (!firstActive) {
+        notice.classList.remove("hidden");
+        contBtn.classList.add("hidden");
+      } else {
+        notice.classList.add("hidden");
+        contBtn.classList.remove("hidden");
+        const activeObj = gateways.find(g => g.code === selectedDepositMethod);
+        if (!activeObj || s[activeObj.statusKey] === "off") {
+          selectedDepositMethod = firstActive;
+        }
       }
     }
 
@@ -1327,6 +1391,7 @@
     // ==================== নতুন ৩-ধাপের পেমেন্ট / ADD MONEY সিস্টেম ====================
     function openDepositModal() {
       updateUserBalanceDisplay();
+      applyPaymentGatewaySettings();
       showDepositStep(1);
       onDepositAmountInput();
       switchNav('deposit');
@@ -1378,6 +1443,7 @@
         alert("⚠️ সর্বনিম্ন ডিপোজিট ৫০ টাকা (Minimum ৳50)!");
         return;
       }
+      applyPaymentGatewaySettings();
       const rate = parseFloat(storeData.settings?.dollarRate || "125") || 125;
       const usd = (val / rate).toFixed(2);
       document.getElementById("dep-step2-amt").innerText = `৳${val}`;
@@ -1394,22 +1460,23 @@
         const radio = document.getElementById(`gw-radio-${gw}`);
         const badge = document.getElementById(`gw-badge-${gw}`);
         const active = gw === method;
-        card.className = active
+        const hiddenClass = card.classList.contains("hidden") ? " hidden" : "";
+        card.className = (active
           ? "bg-white rounded-3xl p-3 border-2 border-[#05a36b] shadow-sm cursor-pointer transition flex flex-col justify-between space-y-2.5"
-          : "bg-white rounded-3xl p-3 border border-slate-200 shadow-sm cursor-pointer transition flex flex-col justify-between space-y-2.5";
+          : "bg-white rounded-3xl p-3 border border-slate-200 shadow-sm cursor-pointer transition flex flex-col justify-between space-y-2.5") + hiddenClass;
         radio.className = active
           ? "w-5 h-5 rounded-full bg-[#05a36b] text-white flex items-center justify-center text-[10px]"
           : "w-5 h-5 rounded-full border border-slate-300 flex items-center justify-center text-[10px]";
         radio.innerHTML = active ? '<i class="fa-solid fa-check"></i>' : '';
 
-        if (gw === 'BKASH' || gw === 'NAGAD') {
-          badge.className = active
-            ? "bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full flex items-center space-x-1"
-            : "bg-blue-50 text-blue-600 border border-blue-200 text-[9px] font-black px-2 py-0.5 rounded-full flex items-center space-x-1";
-        } else {
+        if (gw === 'BINANCE') {
           badge.className = active
             ? "bg-[#05a36b] text-white text-[9px] font-black px-2 py-0.5 rounded-full flex items-center space-x-1"
             : "bg-emerald-50 text-[#05a36b] border border-emerald-200 text-[9px] font-black px-2 py-0.5 rounded-full flex items-center space-x-1";
+        } else {
+          badge.className = active
+            ? "bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full flex items-center space-x-1"
+            : "bg-blue-50 text-blue-600 border border-blue-200 text-[9px] font-black px-2 py-0.5 rounded-full flex items-center space-x-1";
         }
       });
     }
@@ -1425,6 +1492,15 @@
       const rate = parseFloat(s.dollarRate || "125") || 125;
       const usd = (val / rate).toFixed(2);
       const m = selectedDepositMethod;
+      const approvalBadge = document.getElementById("dep-step3-approval-badge");
+
+      if (m === 'BINANCE') {
+        approvalBadge.className = "bg-emerald-50 border border-emerald-200 text-[#05a36b] px-3 py-1 rounded-full text-[10px] font-black tracking-wide flex items-center space-x-1";
+        approvalBadge.innerHTML = '<i class="fa-solid fa-bolt text-[10px]"></i><span>AUTO APPROVAL</span>';
+      } else {
+        approvalBadge.className = "bg-blue-50 border border-blue-200 text-blue-600 px-3 py-1 rounded-full text-[10px] font-black tracking-wide flex items-center space-x-1";
+        approvalBadge.innerHTML = '<i class="fa-solid fa-shield-halved text-[10px]"></i><span>ADMIN APPROVAL</span>';
+      }
 
       document.getElementById("dep-step3-amt").innerText = `৳${val}`;
       if (m === 'NAGAD') {
@@ -1438,6 +1514,8 @@
         document.getElementById("dep-exact-send").innerText = `৳${val} BDT`;
         document.getElementById("dep-inst-5").innerHTML = 'Enter your <b>NAGAD</b> PIN to confirm the payment.';
         document.getElementById("dep-inst-6").innerHTML = 'Copy the <b>Transaction ID (TrxID)</b> from the SMS confirmation and paste below.';
+        document.getElementById("dep-trx-label").innerText = "Transaction ID (TrxID)";
+        document.getElementById("dep-trx-id").placeholder = "E.G. 9J4K2L8P";
         document.getElementById("dep-sender-label").innerText = "Sender Mobile Number";
         document.getElementById("dep-sender-number").placeholder = "e.g. 017XXXXXXXX";
       } else if (m === 'USDT') {
@@ -1451,19 +1529,23 @@
         document.getElementById("dep-exact-send").innerText = `$${usd} USDT`;
         document.getElementById("dep-inst-5").innerHTML = 'Confirm network fee & complete the <b>BEP20</b> transfer.';
         document.getElementById("dep-inst-6").innerHTML = 'Copy the <b>Transaction Hash (TxID)</b> and paste below.';
+        document.getElementById("dep-trx-label").innerText = "Transaction ID (TxID)";
+        document.getElementById("dep-trx-id").placeholder = "E.G. 0x...";
         document.getElementById("dep-sender-label").innerText = "Sender Wallet Address / Phone";
         document.getElementById("dep-sender-number").placeholder = "e.g. 0x... or 017XXXXXXXX";
       } else if (m === 'BINANCE') {
-        document.getElementById("dep-step3-via").innerText = "Via Binance Pay";
+        document.getElementById("dep-step3-via").innerText = "Via Binance Pay (Auto)";
         document.getElementById("dep-step3-sub").innerText = `≈ $${usd} USD`;
-        document.getElementById("dep-inst-title").innerText = "Binance Pay Instructions";
+        document.getElementById("dep-inst-title").innerText = "Binance Pay Instant Instructions";
         document.getElementById("dep-inst-1").innerHTML = 'Open your <b>Binance</b> app on your mobile phone.';
         document.getElementById("dep-inst-2").innerHTML = 'Go to <b>Binance Pay → Send → Pay ID</b>.';
         document.getElementById("dep-inst-3").innerText = "Send to this recipient Binance Pay ID:";
         document.getElementById("dep-display-num").innerText = s.binanceId || "123456789";
         document.getElementById("dep-exact-send").innerText = `$${usd} USDT`;
         document.getElementById("dep-inst-5").innerHTML = 'Enter your <b>Binance PIN / Passkey</b> to confirm the payment.';
-        document.getElementById("dep-inst-6").innerHTML = 'Copy the <b>Order ID / Transaction ID</b> and paste below.';
+        document.getElementById("dep-inst-6").innerHTML = 'Copy the <b>Order ID / Transaction ID</b> and paste below for <b>Instant Auto Approval</b>.';
+        document.getElementById("dep-trx-label").innerText = "Binance Order ID / Transaction ID";
+        document.getElementById("dep-trx-id").placeholder = "E.G. 283948102948";
         document.getElementById("dep-sender-label").innerText = "Sender Binance Pay ID / Email";
         document.getElementById("dep-sender-number").placeholder = "e.g. 123456789 or email";
       } else {
@@ -1477,6 +1559,8 @@
         document.getElementById("dep-exact-send").innerText = `৳${val} BDT`;
         document.getElementById("dep-inst-5").innerHTML = 'Enter your <b>BKASH</b> PIN to confirm the payment.';
         document.getElementById("dep-inst-6").innerHTML = 'Copy the <b>Transaction ID (TrxID)</b> from the SMS confirmation and paste below.';
+        document.getElementById("dep-trx-label").innerText = "Transaction ID (TrxID)";
+        document.getElementById("dep-trx-id").placeholder = "E.G. 9J4K2L8P";
         document.getElementById("dep-sender-label").innerText = "Sender Mobile Number";
         document.getElementById("dep-sender-number").placeholder = "e.g. 017XXXXXXXX";
       }
@@ -1570,7 +1654,11 @@
         });
         const data = await res.json();
         if (data.ok) {
-          alert("✅ ডিপোজিট রিকোয়েস্ট সফলভাবে জমা হয়েছে! অ্যাডমিন যাচাই করলে ব্যালেন্স যোগ হবে।");
+          if (data.auto_approved) {
+            alert(data.msg || `⚡ Binance Pay অটো ভেরিফাই সফল! আপনার ব্যালেন্সে ৳${data.amount} যুক্ত হয়েছে।`);
+          } else {
+            alert("✅ ডিপোজিট রিকোয়েস্ট সফলভাবে জমা হয়েছে! অ্যাডমিন যাচাই করলে ব্যালেন্স যোগ হবে।");
+          }
           document.getElementById("dep-amount-input").value = "";
           document.getElementById("dep-trx-id").value = "";
           document.getElementById("dep-sender-number").value = "";
@@ -1595,4 +1683,4 @@
     }
   </script>
 </body>
-        </html>
+                                                                                                                                                          </html>
