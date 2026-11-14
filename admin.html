@@ -597,7 +597,7 @@
       try {
         if (!apkUrl && realApkInput.files.length) {
           apkUrl = await uploadFileToServer(realApkInput.files[0]);
-          if (!apkUrl) return alert("❌ ফাইল আপলোড ব্যর্থ হয়েছে! ফাইল ৫0 MB-এর বড় হলে নিচের বক্সে সরাসরি লিংক দিন।");
+          if (!apkUrl) return alert("❌ ফাইল আপলোড ব্যর্থ হয়েছে! ফাইল ৫০ MB-এর বড় হলে নিচের বক্সে সরাসরি লিংক দিন।");
         }
         const icon = iconInput.files.length ? await resizeAndCompressImage(iconInput.files[0], 180, 180, 0.8) : "";
         await apiAdmin("/api/admin/modapk", "POST", { name, rank, downloads, icon, apk_file_url: apkUrl });
