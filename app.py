@@ -10,7 +10,7 @@ from flask import Flask, request, jsonify, send_from_directory, Response
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__, static_folder=".")
-app.config["MAX_CONTENT_LENGTH"] = 200 * 1024 * 1024
+app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024
 
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "").strip()
