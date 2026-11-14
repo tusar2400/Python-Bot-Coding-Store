@@ -161,6 +161,10 @@ def init_db():
         "status_nagad": "on",
         "status_usdt": "on",
         "status_binance": "on",
+        "bkashLogo": "",
+        "nagadLogo": "",
+        "usdtLogo": "",
+        "binanceLogo": "",
         "dollarRate": "125",
         "appLogo": ""
     }
@@ -1000,6 +1004,7 @@ def admin_settings():
     allowed_keys = [
         "bkash", "nagad", "usdtAddress", "binanceId",
         "status_bkash", "status_nagad", "status_usdt", "status_binance",
+        "bkashLogo", "nagadLogo", "usdtLogo", "binanceLogo",
         "dollarRate", "appLogo"
     ]
     for key in allowed_keys:
