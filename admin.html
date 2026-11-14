@@ -211,8 +211,10 @@
 
     <!-- ==================== ট্যাব ৭: সেটিংস ==================== -->
     <div id="tab-settings" class="hidden space-y-3">
-      <div class="card p-4 rounded-2xl space-y-3 text-xs shadow-xl">
-        <h3 class="text-xs font-bold text-amber-400 mb-2">অ্যাপের লোগো ও পেমেন্ট সেটিংস</h3>
+      <div class="card p-4 rounded-2xl space-y-3.5 text-xs shadow-xl">
+        <h3 class="text-xs font-bold text-amber-400">অ্যাপের লোগো ও পেমেন্ট গেটওয়ে সেটিংস</h3>
+
+        <!-- অ্যাপের মূল লোগো -->
         <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl space-y-2">
           <label class="text-[11px] text-emerald-400 font-bold block">অ্যাপের মূল লোগো:</label>
           <div class="flex items-center space-x-3">
@@ -223,22 +225,71 @@
             <input type="file" id="app-logo-file-input" accept="image/*" onchange="previewAppLogo(event)" class="text-xs text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:bg-cyan-600 file:text-white cursor-pointer w-full">
           </div>
         </div>
-        <div>
-          <label class="text-[11px] text-slate-400 block mb-1">বিকাশ পার্সোনাল নাম্বার:</label>
-          <input type="text" id="set-bkash" class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white font-mono">
+
+        <!-- bKash কন্ট্রোল ও লোগো -->
+        <div class="bg-slate-900/90 border border-slate-800 p-3 rounded-xl space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-pink-400">🌸 bKash Personal</span>
+            <button type="button" id="toggle-gw-bkash" onclick="toggleGatewayStatus('bkash')" class="px-3 py-1 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">🟢 ON</button>
+          </div>
+          <input type="text" id="set-bkash" placeholder="বিকাশ পার্সোনাল নাম্বার" class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white font-mono">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-10 h-10 rounded-xl border border-slate-700 bg-white flex items-center justify-center overflow-hidden shrink-0 p-1">
+              <img id="preview-logo-bkash" class="hidden w-full h-full object-contain">
+              <i id="icon-logo-bkash" class="fa-regular fa-image text-slate-400 text-sm"></i>
+            </div>
+            <input type="file" accept="image/*" onchange="previewPaymentLogo(event, 'bkash')" class="text-[11px] text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:bg-pink-600 file:text-white cursor-pointer w-full">
+          </div>
         </div>
-        <div>
-          <label class="text-[11px] text-slate-400 block mb-1">নগদ পার্সোনাল নাম্বার:</label>
-          <input type="text" id="set-nagad" class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white font-mono">
+
+        <!-- Nagad কন্ট্রোল ও লোগো -->
+        <div class="bg-slate-900/90 border border-slate-800 p-3 rounded-xl space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-orange-400">🟠 Nagad Personal</span>
+            <button type="button" id="toggle-gw-nagad" onclick="toggleGatewayStatus('nagad')" class="px-3 py-1 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">🟢 ON</button>
+          </div>
+          <input type="text" id="set-nagad" placeholder="নগদ পার্সোনাল নাম্বার" class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white font-mono">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-10 h-10 rounded-xl border border-slate-700 bg-white flex items-center justify-center overflow-hidden shrink-0 p-1">
+              <img id="preview-logo-nagad" class="hidden w-full h-full object-contain">
+              <i id="icon-logo-nagad" class="fa-regular fa-image text-slate-400 text-sm"></i>
+            </div>
+            <input type="file" accept="image/*" onchange="previewPaymentLogo(event, 'nagad')" class="text-[11px] text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:bg-orange-600 file:text-white cursor-pointer w-full">
+          </div>
         </div>
-        <div>
-          <label class="text-[11px] text-slate-400 block mb-1">USDT/USDC (BEP20) Wallet Address:</label>
-          <input type="text" id="set-usdt" placeholder="0x..." class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white font-mono">
+
+        <!-- USDT (BEP20) কন্ট্রোল ও লোগো -->
+        <div class="bg-slate-900/90 border border-slate-800 p-3 rounded-xl space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-emerald-400">💵 USDT/USDC (BEP20)</span>
+            <button type="button" id="toggle-gw-usdt" onclick="toggleGatewayStatus('usdt')" class="px-3 py-1 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">🟢 ON</button>
+          </div>
+          <input type="text" id="set-usdt" placeholder="0x... Wallet Address" class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white font-mono">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-10 h-10 rounded-xl border border-slate-700 bg-white flex items-center justify-center overflow-hidden shrink-0 p-1">
+              <img id="preview-logo-usdt" class="hidden w-full h-full object-contain">
+              <i id="icon-logo-usdt" class="fa-regular fa-image text-slate-400 text-sm"></i>
+            </div>
+            <input type="file" accept="image/*" onchange="previewPaymentLogo(event, 'usdt')" class="text-[11px] text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:bg-emerald-600 file:text-white cursor-pointer w-full">
+          </div>
         </div>
-        <div>
-          <label class="text-[11px] text-slate-400 block mb-1">Binance Pay ID:</label>
-          <input type="text" id="set-binance" placeholder="123456789" class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white font-mono">
+
+        <!-- Binance Pay কন্ট্রোল ও লোগো -->
+        <div class="bg-slate-900/90 border border-slate-800 p-3 rounded-xl space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-amber-400">🟡 Binance Pay (Auto)</span>
+            <button type="button" id="toggle-gw-binance" onclick="toggleGatewayStatus('binance')" class="px-3 py-1 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">🟢 ON</button>
+          </div>
+          <input type="text" id="set-binance" placeholder="Binance Pay ID (যেমন: 123456789)" class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white font-mono">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-10 h-10 rounded-xl border border-slate-700 bg-white flex items-center justify-center overflow-hidden shrink-0 p-1">
+              <img id="preview-logo-binance" class="hidden w-full h-full object-contain">
+              <i id="icon-logo-binance" class="fa-regular fa-image text-slate-400 text-sm"></i>
+            </div>
+            <input type="file" accept="image/*" onchange="previewPaymentLogo(event, 'binance')" class="text-[11px] text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:bg-amber-600 file:text-white cursor-pointer w-full">
+          </div>
         </div>
+
         <div>
           <label class="text-[11px] text-slate-400 block mb-1">ডলার রেট ($1 = কত BDT):</label>
           <input type="number" id="set-rate" class="w-full bg-[#080f1a] border border-slate-700 rounded-xl p-2.5 text-white font-mono">
@@ -274,6 +325,8 @@
     let tempAppLogoBase64 = "";
     let tempProdLogoBase64 = "";
     let tempProdGallery = [];
+    let tempGatewayLogos = { bkash: "", nagad: "", usdt: "", binance: "" };
+    let gatewayStatus = { bkash: "on", nagad: "on", usdt: "on", binance: "on" };
     let itemDeleteCallback = null;
 
     function escapeHtml(str) {
@@ -303,6 +356,60 @@
         };
         reader.onerror = reject; reader.readAsDataURL(file);
       });
+    }
+
+    function resizeLogoPng(file, maxSize = 256) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            let width = img.width, height = img.height;
+            if (width > height && width > maxSize) { height = Math.round((height * maxSize) / width); width = maxSize; }
+            else if (height >= width && height > maxSize) { width = Math.round((width * maxSize) / height); height = maxSize; }
+            canvas.width = width; canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, width, height);
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL("image/png"));
+          };
+          img.onerror = reject; img.src = e.target.result;
+        };
+        reader.onerror = reject; reader.readAsDataURL(file);
+      });
+    }
+
+    async function previewPaymentLogo(event, gw) {
+      const file = event.target.files[0];
+      if (!file) return;
+      tempGatewayLogos[gw] = await resizeLogoPng(file, 256);
+      const imgEl = document.getElementById(`preview-logo-${gw}`);
+      const iconEl = document.getElementById(`icon-logo-${gw}`);
+      imgEl.src = tempGatewayLogos[gw];
+      imgEl.classList.remove("hidden");
+      iconEl.classList.add("hidden");
+    }
+
+    function updateGatewayToggleUI(gw) {
+      const btn = document.getElementById(`toggle-gw-${gw}`);
+      const isOn = gatewayStatus[gw] !== "off";
+      if (isOn) {
+        btn.className = "px-3 py-1 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/40";
+        btn.innerText = "🟢 ON";
+      } else {
+        btn.className = "px-3 py-1 rounded-full text-[10px] font-black bg-rose-500/20 text-rose-400 border border-rose-500/40";
+        btn.innerText = "🔴 OFF";
+      }
+    }
+
+    async function toggleGatewayStatus(gw) {
+      gatewayStatus[gw] = gatewayStatus[gw] === "off" ? "on" : "off";
+      updateGatewayToggleUI(gw);
+      try {
+        const keyMap = { bkash: "status_bkash", nagad: "status_nagad", usdt: "status_usdt", binance: "status_binance" };
+        await apiAdmin("/api/admin/settings", "POST", { [keyMap[gw]]: gatewayStatus[gw] });
+      } catch (e) {}
     }
 
     async function previewAppLogo(event) {
@@ -425,6 +532,23 @@
       document.getElementById("set-usdt").value = s.usdtAddress || "";
       document.getElementById("set-binance").value = s.binanceId || "";
       document.getElementById("set-rate").value = s.dollarRate || "125";
+
+      gatewayStatus.bkash = s.status_bkash === "off" ? "off" : "on";
+      gatewayStatus.nagad = s.status_nagad === "off" ? "off" : "on";
+      gatewayStatus.usdt = s.status_usdt === "off" ? "off" : "on";
+      gatewayStatus.binance = s.status_binance === "off" ? "off" : "on";
+      ['bkash', 'nagad', 'usdt', 'binance'].forEach(gw => {
+        updateGatewayToggleUI(gw);
+        const logoKey = gw + "Logo";
+        if (s[logoKey]) {
+          const imgEl = document.getElementById(`preview-logo-${gw}`);
+          const iconEl = document.getElementById(`icon-logo-${gw}`);
+          imgEl.src = s[logoKey];
+          imgEl.classList.remove("hidden");
+          iconEl.classList.add("hidden");
+        }
+      });
+
       if (s.appLogo) {
         const hImg = document.getElementById("header-logo-img");
         hImg.src = s.appLogo;
@@ -705,9 +829,17 @@
           nagad: document.getElementById("set-nagad").value.trim(),
           usdtAddress: document.getElementById("set-usdt").value.trim(),
           binanceId: document.getElementById("set-binance").value.trim(),
+          status_bkash: gatewayStatus.bkash,
+          status_nagad: gatewayStatus.nagad,
+          status_usdt: gatewayStatus.usdt,
+          status_binance: gatewayStatus.binance,
           dollarRate: document.getElementById("set-rate").value.trim()
         };
         if (tempAppLogoBase64) body.appLogo = tempAppLogoBase64;
+        if (tempGatewayLogos.bkash) body.bkashLogo = tempGatewayLogos.bkash;
+        if (tempGatewayLogos.nagad) body.nagadLogo = tempGatewayLogos.nagad;
+        if (tempGatewayLogos.usdt) body.usdtLogo = tempGatewayLogos.usdt;
+        if (tempGatewayLogos.binance) body.binanceLogo = tempGatewayLogos.binance;
         await apiAdmin("/api/admin/settings", "POST", body);
         alert("✅ সেটিংস সেভ হয়েছে!");
         await loadAllAdminData();
@@ -721,4 +853,4 @@
     function executeDelete() { if (itemDeleteCallback) itemDeleteCallback(); closeDeleteModal(); }
   </script>
 </body>
-</html>
+  </html>
