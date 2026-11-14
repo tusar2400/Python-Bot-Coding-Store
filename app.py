@@ -1,28 +1,19 @@
 import os
 import re
-import io
 import json
 import uuid
 import base64
-import asyncio
 import sqlite3
-import threading
 import urllib.request
 from datetime import datetime
 from flask import Flask, request, jsonify, send_from_directory, Response
 from werkzeug.utils import secure_filename
-from telethon import TelegramClient
-from telethon.sessions import MemorySession
-from telethon.tl.functions.users import GetUsersRequest
-from telethon.tl.types import InputUser
 
 app = Flask(__name__, static_folder=".")
 app.config["MAX_CONTENT_LENGTH"] = 200 * 1024 * 1024
 
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "").strip()
-API_ID = int(os.environ.get("API_ID", "0") or "0")
-API_HASH = os.environ.get("API_HASH", "").strip()
 WEB_APP_URL = os.environ.get("RENDER_EXTERNAL_URL", "https://python-bot-store.onrender.com").strip().rstrip("/")
 WELCOME_IMAGE_URL = os.environ.get("WELCOME_IMAGE_URL", "").strip()
 
@@ -253,45 +244,6 @@ def tg_send_document_bytes(chat_id, file_bytes, filename, mimetype, caption=""):
         return None
 
 
-def tg_send_large_via_telethon(chat_id, file_bytes, filename, caption):
-    async def _send():
-        client = TelegramClient(MemorySession(), API_ID, API_HASH)
-        await client.start(bot_token=BOT_TOKEN)
-        try:
-            try:
-                users = await client(GetUsersRequest([InputUser(int(chat_id), 0)]))
-                target = users[0] if users else int(chat_id)
-            except Exception:
-                target = int(chat_id)
-
-            bio = io.BytesIO(file_bytes)
-            bio.name = filename or "file.bin"
-            await client.send_file(
-                target,
-                bio,
-                caption=caption if len(caption) <= 1024 else "",
-                parse_mode="html",
-                force_document=True,
-            )
-            if len(caption) > 1024:
-                tg_api("sendMessage", {
-                    "chat_id": int(chat_id),
-                    "text": caption,
-                    "parse_mode": "HTML",
-                })
-        finally:
-            await client.disconnect()
-
-    try:
-        asyncio.run(_send())
-    except Exception:
-        tg_api("sendMessage", {
-            "chat_id": int(chat_id),
-            "text": caption,
-            "parse_mode": "HTML",
-        })
-
-
 def send_file_or_link(chat_id, file_url, message_text):
     if not BOT_TOKEN or not chat_id:
         return
@@ -302,30 +254,21 @@ def send_file_or_link(chat_id, file_url, message_text):
         conn = get_db()
         row = conn.execute("SELECT filename, mimetype, data FROM uploads WHERE id = ?", (fid,)).fetchone()
         conn.close()
-        if row and row["data"]:
-            file_size = len(row["data"])
-            if file_size <= 50 * 1024 * 1024:
-                res = tg_send_document_bytes(
-                    chat_id,
-                    row["data"],
-                    row["filename"],
-                    row["mimetype"],
-                    message_text if len(message_text) <= 1024 else "",
-                )
-                if res and res.get("ok"):
-                    if len(message_text) > 1024:
-                        tg_api("sendMessage", {
-                            "chat_id": int(chat_id),
-                            "text": message_text,
-                            "parse_mode": "HTML",
-                        })
-                    return
-            elif file_size <= 200 * 1024 * 1024 and API_ID and API_HASH:
-                threading.Thread(
-                    target=tg_send_large_via_telethon,
-                    args=(chat_id, row["data"], row["filename"], message_text),
-                    daemon=True,
-                ).start()
+        if row and row["data"] and len(row["data"]) <= 50 * 1024 * 1024:
+            res = tg_send_document_bytes(
+                chat_id,
+                row["data"],
+                row["filename"],
+                row["mimetype"],
+                message_text if len(message_text) <= 1024 else "",
+            )
+            if res and res.get("ok"):
+                if len(message_text) > 1024:
+                    tg_api("sendMessage", {
+                        "chat_id": int(chat_id),
+                        "text": message_text,
+                        "parse_mode": "HTML",
+                    })
                 return
 
     tg_api("sendMessage", {
