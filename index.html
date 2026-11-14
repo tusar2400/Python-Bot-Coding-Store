@@ -374,6 +374,379 @@
     </div>
   </main>
 
+  <!-- ==================== ট্যাব ৬: ওয়ালেট রিচার্জ / ADD MONEY (৩-ধাপের পেমেন্ট সিস্টেম) ==================== -->
+  <main id="tab-deposit" class="px-3.5 pt-3 space-y-3.5 hidden">
+
+    <!-- STEP 1 OF 3: ENTER AMOUNT -->
+    <section id="dep-step-1" class="space-y-3.5">
+      <div class="flex items-center justify-between gap-2">
+        <button onclick="switchNav('home')" class="bg-white border border-slate-200 text-slate-700 px-3 py-1.5 rounded-full text-xs font-bold flex items-center space-x-1.5 shadow-sm">
+          <i class="fa-solid fa-arrow-left text-[11px]"></i>
+          <span>Back to Home</span>
+        </button>
+        <div class="flex items-center space-x-1.5">
+          <div class="bg-white border border-slate-200 px-2.5 py-1 rounded-full text-[11px] font-bold text-slate-700 shadow-sm">
+            Balance: <span class="text-[#05a36b] font-black" id="dep-step1-balance">৳0</span>
+          </div>
+          <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-2.5 py-1 rounded-full text-[10px] font-black tracking-wide flex items-center space-x-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            <span>STEP 1 OF 3</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-3xl p-4 border border-slate-200/80 shadow-sm space-y-4">
+        <div class="flex items-center space-x-3.5">
+          <div class="w-12 h-12 rounded-2xl bg-[#05a36b] text-white flex items-center justify-center text-xl shadow-md shadow-emerald-500/25 shrink-0">
+            <i class="fa-solid fa-wallet"></i>
+          </div>
+          <div>
+            <h2 class="text-lg font-black text-slate-900 leading-tight">Enter Amount</h2>
+            <p class="text-xs text-slate-500">Type the amount you want to add.</p>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider block">AMOUNT</label>
+          <div id="dep-amount-box" class="flex items-center space-x-2.5 bg-white border-2 border-slate-200 focus-within:border-[#05a36b] rounded-2xl px-4 py-3 transition">
+            <span class="text-xl font-black text-slate-800">৳</span>
+            <input type="number" id="dep-amount-input" oninput="onDepositAmountInput()" placeholder="Enter amount" class="w-full text-base font-bold text-slate-900 placeholder-slate-400 focus:outline-none bg-transparent">
+          </div>
+
+          <div class="flex items-center space-x-2 pt-0.5">
+            <span id="dep-amt-check-icon" class="w-4 h-4 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-[9px] shrink-0">
+              <i class="fa-solid fa-check"></i>
+            </span>
+            <p id="dep-amt-hint" class="text-xs text-slate-500 font-medium">Amount will be added to your Python Bot Store wallet</p>
+          </div>
+        </div>
+
+        <button id="dep-step1-btn" onclick="goToDepositStep2()" class="w-full py-3.5 rounded-2xl text-sm font-black bg-[#cbe7d8] text-emerald-900/40 flex items-center justify-center space-x-2 transition">
+          <i class="fa-solid fa-wallet text-xs"></i>
+          <span>Add Money Securely</span>
+          <i class="fa-solid fa-arrow-right text-xs"></i>
+        </button>
+
+        <div class="grid grid-cols-3 border border-slate-200 rounded-2xl divide-x divide-slate-200 bg-slate-50/50 text-center py-3 px-1">
+          <div class="px-1 space-y-1">
+            <i class="fa-solid fa-bolt text-[#05a36b] text-sm"></i>
+            <p class="text-[11px] font-black text-slate-800">Instant</p>
+            <p class="text-[10px] text-slate-500 leading-tight">Quick balance update</p>
+          </div>
+          <div class="px-1 space-y-1">
+            <i class="fa-solid fa-lock text-[#05a36b] text-sm"></i>
+            <p class="text-[11px] font-black text-slate-800">Secure</p>
+            <p class="text-[10px] text-slate-500 leading-tight">Protected payment</p>
+          </div>
+          <div class="px-1 space-y-1">
+            <i class="fa-solid fa-headphones text-[#05a36b] text-sm"></i>
+            <p class="text-[11px] font-black text-slate-800">Support</p>
+            <p class="text-[10px] text-slate-500 leading-tight">Help when needed</p>
+          </div>
+        </div>
+
+        <div class="bg-[#f3fbf7] border border-emerald-100 rounded-2xl p-3.5 flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-full bg-emerald-100 text-[#05a36b] flex items-center justify-center text-base shrink-0">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div>
+            <h4 class="text-xs font-black text-slate-800">100% Safe & Secure</h4>
+            <p class="text-[11px] text-slate-500 leading-snug mt-0.5">Your payment is encrypted and handled through trusted payment partners.</p>
+          </div>
+        </div>
+      </div>
+
+      <div onclick="openHowToAddModal()" class="bg-white rounded-3xl p-4 border border-slate-200/80 shadow-sm flex items-center justify-between cursor-pointer active:scale-[0.99] transition">
+        <div class="flex items-center space-x-3">
+          <div class="w-11 h-11 rounded-2xl bg-[#05a36b] text-white flex items-center justify-center text-base shadow-md shadow-emerald-500/25 shrink-0">
+            <i class="fa-solid fa-play ml-0.5"></i>
+          </div>
+          <div>
+            <h4 class="text-sm font-black text-slate-900">How to add money</h4>
+            <p class="text-[11px] text-slate-500">Watch the short guide before completing...</p>
+          </div>
+        </div>
+        <div class="w-8 h-8 rounded-full bg-emerald-50 text-[#05a36b] flex items-center justify-center text-xs shrink-0">
+          <i class="fa-solid fa-chevron-right"></i>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 2 OF 3: SELECT PAYMENT GATEWAY -->
+    <section id="dep-step-2" class="space-y-3.5 hidden">
+      <div class="flex items-center justify-between">
+        <button onclick="showDepositStep(1)" class="bg-white border border-slate-200 text-slate-700 px-3 py-1.5 rounded-full text-xs font-bold flex items-center space-x-1.5 shadow-sm">
+          <i class="fa-solid fa-arrow-left text-[11px]"></i>
+          <span>Change Amount</span>
+        </button>
+        <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-2.5 py-1 rounded-full text-[10px] font-black tracking-wide flex items-center space-x-1">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          <span>STEP 2 OF 3</span>
+        </div>
+      </div>
+
+      <div class="bg-[#f0fbf7] border border-emerald-200 rounded-3xl p-4 flex items-center justify-between shadow-sm">
+        <div class="flex items-center space-x-3">
+          <div class="w-11 h-11 rounded-2xl bg-[#05a36b] text-white flex items-center justify-center text-lg font-black shrink-0">৳</div>
+          <div>
+            <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">DEPOSIT AMOUNT</p>
+            <p class="text-xs font-bold text-[#05a36b]">Step 2 Checkout</p>
+          </div>
+        </div>
+        <div class="text-right">
+          <p class="text-lg font-black text-slate-900" id="dep-step2-amt">৳50</p>
+          <p class="text-[10px] font-bold text-slate-500">BDT</p>
+        </div>
+      </div>
+
+      <div class="space-y-1 px-0.5">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-black text-slate-900">Select Payment Gateway</h3>
+          <span class="bg-emerald-50 border border-emerald-200 text-[#05a36b] text-[10px] font-black px-2.5 py-0.5 rounded-full">⚡ 0% Fee</span>
+        </div>
+        <p class="text-xs text-slate-500">Choose how you want to add money to your Python Bot Store wallet</p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <!-- BKASH -->
+        <div id="gw-card-BKASH" onclick="selectDepositGateway('BKASH')" class="bg-white rounded-3xl p-3 border-2 border-[#05a36b] shadow-sm cursor-pointer transition flex flex-col justify-between space-y-3">
+          <div class="flex items-center justify-between">
+            <span id="gw-badge-BKASH" class="bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full flex items-center space-x-1">
+              <i class="fa-solid fa-shield-halved text-[8px]"></i><span>ADMIN APPROVAL</span>
+            </span>
+            <span id="gw-radio-BKASH" class="w-5 h-5 rounded-full bg-[#05a36b] text-white flex items-center justify-center text-[10px]">
+              <i class="fa-solid fa-check"></i>
+            </span>
+          </div>
+          <div class="w-14 h-14 mx-auto rounded-2xl bg-pink-50 border border-pink-100 flex items-center justify-center p-2">
+            <svg viewBox="0 0 64 64" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+              <rect width="64" height="64" rx="14" fill="#E2136E"/>
+              <path d="M18 22L31 14L44 26L33 34L18 22Z" fill="#FFFFFF"/>
+              <path d="M33 34L44 26L48 41L31 50L33 34Z" fill="#FFD1E6"/>
+              <path d="M18 22L33 34L31 50L22 39L18 22Z" fill="#FF8AC2"/>
+            </svg>
+          </div>
+          <div class="text-center pb-1">
+            <p class="text-xs font-black text-slate-900">BKASH</p>
+            <p class="text-[10px] text-slate-500 mt-0.5">Manual (5-10 mins)</p>
+          </div>
+        </div>
+
+        <!-- NAGAD -->
+        <div id="gw-card-NAGAD" onclick="selectDepositGateway('NAGAD')" class="bg-white rounded-3xl p-3 border border-slate-200 shadow-sm cursor-pointer transition flex flex-col justify-between space-y-3">
+          <div class="flex items-center justify-between">
+            <span id="gw-badge-NAGAD" class="bg-blue-50 text-blue-600 border border-blue-200 text-[9px] font-black px-2 py-0.5 rounded-full flex items-center space-x-1">
+              <i class="fa-solid fa-shield-halved text-[8px]"></i><span>ADMIN APPROVAL</span>
+            </span>
+            <span id="gw-radio-NAGAD" class="w-5 h-5 rounded-full border border-slate-300 flex items-center justify-center text-[10px]"></span>
+          </div>
+          <div class="w-14 h-14 mx-auto rounded-2xl bg-orange-50 border border-orange-100 flex items-center justify-center p-2">
+            <svg viewBox="0 0 64 64" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+              <rect width="64" height="64" rx="14" fill="#FFFFFF"/>
+              <circle cx="32" cy="30" r="17" fill="#F25C19"/>
+              <path d="M23 33C26 24 38 22 43 29C37 29 31 33 28 40C25 38 23 36 23 33Z" fill="#FFFFFF"/>
+              <circle cx="36" cy="23" r="3" fill="#FFD200"/>
+            </svg>
+          </div>
+          <div class="text-center pb-1">
+            <p class="text-xs font-black text-slate-900">NAGAD</p>
+            <p class="text-[10px] text-slate-500 mt-0.5">Manual (5-10 mins)</p>
+          </div>
+        </div>
+
+        <!-- USDT/USDC (BEP20) -->
+        <div id="gw-card-USDT" onclick="selectDepositGateway('USDT')" class="bg-white rounded-3xl p-3 border border-slate-200 shadow-sm cursor-pointer transition flex flex-col justify-between space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span id="gw-badge-USDT" class="bg-emerald-50 text-[#05a36b] border border-emerald-200 text-[9px] font-black px-2 py-0.5 rounded-full flex items-center space-x-1">
+              <i class="fa-solid fa-bolt text-[8px]"></i><span>FAST VERIFY</span>
+            </span>
+            <span id="gw-radio-USDT" class="w-5 h-5 rounded-full border border-slate-300 flex items-center justify-center text-[10px]"></span>
+          </div>
+          <div class="w-14 h-14 mx-auto rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center p-2">
+            <svg viewBox="0 0 64 64" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+              <rect width="64" height="64" rx="14" fill="#E6F8F0"/>
+              <circle cx="32" cy="32" r="18" fill="#26A17B"/>
+              <path d="M22 23H42V28H34.5V43H29.5V28H22V23Z" fill="#FFFFFF"/>
+              <ellipse cx="32" cy="31.5" rx="12" ry="3" fill="none" stroke="#FFFFFF" stroke-width="2.2"/>
+            </svg>
+          </div>
+          <div class="text-center space-y-1">
+            <p class="text-xs font-black text-slate-900">USDT/USDC (BEP20)</p>
+            <p class="text-[10px] text-[#05a36b] font-bold">⚡ INSTANT CHECK</p>
+            <div class="bg-slate-50 border border-slate-200 rounded-full py-0.5 px-2 text-[10px] font-bold text-slate-600" id="gw-usdt-rate">$1 = ৳125 • $0.40</div>
+          </div>
+        </div>
+
+        <!-- BINANCE -->
+        <div id="gw-card-BINANCE" onclick="selectDepositGateway('BINANCE')" class="bg-white rounded-3xl p-3 border border-slate-200 shadow-sm cursor-pointer transition flex flex-col justify-between space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span id="gw-badge-BINANCE" class="bg-emerald-50 text-[#05a36b] border border-emerald-200 text-[9px] font-black px-2 py-0.5 rounded-full flex items-center space-x-1">
+              <i class="fa-solid fa-bolt text-[8px]"></i><span>FAST VERIFY</span>
+            </span>
+            <span id="gw-radio-BINANCE" class="w-5 h-5 rounded-full border border-slate-300 flex items-center justify-center text-[10px]"></span>
+          </div>
+          <div class="w-14 h-14 mx-auto rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center p-2">
+            <svg viewBox="0 0 64 64" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+              <rect width="64" height="64" rx="14" fill="#181A20"/>
+              <path d="M32 16L39.5 23.5L35 28L32 25L29 28L24.5 23.5L32 16Z" fill="#F0B90B"/>
+              <path d="M21 27L25.5 31.5L21 36L16.5 31.5L21 27Z" fill="#F0B90B"/>
+              <path d="M43 27L47.5 31.5L43 36L38.5 31.5L43 27Z" fill="#F0B90B"/>
+              <path d="M32 29L35 32L32 35L29 32L32 29Z" fill="#F0B90B"/>
+              <path d="M32 48L24.5 40.5L29 36L32 39L35 36L39.5 40.5L32 48Z" fill="#F0B90B"/>
+            </svg>
+          </div>
+          <div class="text-center space-y-1">
+            <p class="text-xs font-black text-slate-900">Binance</p>
+            <p class="text-[10px] text-[#05a36b] font-bold">⚡ INSTANT CHECK</p>
+            <div class="bg-slate-50 border border-slate-200 rounded-full py-0.5 px-2 text-[10px] font-bold text-slate-600" id="gw-binance-rate">$1 = ৳125 • $0.40</div>
+          </div>
+        </div>
+      </div>
+
+      <button onclick="goToDepositStep3()" class="w-full py-3.5 rounded-2xl text-sm font-black bg-[#05a36b] hover:bg-[#048858] text-white shadow-lg shadow-emerald-500/25 flex items-center justify-center space-x-2 transition">
+        <span>Continue to Payment</span>
+        <i class="fa-solid fa-arrow-right text-xs"></i>
+      </button>
+
+      <div class="text-center text-xs text-slate-500 flex items-center justify-center space-x-1.5 pt-1">
+        <i class="fa-solid fa-lock text-[#05a36b]"></i>
+        <span>100% Safe & Encrypted Payment Gateways</span>
+      </div>
+    </section>
+
+    <!-- STEP 3 OF 3: PAYMENT INSTRUCTIONS & VERIFY -->
+    <section id="dep-step-3" class="space-y-3.5 hidden">
+      <div class="flex items-center justify-between">
+        <button onclick="showDepositStep(2)" class="bg-white border border-slate-200 text-slate-700 px-3 py-1.5 rounded-full text-xs font-bold flex items-center space-x-1.5 shadow-sm">
+          <i class="fa-solid fa-arrow-left text-[11px]"></i>
+          <span>Change Method</span>
+        </button>
+        <div class="bg-blue-50 border border-blue-200 text-blue-600 px-3 py-1 rounded-full text-[10px] font-black tracking-wide flex items-center space-x-1">
+          <i class="fa-solid fa-shield-halved text-[10px]"></i>
+          <span>ADMIN APPROVAL</span>
+        </div>
+      </div>
+
+      <div class="bg-[#f0fbf7] border border-emerald-200 rounded-3xl p-4 flex items-center justify-between shadow-sm">
+        <div class="flex items-center space-x-3">
+          <div class="w-11 h-11 rounded-2xl bg-[#05a36b] text-white flex items-center justify-center text-lg font-black shrink-0">৳</div>
+          <div>
+            <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">DEPOSIT AMOUNT</p>
+            <p class="text-xs font-bold text-[#05a36b]" id="dep-step3-via">Via BKASH</p>
+          </div>
+        </div>
+        <div class="text-right">
+          <p class="text-lg font-black text-slate-900" id="dep-step3-amt">৳50</p>
+          <p class="text-[10px] font-bold text-slate-500" id="dep-step3-sub">BDT</p>
+        </div>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-3xl p-4 shadow-sm space-y-4">
+        <div class="bg-slate-50/70 border border-slate-200 rounded-2xl p-3.5 space-y-3">
+          <div class="flex items-center space-x-2 border-b border-slate-200 pb-2.5">
+            <span class="w-2 h-2 rounded-full bg-[#05a36b]"></span>
+            <h4 class="text-xs font-black text-slate-900" id="dep-inst-title">BKASH Send Money Instructions</h4>
+          </div>
+
+          <div class="space-y-2.5 text-xs text-slate-700">
+            <div class="flex items-start space-x-2.5">
+              <span class="w-5 h-5 rounded-full bg-emerald-100 text-[#05a36b] font-black text-[11px] flex items-center justify-center shrink-0 mt-0.5">1</span>
+              <p id="dep-inst-1">Open your <b>BKASH</b> app on your mobile phone.</p>
+            </div>
+            <div class="flex items-start space-x-2.5">
+              <span class="w-5 h-5 rounded-full bg-emerald-100 text-[#05a36b] font-black text-[11px] flex items-center justify-center shrink-0 mt-0.5">2</span>
+              <p id="dep-inst-2">Select the <b>"Send Money"</b> option.</p>
+            </div>
+            <div class="flex items-start space-x-2.5">
+              <span class="w-5 h-5 rounded-full bg-emerald-100 text-[#05a36b] font-black text-[11px] flex items-center justify-center shrink-0 mt-0.5">3</span>
+              <div class="flex-1 space-y-1.5 min-w-0">
+                <p id="dep-inst-3">Send to this recipient account number:</p>
+                <div class="flex items-center justify-between bg-white border border-slate-200 rounded-xl px-3 py-2 gap-2">
+                  <span class="font-mono font-bold text-slate-900 text-xs truncate select-all" id="dep-display-num">018XXXXXXXX</span>
+                  <button type="button" onclick="copyDepositNumber()" class="bg-[#05a36b] text-white text-[11px] font-bold px-3 py-1.5 rounded-lg flex items-center space-x-1 shrink-0">
+                    <i class="fa-regular fa-copy"></i><span>Copy</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-start space-x-2.5">
+              <span class="w-5 h-5 rounded-full bg-emerald-100 text-[#05a36b] font-black text-[11px] flex items-center justify-center shrink-0 mt-0.5">4</span>
+              <div class="flex-1 space-y-1.5">
+                <p>Exact amount to send:</p>
+                <div class="flex items-center justify-between bg-white border border-slate-200 rounded-xl px-3 py-2 gap-2">
+                  <span class="font-mono font-bold text-slate-900 text-xs" id="dep-exact-send">৳50 BDT</span>
+                  <button type="button" onclick="copyExactAmount()" class="bg-[#05a36b] text-white text-[11px] font-bold px-3 py-1.5 rounded-lg flex items-center space-x-1 shrink-0">
+                    <i class="fa-regular fa-copy"></i><span>Copy</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-start space-x-2.5">
+              <span class="w-5 h-5 rounded-full bg-emerald-100 text-[#05a36b] font-black text-[11px] flex items-center justify-center shrink-0 mt-0.5">5</span>
+              <p id="dep-inst-5">Enter your <b>BKASH</b> PIN to confirm the payment.</p>
+            </div>
+            <div class="flex items-start space-x-2.5">
+              <span class="w-5 h-5 rounded-full bg-emerald-100 text-[#05a36b] font-black text-[11px] flex items-center justify-center shrink-0 mt-0.5">6</span>
+              <p id="dep-inst-6">Copy the <b>Transaction ID (TrxID)</b> from the SMS confirmation and paste below.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="text-xs font-extrabold text-slate-800 flex items-center justify-between">
+            <span>Transaction ID (TrxID)</span>
+            <span class="text-rose-500 font-black">*</span>
+          </label>
+          <div class="flex items-center bg-white border border-slate-200 focus-within:border-[#05a36b] rounded-2xl px-3 py-2 gap-2">
+            <input type="text" id="dep-trx-id" placeholder="E.G. 9J4K2L8P" class="w-full text-sm font-mono font-bold text-slate-900 uppercase placeholder-slate-400 focus:outline-none bg-transparent">
+            <button type="button" onclick="pasteTrxId()" class="bg-emerald-50 border border-emerald-200 text-[#05a36b] text-xs font-bold px-3 py-1.5 rounded-xl shrink-0">Paste</button>
+          </div>
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="text-xs font-extrabold text-slate-800 flex items-center justify-between">
+            <span id="dep-sender-label">Sender Mobile Number</span>
+            <span class="text-rose-500 font-black">*</span>
+          </label>
+          <input type="text" id="dep-sender-number" placeholder="e.g. 017XXXXXXXX" class="w-full bg-white border border-slate-200 focus:border-[#05a36b] rounded-2xl px-3.5 py-3 text-sm font-mono text-slate-900 placeholder-slate-400 focus:outline-none">
+        </div>
+
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-black text-slate-700 uppercase tracking-wide">PAYMENT SCREENSHOT (OPTIONAL)</span>
+            <span class="bg-emerald-50 border border-emerald-200 text-[#05a36b] text-[10px] font-bold px-2.5 py-0.5 rounded-full">Fast Approval</span>
+          </div>
+
+          <input type="file" id="dep-screenshot-input" accept="image/*" onchange="handleDepositScreenshot(event)" class="hidden">
+          <button type="button" onclick="document.getElementById('dep-screenshot-input').click()" class="w-full border-2 border-dashed border-slate-300 hover:border-[#05a36b] rounded-2xl py-3.5 px-4 flex items-center justify-center space-x-2 text-xs font-extrabold text-slate-700 transition">
+            <i class="fa-solid fa-arrow-up-from-bracket text-[#05a36b]"></i>
+            <span id="dep-shot-btn-text">UPLOAD PAYMENT SCREENSHOT</span>
+          </button>
+
+          <div id="dep-shot-preview-box" class="hidden flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-2xl p-2">
+            <div class="flex items-center space-x-2">
+              <img id="dep-shot-thumb" class="w-10 h-10 rounded-xl object-cover border border-emerald-300">
+              <span class="text-[11px] font-bold text-emerald-800">স্ক্রিনশট যুক্ত হয়েছে</span>
+            </div>
+            <button type="button" onclick="clearDepositScreenshot()" class="text-rose-500 text-xs font-bold px-2">মুছুন</button>
+          </div>
+        </div>
+
+        <button id="dep-verify-btn" onclick="submitDeposit()" class="w-full py-3.5 rounded-2xl text-sm font-black bg-[#05a36b] hover:bg-[#048858] text-white shadow-lg shadow-emerald-500/25 flex items-center justify-center space-x-2 transition">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span>VERIFY PAYMENT</span>
+        </button>
+
+        <div class="flex justify-center pt-1">
+          <div class="bg-slate-50 border border-slate-200 rounded-full px-3.5 py-1.5 text-[11px] text-slate-600 font-medium flex items-center space-x-1.5">
+            <i class="fa-solid fa-lock text-[#05a36b]"></i>
+            <span>256-Bit SSL Encrypted & Secure</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
   <!-- ==================== বটম নেভিগেশন বার ==================== -->
   <nav class="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-200 z-50 px-2 py-2 flex justify-around items-center text-[10px] font-black shadow-lg">
     <button onclick="switchNav('home')" id="nav-btn-home" class="flex flex-col items-center space-y-1 text-emerald-600"><i class="fa-solid fa-house text-base"></i><span>HOME</span></button>
@@ -382,6 +755,42 @@
     <button onclick="switchNav('modapk')" id="nav-btn-modapk" class="flex flex-col items-center space-y-1 text-slate-400"><i class="fa-brands fa-android text-base"></i><span>MOD APK</span></button>
     <button onclick="switchNav('profile')" id="nav-btn-profile" class="flex flex-col items-center space-y-1 text-slate-400"><i class="fa-solid fa-user text-base"></i><span>MY PROFILE</span></button>
   </nav>
+
+  <!-- ==================== HOW TO ADD MONEY পপআপ মোডাল ==================== -->
+  <div id="modal-how-to-add" class="fixed inset-0 bg-black/55 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl w-full max-w-sm p-5 shadow-2xl space-y-3.5">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-9 h-9 rounded-xl bg-emerald-100 text-[#05a36b] flex items-center justify-center text-sm">
+            <i class="fa-solid fa-play ml-0.5"></i>
+          </div>
+          <h3 class="text-base font-black text-slate-900">How to add money</h3>
+        </div>
+        <button onclick="closeModal('modal-how-to-add')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-sm">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-2.5 text-xs text-slate-700">
+        <div class="bg-[#f3fbf7] border border-emerald-100 rounded-2xl p-3 flex items-start space-x-2.5">
+          <span class="w-6 h-6 rounded-full bg-[#05a36b] text-white font-black text-xs flex items-center justify-center shrink-0 mt-0.5">1</span>
+          <p class="leading-relaxed">টাকার পরিমাণ (Minimum ৳50) লিখে <b>Add Money Securely</b> বাটনে চাপ দিন।</p>
+        </div>
+        <div class="bg-[#f3fbf7] border border-emerald-100 rounded-2xl p-3 flex items-start space-x-2.5">
+          <span class="w-6 h-6 rounded-full bg-[#05a36b] text-white font-black text-xs flex items-center justify-center shrink-0 mt-0.5">2</span>
+          <p class="leading-relaxed">bKash, Nagad, USDT বা Binance সিলেক্ট করে প্রদত্ত নম্বরে টাকা সেন্ড করুন।</p>
+        </div>
+        <div class="bg-[#f3fbf7] border border-emerald-100 rounded-2xl p-3 flex items-start space-x-2.5">
+          <span class="w-6 h-6 rounded-full bg-[#05a36b] text-white font-black text-xs flex items-center justify-center shrink-0 mt-0.5">3</span>
+          <p class="leading-relaxed">পেমেন্টের পর TrxID টি বসিয়ে সাবমিট করলেই অ্যাডমিন যাচাই করে ব্যালেন্স যুক্ত করবেন।</p>
+        </div>
+      </div>
+
+      <button onclick="closeModal('modal-how-to-add')" class="w-full py-3 rounded-2xl text-sm font-black bg-[#05a36b] hover:bg-[#048858] text-white shadow-lg shadow-emerald-500/20">
+        Got It, Proceed
+      </button>
+    </div>
+  </div>
 
   <!-- ==================== ছবি বড় করে দেখার মোডাল ==================== -->
   <div id="modal-image-preview" onclick="closeModal('modal-image-preview')" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
@@ -418,40 +827,6 @@
     </div>
   </div>
 
-  <!-- ==================== ডিপোজিট মোডাল ==================== -->
-  <div id="modal-deposit" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 hidden">
-    <div class="card-dark border border-slate-800 w-full max-w-sm rounded-3xl p-4 shadow-2xl space-y-3">
-      <div class="flex justify-between items-center">
-        <h3 class="text-xs font-black text-white">ওয়ালেট রিচার্জ (Add Money)</h3>
-        <button onclick="closeModal('modal-deposit')" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center text-xs"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-
-      <div>
-        <label class="text-[10px] text-slate-400 block mb-1">টাকার পরিমাণ (BDT):</label>
-        <input type="number" id="dep-amount-input" value="125" class="w-full bg-[#040a12] border border-slate-700 rounded-xl p-2.5 text-xs text-white font-mono focus:outline-none focus:border-emerald-500">
-      </div>
-
-      <div>
-        <label class="text-[10px] text-slate-400 block mb-1">পেমেন্ট মেথড:</label>
-        <select id="dep-method-select" onchange="updateDepositNumber()" class="w-full bg-[#040a12] border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-emerald-500">
-          <option value="bKash">bKash Personal</option>
-          <option value="Nagad">Nagad Personal</option>
-        </select>
-      </div>
-
-      <div class="card-inner p-3 rounded-2xl text-xs space-y-2">
-        <div class="flex justify-between items-center">
-          <span class="text-[10px] text-slate-400" id="dep-method-title">bKash Personal:</span>
-          <button onclick="copyDepositNumber()" class="text-[10px] text-cyan-400 font-bold">কপি করুন</button>
-        </div>
-        <p class="text-xs font-mono font-bold text-emerald-400 select-all" id="dep-display-num">লোড হচ্ছে...</p>
-        <input type="text" id="dep-trx-id" placeholder="Transaction ID (TrxID) দিন" class="w-full bg-[#0a1524] border border-slate-700 rounded-xl p-2 text-xs text-white focus:outline-none focus:border-cyan-400">
-      </div>
-
-      <button onclick="submitDeposit()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-2.5 rounded-xl text-xs font-black text-white shadow-lg">কনফার্ম ডিপোজিট</button>
-    </div>
-  </div>
-
   <!-- ==================== ডিপোজিট হিস্ট্রি মোডাল ==================== -->
   <div id="modal-dep-history" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 hidden">
     <div class="card-dark border border-slate-800 w-full max-w-sm rounded-3xl p-4 shadow-2xl max-h-[80vh] overflow-y-auto hide-scrollbar space-y-3">
@@ -476,12 +851,21 @@
       mod_apks: [],
       orders: [],
       deposits: [],
-      settings: { bkash: "018XXXXXXXX", nagad: "018XXXXXXXX", dollarRate: "125", appLogo: "" }
+      settings: {
+        bkash: "018XXXXXXXX",
+        nagad: "018XXXXXXXX",
+        usdtAddress: "0x0000000000000000000000000000000000000000",
+        binanceId: "123456789",
+        dollarRate: "125",
+        appLogo: ""
+      }
     };
 
     let currentSlide = 0;
     let carouselTimer = null;
     let currentFilter = 'all';
+    let selectedDepositMethod = 'BKASH';
+    let depositScreenshotBase64 = '';
 
     function escapeHtml(str) {
       return String(str || "").replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
@@ -551,7 +935,7 @@
 
     function applySyncedSettings() {
       const s = storeData.settings || {};
-      updateDepositNumber();
+      updateDepositStep3Details();
       if (s.appLogo) {
         const hLogo = document.getElementById("header-custom-logo");
         const hIcon = document.getElementById("header-default-icon");
@@ -559,13 +943,6 @@
         hLogo.classList.remove("hidden");
         hIcon.classList.add("hidden");
       }
-    }
-
-    function updateDepositNumber() {
-      const method = document.getElementById("dep-method-select").value;
-      const s = storeData.settings || {};
-      document.getElementById("dep-method-title").innerText = `${method} Personal:`;
-      document.getElementById("dep-display-num").innerText = method === "Nagad" ? (s.nagad || "018XXXXXXXX") : (s.bkash || "018XXXXXXXX");
     }
 
     function initBanners() {
@@ -914,15 +1291,16 @@
     }
 
     function switchNav(tab) {
-      ['home', 'tools', 'source-zone', 'modapk', 'profile'].forEach(t => document.getElementById(`tab-${t}`)?.classList.add("hidden"));
+      ['home', 'tools', 'source-zone', 'modapk', 'profile', 'deposit'].forEach(t => document.getElementById(`tab-${t}`)?.classList.add("hidden"));
       ['home', 'tools', 'wallet', 'modapk', 'profile'].forEach(n => document.getElementById(`nav-btn-${n}`)?.setAttribute("class", "flex flex-col items-center space-y-1 text-slate-400"));
       document.getElementById(`tab-${tab}`)?.classList.remove("hidden");
-      document.getElementById(`nav-btn-${tab}`)?.setAttribute("class", "flex flex-col items-center space-y-1 text-emerald-600");
+      const navKey = tab === 'deposit' ? 'wallet' : tab;
+      document.getElementById(`nav-btn-${navKey}`)?.setAttribute("class", "flex flex-col items-center space-y-1 text-emerald-600");
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function openSourceCodeZone() {
-      ['home', 'tools', 'modapk', 'profile'].forEach(t => document.getElementById(`tab-${t}`).classList.add("hidden"));
+      ['home', 'tools', 'modapk', 'profile', 'deposit'].forEach(t => document.getElementById(`tab-${t}`).classList.add("hidden"));
       document.getElementById("tab-source-zone").classList.remove("hidden");
       document.getElementById("nav-btn-tools").setAttribute("class", "flex flex-col items-center space-y-1 text-emerald-600");
     }
@@ -931,6 +1309,8 @@
       const bal = storeData.user.balance || 0;
       document.getElementById("user-top-balance").innerText = `৳${bal}`;
       document.getElementById("profile-balance").innerText = `৳${bal}`;
+      const depBal = document.getElementById("dep-step1-balance");
+      if (depBal) depBal.innerText = `৳${bal}`;
     }
 
     function updateOrderHistoryCount() {
@@ -944,23 +1324,235 @@
       document.getElementById("hist-deposit-amount").innerText = `+৳${total}`;
     }
 
+    // ==================== নতুন ৩-ধাপের পেমেন্ট / ADD MONEY সিস্টেম ====================
     function openDepositModal() {
-      updateDepositNumber();
-      document.getElementById("modal-deposit").classList.remove("hidden");
+      updateUserBalanceDisplay();
+      showDepositStep(1);
+      onDepositAmountInput();
+      switchNav('deposit');
     }
+
+    function openHowToAddModal() {
+      document.getElementById("modal-how-to-add").classList.remove("hidden");
+    }
+
+    function showDepositStep(step) {
+      [1, 2, 3].forEach(n => document.getElementById(`dep-step-${n}`).classList.add("hidden"));
+      document.getElementById(`dep-step-${step}`).classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function onDepositAmountInput() {
+      const raw = document.getElementById("dep-amount-input").value.trim();
+      const val = parseFloat(raw);
+      const box = document.getElementById("dep-amount-box");
+      const icon = document.getElementById("dep-amt-check-icon");
+      const hint = document.getElementById("dep-amt-hint");
+      const btn = document.getElementById("dep-step1-btn");
+
+      if (!raw || isNaN(val) || val <= 0) {
+        box.className = "flex items-center space-x-2.5 bg-white border-2 border-slate-200 focus-within:border-[#05a36b] rounded-2xl px-4 py-3 transition";
+        icon.className = "w-4 h-4 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-[9px] shrink-0";
+        hint.className = "text-xs text-slate-500 font-medium";
+        hint.innerText = "Amount will be added to your Python Bot Store wallet";
+        btn.className = "w-full py-3.5 rounded-2xl text-sm font-black bg-[#cbe7d8] text-emerald-900/40 flex items-center justify-center space-x-2 transition";
+      } else if (val < 50) {
+        box.className = "flex items-center space-x-2.5 bg-white border-2 border-[#05a36b] rounded-2xl px-4 py-3 transition";
+        icon.className = "w-4 h-4 rounded-full bg-[#05a36b] text-white flex items-center justify-center text-[9px] shrink-0";
+        hint.className = "text-xs text-amber-600 font-bold";
+        hint.innerText = "Minimum deposit amount is ৳50";
+        btn.className = "w-full py-3.5 rounded-2xl text-sm font-black bg-gradient-to-r from-[#05a36b] to-[#088c5c] text-white shadow-lg shadow-emerald-500/25 flex items-center justify-center space-x-2 transition";
+      } else {
+        box.className = "flex items-center space-x-2.5 bg-white border-2 border-[#05a36b] rounded-2xl px-4 py-3 transition";
+        icon.className = "w-4 h-4 rounded-full bg-[#05a36b] text-white flex items-center justify-center text-[9px] shrink-0";
+        hint.className = "text-xs text-[#05a36b] font-bold";
+        hint.innerText = `Amount ৳${val} will be added to your Python Bot Store wallet`;
+        btn.className = "w-full py-3.5 rounded-2xl text-sm font-black bg-gradient-to-r from-[#05a36b] to-[#088c5c] text-white shadow-lg shadow-emerald-500/25 flex items-center justify-center space-x-2 transition";
+      }
+    }
+
+    function goToDepositStep2() {
+      const val = parseFloat(document.getElementById("dep-amount-input").value);
+      if (!val || val < 50) {
+        onDepositAmountInput();
+        alert("⚠️ সর্বনিম্ন ডিপোজিট ৫০ টাকা (Minimum ৳50)!");
+        return;
+      }
+      const rate = parseFloat(storeData.settings?.dollarRate || "125") || 125;
+      const usd = (val / rate).toFixed(2);
+      document.getElementById("dep-step2-amt").innerText = `৳${val}`;
+      document.getElementById("gw-usdt-rate").innerText = `$1 = ৳${rate} • $${usd}`;
+      document.getElementById("gw-binance-rate").innerText = `$1 = ৳${rate} • $${usd}`;
+      selectDepositGateway(selectedDepositMethod);
+      showDepositStep(2);
+    }
+
+    function selectDepositGateway(method) {
+      selectedDepositMethod = method;
+      ['BKASH', 'NAGAD', 'USDT', 'BINANCE'].forEach(gw => {
+        const card = document.getElementById(`gw-card-${gw}`);
+        const radio = document.getElementById(`gw-radio-${gw}`);
+        const badge = document.getElementById(`gw-badge-${gw}`);
+        const active = gw === method;
+        card.className = active
+          ? "bg-white rounded-3xl p-3 border-2 border-[#05a36b] shadow-sm cursor-pointer transition flex flex-col justify-between space-y-2.5"
+          : "bg-white rounded-3xl p-3 border border-slate-200 shadow-sm cursor-pointer transition flex flex-col justify-between space-y-2.5";
+        radio.className = active
+          ? "w-5 h-5 rounded-full bg-[#05a36b] text-white flex items-center justify-center text-[10px]"
+          : "w-5 h-5 rounded-full border border-slate-300 flex items-center justify-center text-[10px]";
+        radio.innerHTML = active ? '<i class="fa-solid fa-check"></i>' : '';
+
+        if (gw === 'BKASH' || gw === 'NAGAD') {
+          badge.className = active
+            ? "bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full flex items-center space-x-1"
+            : "bg-blue-50 text-blue-600 border border-blue-200 text-[9px] font-black px-2 py-0.5 rounded-full flex items-center space-x-1";
+        } else {
+          badge.className = active
+            ? "bg-[#05a36b] text-white text-[9px] font-black px-2 py-0.5 rounded-full flex items-center space-x-1"
+            : "bg-emerald-50 text-[#05a36b] border border-emerald-200 text-[9px] font-black px-2 py-0.5 rounded-full flex items-center space-x-1";
+        }
+      });
+    }
+
+    function goToDepositStep3() {
+      updateDepositStep3Details();
+      showDepositStep(3);
+    }
+
+    function updateDepositStep3Details() {
+      const s = storeData.settings || {};
+      const val = parseFloat(document.getElementById("dep-amount-input")?.value) || 50;
+      const rate = parseFloat(s.dollarRate || "125") || 125;
+      const usd = (val / rate).toFixed(2);
+      const m = selectedDepositMethod;
+
+      document.getElementById("dep-step3-amt").innerText = `৳${val}`;
+      if (m === 'NAGAD') {
+        document.getElementById("dep-step3-via").innerText = "Via NAGAD";
+        document.getElementById("dep-step3-sub").innerText = "BDT";
+        document.getElementById("dep-inst-title").innerText = "NAGAD Send Money Instructions";
+        document.getElementById("dep-inst-1").innerHTML = 'Open your <b>NAGAD</b> app on your mobile phone.';
+        document.getElementById("dep-inst-2").innerHTML = 'Select the <b>"Send Money"</b> option.';
+        document.getElementById("dep-inst-3").innerText = "Send to this recipient account number:";
+        document.getElementById("dep-display-num").innerText = s.nagad || "018XXXXXXXX";
+        document.getElementById("dep-exact-send").innerText = `৳${val} BDT`;
+        document.getElementById("dep-inst-5").innerHTML = 'Enter your <b>NAGAD</b> PIN to confirm the payment.';
+        document.getElementById("dep-inst-6").innerHTML = 'Copy the <b>Transaction ID (TrxID)</b> from the SMS confirmation and paste below.';
+        document.getElementById("dep-sender-label").innerText = "Sender Mobile Number";
+        document.getElementById("dep-sender-number").placeholder = "e.g. 017XXXXXXXX";
+      } else if (m === 'USDT') {
+        document.getElementById("dep-step3-via").innerText = "Via USDT/USDC (BEP20)";
+        document.getElementById("dep-step3-sub").innerText = `≈ $${usd} USD`;
+        document.getElementById("dep-inst-title").innerText = "USDT/USDC (BEP20) Transfer Instructions";
+        document.getElementById("dep-inst-1").innerHTML = 'Open your <b>Trust Wallet / Binance / Exchange</b> app.';
+        document.getElementById("dep-inst-2").innerHTML = 'Select <b>USDT or USDC (BEP20 Network)</b>.';
+        document.getElementById("dep-inst-3").innerText = "Send to this BEP20 wallet address:";
+        document.getElementById("dep-display-num").innerText = s.usdtAddress || "0x0000000000000000000000000000000000000000";
+        document.getElementById("dep-exact-send").innerText = `$${usd} USDT`;
+        document.getElementById("dep-inst-5").innerHTML = 'Confirm network fee & complete the <b>BEP20</b> transfer.';
+        document.getElementById("dep-inst-6").innerHTML = 'Copy the <b>Transaction Hash (TxID)</b> and paste below.';
+        document.getElementById("dep-sender-label").innerText = "Sender Wallet Address / Phone";
+        document.getElementById("dep-sender-number").placeholder = "e.g. 0x... or 017XXXXXXXX";
+      } else if (m === 'BINANCE') {
+        document.getElementById("dep-step3-via").innerText = "Via Binance Pay";
+        document.getElementById("dep-step3-sub").innerText = `≈ $${usd} USD`;
+        document.getElementById("dep-inst-title").innerText = "Binance Pay Instructions";
+        document.getElementById("dep-inst-1").innerHTML = 'Open your <b>Binance</b> app on your mobile phone.';
+        document.getElementById("dep-inst-2").innerHTML = 'Go to <b>Binance Pay → Send → Pay ID</b>.';
+        document.getElementById("dep-inst-3").innerText = "Send to this recipient Binance Pay ID:";
+        document.getElementById("dep-display-num").innerText = s.binanceId || "123456789";
+        document.getElementById("dep-exact-send").innerText = `$${usd} USDT`;
+        document.getElementById("dep-inst-5").innerHTML = 'Enter your <b>Binance PIN / Passkey</b> to confirm the payment.';
+        document.getElementById("dep-inst-6").innerHTML = 'Copy the <b>Order ID / Transaction ID</b> and paste below.';
+        document.getElementById("dep-sender-label").innerText = "Sender Binance Pay ID / Email";
+        document.getElementById("dep-sender-number").placeholder = "e.g. 123456789 or email";
+      } else {
+        document.getElementById("dep-step3-via").innerText = "Via BKASH";
+        document.getElementById("dep-step3-sub").innerText = "BDT";
+        document.getElementById("dep-inst-title").innerText = "BKASH Send Money Instructions";
+        document.getElementById("dep-inst-1").innerHTML = 'Open your <b>BKASH</b> app on your mobile phone.';
+        document.getElementById("dep-inst-2").innerHTML = 'Select the <b>"Send Money"</b> option.';
+        document.getElementById("dep-inst-3").innerText = "Send to this recipient account number:";
+        document.getElementById("dep-display-num").innerText = s.bkash || "018XXXXXXXX";
+        document.getElementById("dep-exact-send").innerText = `৳${val} BDT`;
+        document.getElementById("dep-inst-5").innerHTML = 'Enter your <b>BKASH</b> PIN to confirm the payment.';
+        document.getElementById("dep-inst-6").innerHTML = 'Copy the <b>Transaction ID (TrxID)</b> from the SMS confirmation and paste below.';
+        document.getElementById("dep-sender-label").innerText = "Sender Mobile Number";
+        document.getElementById("dep-sender-number").placeholder = "e.g. 017XXXXXXXX";
+      }
+    }
+
     function closeModal(id) { document.getElementById(id).classList.add("hidden"); }
 
     function copyDepositNumber() {
       const num = document.getElementById("dep-display-num").innerText;
       navigator.clipboard.writeText(num);
-      alert(`নম্বর কপি হয়েছে: ${num}`);
+      alert(`কপি হয়েছে: ${num}`);
+    }
+
+    function copyExactAmount() {
+      const txt = document.getElementById("dep-exact-send").innerText.replace(/[^\d.]/g, '');
+      navigator.clipboard.writeText(txt);
+      alert(`পরিমাণ কপি হয়েছে: ${txt}`);
+    }
+
+    async function pasteTrxId() {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          document.getElementById("dep-trx-id").value = text.trim();
+        } else {
+          alert("ক্লিপবোর্ড খালি আছে!");
+        }
+      } catch (e) {
+        alert("দয়া করে বক্সে চাপ দিয়ে সরাসরি পেস্ট করুন।");
+      }
+    }
+
+    function handleDepositScreenshot(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          let w = img.width, h = img.height, max = 1280;
+          if (w > h && w > max) { h = Math.round((h * max) / w); w = max; }
+          else if (h >= w && h > max) { w = Math.round((w * max) / h); h = max; }
+          canvas.width = w; canvas.height = h;
+          canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+          depositScreenshotBase64 = canvas.toDataURL("image/jpeg", 0.85);
+          document.getElementById("dep-shot-thumb").src = depositScreenshotBase64;
+          document.getElementById("dep-shot-preview-box").classList.remove("hidden");
+          document.getElementById("dep-shot-btn-text").innerText = "CHANGE PAYMENT SCREENSHOT";
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearDepositScreenshot() {
+      depositScreenshotBase64 = "";
+      document.getElementById("dep-screenshot-input").value = "";
+      document.getElementById("dep-shot-preview-box").classList.add("hidden");
+      document.getElementById("dep-shot-btn-text").innerText = "UPLOAD PAYMENT SCREENSHOT";
     }
 
     async function submitDeposit() {
       const amt = parseFloat(document.getElementById("dep-amount-input").value);
-      const method = document.getElementById("dep-method-select").value;
       const trx = document.getElementById("dep-trx-id").value.trim();
-      if (!amt || amt <= 0 || !trx) return alert("সঠিক টাকার পরিমাণ ও TrxID দিন!");
+      const sender = document.getElementById("dep-sender-number").value.trim();
+      const methodMap = { BKASH: "bKash", NAGAD: "Nagad", USDT: "USDT (BEP20)", BINANCE: "Binance" };
+      const method = methodMap[selectedDepositMethod] || selectedDepositMethod;
+
+      if (!amt || amt < 50) return alert("সর্বনিম্ন ডিপোজিট ৫০ টাকা!");
+      if (!trx) return alert("অনুগ্রহ করে Transaction ID (TrxID) দিন!");
+      if (!sender) return alert("অনুগ্রহ করে Sender Mobile Number / ID দিন!");
+
+      const btn = document.getElementById("dep-verify-btn");
+      btn.disabled = true;
+      btn.innerHTML = '<span>VERIFYING...</span>';
 
       try {
         const res = await fetch("/api/deposit", {
@@ -971,20 +1563,28 @@
             user_name: tgUser.first_name || "User",
             method: method,
             amount: amt,
-            trx: trx
+            trx: trx,
+            sender_number: sender,
+            screenshot: depositScreenshotBase64
           })
         });
         const data = await res.json();
         if (data.ok) {
           alert("✅ ডিপোজিট রিকোয়েস্ট সফলভাবে জমা হয়েছে! অ্যাডমিন যাচাই করলে ব্যালেন্স যোগ হবে।");
-          closeModal("modal-deposit");
+          document.getElementById("dep-amount-input").value = "";
           document.getElementById("dep-trx-id").value = "";
+          document.getElementById("dep-sender-number").value = "";
+          clearDepositScreenshot();
           await loadStoreData();
+          switchNav('profile');
         } else {
           alert(data.msg || "ত্রুটি হয়েছে!");
         }
       } catch (e) {
         alert("সার্ভারে পাঠানো যায়নি!");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-shield-halved"></i><span>VERIFY PAYMENT</span>';
       }
     }
 
