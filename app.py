@@ -90,7 +90,7 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             rank TEXT DEFAULT '1 RANK',
-            downloads INTEGER DEFAULT 100,
+            downloads INTEGER DEFAULT 250,
             icon TEXT DEFAULT '',
             apk_file_url TEXT DEFAULT ''
         )
@@ -791,7 +791,7 @@ def admin_add_apk():
         (
             data.get("name", ""),
             data.get("rank", "1 RANK"),
-            int(data.get("downloads", 100)),
+            int(data.get("downloads", 200)),
             data.get("icon", ""),
             data.get("apk_file_url", ""),
         ),
